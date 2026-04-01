@@ -470,9 +470,18 @@
     .proj-item { font-size: 14px; color: var(--color-text-secondary); padding: 2px 0; }
 
 
-    /* ════════════════════════════════════════
-       SVG DIAGRAM WRAPPER
-       ════════════════════════════════════════ */
+    /* ── Cover section: remove all bottom gap ── */
+    #cover.section-block  { padding-bottom: 0; }
+    #cover .prd-wrap      { padding-bottom: 0; }
+    #cover .header-bar    { margin-bottom: 0; }
+    /* Reduce s1 top gap so it sits snug under the cover */
+    #s1.section-block     { padding-top: 20px; }
+
+    /* ── Goal row: category prefix label ── */
+    .pr-cat {
+      color: var(--color-text-primary);
+      font-weight: 500;
+    }
     .svg-wrap {
       width: 100%;
       overflow-x: auto;
@@ -564,6 +573,10 @@
     .feat-dot--warning  { background: var(--warning-border); }
     .feat-dot--info     { background: var(--info-fg); }
     .feat-dot--dark     { background: #3B6D11; }
+    .feat-dot--purple   { background: var(--dept-it-fg); }
+
+    /* Full-width card spanning both columns in a 2-col feat-grid */
+    .feat-card--wide    { grid-column: span 2; }
 
     .feat-item {
       font-size: 14px;
@@ -815,7 +828,7 @@
     <div class="sidebar-logo">
       <span class="logo-badge">PRD v1.0</span>
       <h1>門店食安巡檢系統</h1>
-      <p>Agile Kick-off Edition</p>
+      <p>Kick-off Edition</p>
     </div>
 
     <nav class="nav-section">
@@ -823,16 +836,16 @@
       <a class="nav-item" href="#s1"><span class="nav-num">01</span>專案背景與目標</a>
       <a class="nav-item" href="#s2"><span class="nav-num">02</span>系統架構圖</a>
       <a class="nav-item" href="#s3"><span class="nav-num">03</span>RACI 權責矩陣</a>
-      <a class="nav-item" href="#s4"><span class="nav-num">04</span>核心功能 + KPI</a>
-      <a class="nav-item" href="#s5"><span class="nav-num">05</span>跨部門確認事項</a>
+      <a class="nav-item" href="#s4"><span class="nav-num">04</span>核心功能</a>
+      <a class="nav-item" href="#s5"><span class="nav-num">05</span>確認事項</a>
       <a class="nav-item" href="#s6"><span class="nav-num">06</span>階段目標</a>
       <a class="nav-item" href="#sd"><span class="nav-num">附</span>說明</a>
     </nav>
 
-    <div class="sidebar-footer">
-      300+ 間門市 · 敏捷 Sprint<br>
-      GAS · SQL · Python ETL · BPM
-    </div>
+        <div class="sidebar-footer">
+        <div>製表日期：2026.04.01</div>
+        <div style="margin-top:4px">版本：1.0</div>
+ 
   </aside>
 
   <!-- ── Main Content ── -->
@@ -844,10 +857,10 @@
         <div class="header-bar">
           <div>
             <p class="proj-title">門店食安巡檢系統 · PRD v1.0</p>
-            <p class="proj-sub">Product Requirements Document — Agile Kick-off Edition</p>
+            <p class="proj-sub">Product Requirements Document — Kick-off Edition</p>
             <div class="badge-row">
-              <span class="badge badge-teal">食安專案</span>
-              <span class="badge badge-teal">評比專案</span>
+              <span class="badge badge-teal">食安巡檢</span>
+              <span class="badge badge-teal">評比巡檢</span>
               <span class="badge badge-gray">Google Apps Script</span>
               <span class="badge badge-gray">BPM 整合</span>
               <span class="badge badge-gray">ETL Pipeline</span>
@@ -880,53 +893,51 @@
           </div>
           <div class="card">
             <div class="card-label">每月資料量</div>
-            <div class="card-val">330–340</div>
-            <div class="card-sub">食安 30–40 ｜評比 300+（每月）</div>
+            <div class="card-val">330–340筆</div>
+            <div class="card-sub">食安 30–40間/月｜評比 300+間/月</div>
           </div>
         </div>
 
         <div class="proj-compare">
           <div class="proj-card proj-card--food">
-            <div class="proj-head proj-head--food">食安專案</div>
+            <div class="proj-head proj-head--food">食安巡檢（抽驗制）</div>
             <div class="proj-item">每月抽驗 30–40 間門市</div>
-            <div class="proj-item">低頻更動版次（優化子項指標）</div>
-            <div class="proj-item">巡檢後店經理簽名 產生報告 →給店經理</div>
-            <div class="proj-item">不需簽核、不需返分機制、不需原始照片</div>
+            <div class="proj-item">巡檢項目：低頻調整（缺失細項優化）</div>
+            <div class="proj-item">流程：巡檢 → 店經理簽名 → 產出報告</div>
+            <div class="proj-item">不需功能：簽核流程 / 返分機制 / 原始照片留存</div>
           </div>
           <div class="proj-card proj-card--eval">
-            <div class="proj-head proj-head--eval">評比專案</div>
-            <div class="proj-item">每月全部 300+ 間門市</div>
-            <div class="proj-item">每月評比部制定一個版本</div>
-            <div class="proj-item">每月整合缺失評比報告</div>
+            <div class="proj-head proj-head--eval">評比巡檢（全檢制）</div>
+            <div class="proj-item">每月涵蓋 300+ 間門市</div>
+            <div class="proj-item">產出整體缺失評比報告</div>
             <div class="proj-item">版本控管由評比部主導</div>
+             <div class="proj-item">每月評比部制定一個版本</div>
           </div>
         </div>
 
         <div class="two-col">
           <div class="panel">
-            <div class="panel-title">專案痛點 / 現況問題</div>
-            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>巡檢紙本作業，統計耗時</div>
-            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>資料無法即時同步</div>
-            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>缺失以文字說明，難以統計分析</div>
-            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>KPI Dashboard 缺失，難以決策</div>
-            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>Google 專案共用限額問題</div>
+            <div class="panel-title">專案現況</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>紙本巡檢作業，統計耗時且易出錯</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>資料分散，無法即時同步與整合</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>缺失以文字紀錄，難以量化與分析</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>缺乏 KPI Dashboard，決策依據不足</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>使用 Google 工具，受限於配額與效能</div>
           </div>
           <div class="panel">
             <div class="panel-title">專案目標</div>
-            <div class="pr"><span class="dot" style="background:var(--accent)"></span>店經理簽名後, 產生巡檢報告</div>
-                        <div class="pr"><span class="dot" style="background:var(--accent)"></span>巡檢項目版本控管</div>
-            <div class="pr"><span class="dot" style="background:var(--accent)"></span>建立子項指標，利於統計</div>
-            <div class="pr"><span class="dot" style="background:var(--accent)"></span>每日 ETL 整合 → BPM / Google Sheet</div>
-            <div class="pr"><span class="dot" style="background:var(--accent)"></span>Dashboard KPI 掌握趨勢</div>
-            <div class="pr"><span class="dot" style="background:var(--accent)"></span>數據分析與報告</div>
-            <div class="pr"><span class="dot" style="background:var(--accent)"></span>PDCA</div>
-          </div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>流程自動化：確認簽署後，即時生成巡檢報告</div>
+           <div class="pr"><span class="dot" style="background:var(--accent)"></span>資料標準化：定義缺失細項，實踐維度分類與量化統計</div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>系統整合：建置自動化 ETL 排程，資料同步至BPM</div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>數據驅動決策：Dashboard 監控核心 KPI </div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>分析與持續改善：落實PDCA持續改善機制</div> 
+        </div>
         </div>
 
         <div class="tag-list">
-          <span class="tag">食安：每月 30–40 間抽驗</span>
-          <span class="tag">評比：每月 300+ 間全跑</span>
-          <span class="tag">子項評核</span>
+          <span class="tag">食安：每月 30–40 間門市(抽驗)</span>
+          <span class="tag">評比：每月 300+ 間門市(全門市)</span>
+          <span class="tag">缺失細項</span>
           <span class="tag">店經理簽名即產生報告</span>
           <span class="tag">專案 Google 帳號限額</span>
           <span class="tag">開發方式：敏捷 Sprint</span>
@@ -935,6 +946,7 @@
       </div>
     </section>
 
+    <!-- ── Section 02 ── -->
     <!-- ── Section 02 ── -->
     <section class="section-block" id="s2">
       <p class="sh">Section 02</p>
@@ -945,49 +957,77 @@
             <marker id="arrow-s2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </marker>
+            <marker id="arrow-del" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
           </defs>
-          <!-- GAS -->
+
+          <!-- ① GAS — 副標更新：改為「巡檢前端（資料收集）」 -->
           <rect x="40" y="40" width="200" height="76" rx="8" fill="#085041" stroke="#5DCAA5" stroke-width="0.5"/>
           <text x="140" y="65" text-anchor="middle" dominant-baseline="central" fill="#9FE1CB" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">Google Apps Script</text>
-          <text x="140" y="85" text-anchor="middle" dominant-baseline="central" fill="#5DCAA5" font-family="'Noto Sans TC', sans-serif" font-size="12">前端介面 &amp; 照片上傳</text>
+          <text x="140" y="85" text-anchor="middle" dominant-baseline="central" fill="#5DCAA5" font-family="'Noto Sans TC', sans-serif" font-size="12">巡檢前端（資料收集）</text>
 
+          <!-- ② Google Sheets/Drive — 移除 PDF 重複說明，只留資料與照片暫存 -->
           <rect x="280" y="40" width="180" height="76" rx="8" fill="#085041" stroke="#5DCAA5" stroke-width="0.5"/>
           <text x="370" y="62" text-anchor="middle" dominant-baseline="central" fill="#9FE1CB" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">Google Sheets/Drive</text>
           <text x="370" y="82" text-anchor="middle" dominant-baseline="central" fill="#5DCAA5" font-family="'Noto Sans TC', sans-serif" font-size="11">● 巡檢資料 (Sheet)</text>
-          <text x="370" y="98" text-anchor="middle" dominant-baseline="central" fill="#E57373" font-family="'Noto Sans TC', sans-serif" font-size="11">● 原始照片 (暫存)</text>
+          <text x="370" y="98" text-anchor="middle" dominant-baseline="central" fill="#E57373" font-family="'Noto Sans TC', sans-serif" font-size="11">● 原始照片（暫存）</text>
 
+          <!-- ③ PDF 產出 — 明確標示為 GAS 直接產出，不經 ETL -->
           <rect x="500" y="40" width="140" height="76" rx="8" fill="#0C447C" stroke="#85B7EB" stroke-width="0.5"/>
-          <text x="570" y="62" text-anchor="middle" dominant-baseline="central" fill="#B5D4F4" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">PDF 產出</text>
-          <text x="570" y="85" text-anchor="middle" dominant-baseline="central" fill="#85B7EB" font-family="'Noto Sans TC', sans-serif" font-size="12">永久保留並交付</text>
+          <text x="570" y="60" text-anchor="middle" dominant-baseline="central" fill="#B5D4F4" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">PDF 產出</text>
+          <text x="570" y="79" text-anchor="middle" dominant-baseline="central" fill="#85B7EB" font-family="'Noto Sans TC', sans-serif" font-size="11">GAS 直接產出</text>
+          <text x="570" y="97" text-anchor="middle" dominant-baseline="central" fill="#85B7EB" font-family="'Noto Sans TC', sans-serif" font-size="11">交付店經理</text>
 
+          <!-- ④ Python ETL — 步驟 2 改為「確認入庫成功」 -->
           <rect x="370" y="160" width="270" height="65" rx="8" fill="#0C447C" stroke="#85B7EB" stroke-width="0.5"/>
-          <text x="505" y="182" text-anchor="middle" dominant-baseline="central" fill="#B5D4F4" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">Python ETL (04:00 排程)</text>
-          <text x="505" y="202" text-anchor="middle" dominant-baseline="central" fill="#85B7EB" font-family="'Noto Sans TC', sans-serif" font-size="11">1. 資料同步 2. 確認入庫 3. 刪除雲端照片</text>
+          <text x="505" y="182" text-anchor="middle" dominant-baseline="central" fill="#B5D4F4" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">Python ETL（04:00 排程）</text>
+          <text x="505" y="202" text-anchor="middle" dominant-baseline="central" fill="#85B7EB" font-family="'Noto Sans TC', sans-serif" font-size="11">1. 資料同步  2. 確認入庫成功  3. 刪除雲端照片</text>
 
+          <!-- ⑤ SQLite 本地資料庫 — 名稱由 SQL 修正為 SQLite -->
           <rect x="60" y="160" width="270" height="65" rx="8" fill="#085041" stroke="#5DCAA5" stroke-width="0.5"/>
-          <text x="195" y="192" text-anchor="middle" dominant-baseline="central" fill="#9FE1CB" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">SQL 本地資料庫</text>
+          <text x="195" y="192" text-anchor="middle" dominant-baseline="central" fill="#9FE1CB" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">BPM 資料庫</text>
 
+          <!-- ⑥ 資料治理層 — 標題由「策略」改為「層」 -->
           <rect x="60" y="260" width="580" height="74" rx="8" fill="rgba(24,95,165,0.12)" stroke="#185FA5" stroke-width="0.5"/>
-          <text x="350" y="282" text-anchor="middle" dominant-baseline="central" fill="#9FBEDF" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">資料治理與儲存策略</text>
-          <text x="350" y="305" text-anchor="middle" dominant-baseline="central" fill="#6FA8D0" font-family="'Noto Sans TC', sans-serif" font-size="12">清理原則：刪除 Google Drive 原始照片，本地SQL 保留google sheet文字路徑與 PDF</text>
+          <text x="350" y="282" text-anchor="middle" dominant-baseline="central" fill="#9FBEDF" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">資料治理層</text>
+          <text x="350" y="305" text-anchor="middle" dominant-baseline="central" fill="#6FA8D0" font-family="'Noto Sans TC', sans-serif" font-size="12">圖片：雲端暫存 ETL 後刪除；結構資料：SQLite 永久保存；PDF：保存＋路徑索引</text>
 
+          <!-- ⑦ BPM -->
           <rect x="60" y="380" width="110" height="54" rx="8" fill="#711B13" stroke="#F0997B" stroke-width="0.5"/>
           <text x="115" y="407" text-anchor="middle" dominant-baseline="central" fill="#F5C4B3" font-family="'Noto Sans TC', sans-serif" font-size="13" font-weight="500">BPM</text>
 
+          <!-- ⑧ Dashboard — 標題改為「每日更新」，移除矛盾副標 -->
           <rect x="190" y="380" width="300" height="54" rx="8" fill="#27500A" stroke="#97C459" stroke-width="0.5"/>
-          <text x="340" y="400" text-anchor="middle" dominant-baseline="central" fill="#C0DD97" font-family="'Noto Sans TC', sans-serif" font-size="13" font-weight="500">Dashboard (KPI 即時更新)</text>
-          <text x="340" y="418" text-anchor="middle" dominant-baseline="central" fill="#97C459" font-family="'Noto Sans TC', sans-serif" font-size="10">數據更新時間 = ETL 完成時間 (含清理狀態)</text>
+          <text x="340" y="407" text-anchor="middle" dominant-baseline="central" fill="#C0DD97" font-family="'Noto Sans TC', sans-serif" font-size="13" font-weight="500">Dashboard（KPI 每日更新）</text>
 
+          <!-- ⑨ EIP -->
           <rect x="510" y="380" width="130" height="54" rx="8" fill="#0C447C" stroke="#85B7EB" stroke-width="0.5"/>
           <text x="575" y="407" text-anchor="middle" dominant-baseline="central" fill="#B5D4F4" font-family="'Noto Sans TC', sans-serif" font-size="13" font-weight="500">EIP 平台</text>
 
+          <!-- ══ Arrows ══ -->
+
+          <!-- GAS → Sheets（主資料流） -->
           <line x1="240" y1="78" x2="280" y2="78" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
-          <line x1="460" y1="78" x2="500" y2="78" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+
+          <!-- GAS → PDF（直接產出，走上方繞行，虛線區隔 ETL 主流） -->
+          <path d="M218 40 L218 22 L570 22 L570 40" fill="none" stroke="#5DCAA5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-s2)"/>
+          <text x="394" y="17" text-anchor="middle" fill="#5DCAA5" font-family="'Noto Sans TC', sans-serif" font-size="11">直接產出（不經 ETL）</text>
+
+          <!-- Sheets → ETL -->
           <path d="M370 116 L370 145 L505 145 L505 160" fill="none" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+
+          <!-- ETL → SQLite -->
           <line x1="370" y1="192" x2="330" y2="192" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
-          <path d="M530 160 L530 135 L400 135 L400 116" fill="none" stroke="#E57373" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow-delete)"/>
-          <text x="465" y="130" text-anchor="middle" fill="#E57373" font-size="10">確認資料庫後刪除照片</text>
+
+          <!-- 確認入庫後刪除照片（虛線，標籤文字同步修正） -->
+          <path d="M530 160 L530 135 L400 135 L400 116" fill="none" stroke="#E57373" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow-del)"/>
+          <text x="465" y="130" text-anchor="middle" fill="#E57373" font-family="'Noto Sans TC', sans-serif" font-size="11">確認入庫後刪除原始照片</text>
+
+          <!-- SQLite → 資料治理層 -->
           <line x1="195" y1="225" x2="195" y2="260" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+
+          <!-- 資料治理層 → BPM / Dashboard / EIP -->
           <line x1="200" y1="334" x2="115" y2="380" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
           <line x1="340" y1="334" x2="340" y2="380" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
           <line x1="480" y1="334" x2="575" y2="380" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
@@ -1019,8 +1059,8 @@
               <th style="text-align:left;min-width:170px">流程 / 任務</th>
               <th>店經理</th>
               <th>食安部</th>
-              <th>評比/<br>營運部</th>
-              <th>IT/<br>資訊部</th>
+              <th>評比部</th>
+              <th>資訊部</th>
             </tr>
           </thead>
           <tbody>
@@ -1081,7 +1121,7 @@
               <td><span class="r-R">R</span></td>
             </tr>
             <tr>
-              <td>食安版次管理</td>
+              <td>版次管理</td>
               <td></td>
               <td><span class="r-R">R</span></td>
               <td><span class="r-A">A</span></td>
@@ -1096,7 +1136,7 @@
           <span><span class="r-C">C</span> Consulted 諮詢</span>
           <span><span class="r-I">I</span> Informed 知會</span>
         </div>
-        <div class="note">注意：本專案無區經理角色、無人工核准流程。店經理簽名為唯一觸發報告產出的動作。</div>
+       
       </div>
     </section>
 
@@ -1104,7 +1144,7 @@
     <section class="section-block" id="s4">
       <div class="section-inner">
         <p class="sh">Section 04</p>
-        <p class="st">核心功能列表 + KPI</p>
+        <p class="st">核心功能</p>
 
         <div class="feat-grid">
           <div class="feat-card">
@@ -1121,7 +1161,7 @@
             <div class="feat-head">
               <span class="feat-dot feat-dot--warning"></span>問題管理
             </div>
-            <div class="feat-item">分類: 子項評核指標</div>
+            <div class="feat-item">分類: 缺失細項指標</div>
             <div class="feat-item">嚴重度分級（高 / 中 / 低）</div>
             <div class="feat-item">指定負責人與截止日</div>
             <div class="feat-item">改善追蹤（未完成 / 完成 / 逾期）</div>
@@ -1130,7 +1170,7 @@
             <div class="feat-head">
               <span class="feat-dot feat-dot--info"></span>ETL &amp; 資料治理
             </div>
-            <div class="feat-item">每日 04:00 GAS → SQL</div>
+            <div class="feat-item">自動排程：每日 04:00 GAS 同步至BPM資料庫</div>
             <div class="feat-item">食安：ETL 後刪除原始照片</div>
              <div class="feat-item">ETL成功，註記已匯入，差異處理</div>
             <div class="feat-item">Google Sheet 僅做讀取</div>
@@ -1178,13 +1218,13 @@
     <section class="section-block" id="s5">
       <div class="section-inner">
         <p class="sh">Section 05</p>
-        <p class="st">跨部門確認事項</p>
+        <p class="st">確認事項</p>
 
         <div class="dg">
           <div class="dc">
             <div class="dn dn--food">食安部</div>
             <div class="ci"><div class="cic cic--food">!</div><div class="ct">巡檢標準、分數算法</div></div>
-            <div class="ci"><div class="cic cic--food">!</div><div class="ct">定義子項評核指標</div></div>
+            <div class="ci"><div class="cic cic--food">!</div><div class="ct">定義缺失細項指標</div></div>
             <div class="ci"><div class="cic cic--food">!</div><div class="ct">異常定義與風險分級（高/中/低）</div></div>
             <div class="ci"><div class="cic cic--food">!</div><div class="ct">不需簽核、不需返分機制確認、不需原始照片</div></div>
             <div class="ci"><div class="cic cic--food">!</div><div class="ct">巡檢報告PDF給店經理</div></div>
@@ -1212,11 +1252,7 @@
           </div>
         </div>
 
-        <div class="nb">
-          <strong style="color:var(--color-text-primary);font-weight:500">Kick-off 行動項目：</strong>
-          各部門指派單一 PIC，於 Sprint 1 結束前完成確認事項，回填至任務板。
-        </div>
-      </div>
+ 
     </section>
 
     <!-- ── Section 06 ── -->
@@ -1243,7 +1279,7 @@
             <div class="ph-item">EIP 路徑整合</div>
             <div class="ph-item">Dashboard KPI</div>
             <div class="ph-item">每日 ETL 排程</div>
-            <div class="ph-item">SQL 本地資料庫</div>
+            <div class="ph-item">BPM 資料庫</div>
           </div>
           <div class="phase">
             <span class="ph-badge ph-badge--notify">Phase 3 — 通知</span>
@@ -1284,8 +1320,8 @@
     <!-- ── Appendix ── -->
     <section class="section-block" id="sd">
       <div class="section-inner">
-        <p class="sh">食安專案 — 附錄</p>
-        <p class="st">子項評核指標</p>
+        <p class="sh">食安巡檢 — 附錄</p>
+        <p class="st">缺失細項指標</p>
         <p class="desc">原本用文字欄位自由填寫的缺失說明，改為預設子項。統一分類讓後續統計、趨勢分析與報表產出更精確。</p>
 
         <div class="compare">
@@ -1295,7 +1331,7 @@
             <div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">每筆說明格式不一，無法彙總統計</div>
           </div>
           <div class="cp-card">
-            <div class="cp-head cp-head--success">新做法：子項勾選</div>
+            <div class="cp-head cp-head--success">新做法：缺失細項</div>
             <div class="sub-grid" style="margin-top:4px">
               <span class="sub-tag sub-tag--active">原產地</span>
               <span class="sub-tag sub-tag--active">重組肉</span>
