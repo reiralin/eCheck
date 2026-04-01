@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>門店食安巡檢系統 · PRD v1.0</title>
+  <title>eCheck巡檢系統 · PRD v1.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
@@ -827,7 +827,7 @@
   <aside class="sidebar">
     <div class="sidebar-logo">
       <span class="logo-badge">PRD v1.0</span>
-      <h1>門店食安巡檢系統</h1>
+      <h1>eCheck巡檢平台</h1>
       <p>Kick-off Edition</p>
     </div>
 
@@ -856,7 +856,7 @@
       <div class="prd-wrap">
         <div class="header-bar">
           <div>
-            <p class="proj-title">門店食安巡檢系統 · PRD v1.0</p>
+            <p class="proj-title">eCheck巡檢平台 · PRD v1.0</p>
             <p class="proj-sub">Product Requirements Document — Kick-off Edition</p>
             <div class="badge-row">
               <span class="badge badge-teal">食安巡檢</span>
@@ -911,7 +911,7 @@
             <div class="proj-item">每月涵蓋 300+ 間門市</div>
             <div class="proj-item">產出整體缺失評比報告</div>
             <div class="proj-item">版本控管由評比部主導</div>
-             <div class="proj-item">每月評比部制定一個版本</div>
+             <div class="proj-item">每月評比部版本</div>
           </div>
         </div>
 
@@ -991,7 +991,7 @@
           <!-- ⑥ 資料治理層 — 標題由「策略」改為「層」 -->
           <rect x="60" y="260" width="580" height="74" rx="8" fill="rgba(24,95,165,0.12)" stroke="#185FA5" stroke-width="0.5"/>
           <text x="350" y="282" text-anchor="middle" dominant-baseline="central" fill="#9FBEDF" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">資料治理層</text>
-          <text x="350" y="305" text-anchor="middle" dominant-baseline="central" fill="#6FA8D0" font-family="'Noto Sans TC', sans-serif" font-size="12">圖片：雲端暫存 ETL 後刪除；結構資料：SQLite 永久保存；PDF：保存＋路徑索引</text>
+          <text x="350" y="305" text-anchor="middle" dominant-baseline="central" fill="#6FA8D0" font-family="'Noto Sans TC', sans-serif" font-size="12">圖片：雲端暫存 ETL 後刪除；結構資料：BPM 資料庫保存；PDF：保存＋路徑索引</text>
 
           <!-- ⑦ BPM -->
           <rect x="60" y="380" width="110" height="54" rx="8" fill="#711B13" stroke="#F0997B" stroke-width="0.5"/>
@@ -1065,25 +1065,32 @@
           </thead>
           <tbody>
             <tr>
-              <td>巡檢執行（食安 / 評比）</td>
+              <td>巡檢執行</td>
               <td><span class="r-R">R</span></td>
               <td><span class="r-A">A</span></td>
               <td><span class="r-C">C</span></td>
               <td></td>
             </tr>
             <tr>
-              <td>店經理簽名 → 產生 PDF 報告</td>
+              <td>生成巡檢報告PDF </td>
               <td><span class="r-R">R</span></td>
               <td><span class="r-I">I</span></td>
               <td><span class="r-I">I</span></td>
               <td><span class="r-C">C</span></td>
             </tr>
             <tr>
-              <td>每月缺失評比報告整合</td>
+              <td>每月缺失評比報告</td>
               <td></td>
               <td><span class="r-C">C</span></td>
               <td><span class="r-R">R</span></td>
               <td><span class="r-A">A</span></td>
+            </tr>
+            <tr>
+              <td>版次管理</td>
+              <td></td>
+              <td><span class="r-R">R</span></td>
+              <td><span class="r-A">A</span></td>
+              <td><span class="r-I">I</span></td>
             </tr>
             <tr>
               <td>資料推送 ETL（每日排程）</td>
@@ -1107,26 +1114,20 @@
               <td><span class="r-C">C</span></td>
             </tr>
             <tr>
-              <td>資料安全 &amp; Google 帳號管理</td>
+              <td>Google 帳號管理</td>
               <td></td>
-              <td><span class="r-C">C</span></td>
+             <td></td>
               <td></td>
               <td><span class="r-R">R</span></td>
             </tr>
             <tr>
-              <td>BPM / EIP 帳號與路徑整合</td>
+              <td>BPM / EIP 路徑整合</td>
               <td></td>
               <td><span class="r-C">C</span></td>
               <td><span class="r-C">C</span></td>
               <td><span class="r-R">R</span></td>
             </tr>
-            <tr>
-              <td>版次管理</td>
-              <td></td>
-              <td><span class="r-R">R</span></td>
-              <td><span class="r-A">A</span></td>
-              <td><span class="r-I">I</span></td>
-            </tr>
+
           </tbody>
         </table>
 
@@ -1159,12 +1160,14 @@
           </div>
           <div class="feat-card">
             <div class="feat-head">
-              <span class="feat-dot feat-dot--warning"></span>問題管理
+              <span class="feat-dot feat-dot--warning"></span>KPI管理
             </div>
             <div class="feat-item">分類: 缺失細項指標</div>
-            <div class="feat-item">嚴重度分級（高 / 中 / 低）</div>
-            <div class="feat-item">指定負責人與截止日</div>
-            <div class="feat-item">改善追蹤（未完成 / 完成 / 逾期）</div>
+            <div class="feat-item">巡檢執行率</div>
+            <div class="feat-item">缺失發生率：:★重大/▲主要/一般</div>
+            <div class="feat-item">改善追蹤/效率</div>
+            <div class="feat-item">門店總分排行</div>
+
           </div>
           <div class="feat-card">
             <div class="feat-head">
@@ -1186,7 +1189,7 @@
           </div>
         </div>
 
-        <div class="kpi-grid">
+        <!-- <div class="kpi-grid">
           <div class="kpi-card">
             <div class="kpi-label">成功標準 1</div>
             <div class="kpi-val kpi-val--sm">前端完成<br>巡檢輸入</div>
@@ -1203,14 +1206,14 @@
             <div class="kpi-label">成功標準 4</div>
             <div class="kpi-val kpi-val--sm">無未授權<br>存取</div>
           </div>
-        </div>
+        </div> -->
 
-        <div class="gov-bar">
+        <!-- <div class="gov-bar">
           <div class="gov-step gov-step--staging">Staging<div class="gov-label">原始暫存</div></div>
           <div class="gov-step gov-step--validation">Validation<div class="gov-label">完整性檢查</div></div>
           <div class="gov-step gov-step--approval">Approval<div class="gov-label">人工核准</div></div>
           <div class="gov-step gov-step--serve">Serve<div class="gov-label">BPM/Dashboard</div></div>
-        </div>
+        </div> -->
       </div>
     </section>
 
@@ -1238,7 +1241,7 @@
           </div>
           <div class="dc">
             <div class="dn dn--store">門店</div>
-            <div class="ci"><div class="cic cic--store">!</div><div class="ct">實際巡檢流程與負責人確認</div></div>
+            <div class="ci"><div class="cic cic--store">!</div><div class="ct">巡檢流負責人確認</div></div>
             <div class="ci"><div class="cic cic--store">!</div><div class="ct">操作習慣與痛點（UX 優化依據）</div></div>
             <div class="ci"><div class="cic cic--store">!</div><div class="ct">設備環境（手機/平板型號）</div></div>
           </div>
@@ -1287,14 +1290,12 @@
             <div class="ph-item">Email</div>
             <div class="ph-item">未改善自動推送</div>
             <div class="ph-item">排名系統建立</div>
-            <div class="ph-item">績效連動</div>
+            <div class="ph-item">績效連動缺失</div>
           </div>
           <div class="phase">
-            <span class="ph-badge ph-badge--ai">Phase 4 — AI</span>
+            <span class="ph-badge ph-badge--ai">Phase 4 — 趨勢分析</span>
             <div class="ph-title">智能分析</div>
             <div class="ph-item">正式 DB 取代 Sheet</div>
-            <!-- <div class="ph-item">大規模資料分析</div>
-            <div class="ph-item">異常模式偵測</div> -->
             <div class="ph-item">改善建議自動化</div>
             <div class="ph-item">預測性維護</div>
           </div>
