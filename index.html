@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>門店食安巡檢系統 · PRD v1.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    /* ════════════════════════════════════════
+       DESIGN TOKENS
+       ════════════════════════════════════════ */
+    :root {
+      /* Typography */
+      --font-sans: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+
+      /* Neutral palette */
+      --color-text-primary:        #1A1917;
+      --color-text-secondary:      #5C5A52;
+      --color-bg-primary:          #FAFAF8;
+      --color-bg-secondary:        #F4F3EF;
+      --color-border:              #E2E0D8;
+
+      /* Brand — Accent (teal/green) */
+      --accent:                    #1D9E75;
+      --accent-dark:               #0F6E56;
+      --accent-light:              #E1F5EE;
+
+      /* Semantic — Warning (amber) */
+      --warning-bg:                #FAEEDA;
+      --warning-fg:                #633806;
+      --warning-border:            #EF9F27;
+
+      /* Semantic — Info (blue) */
+      --info-bg:                   #E6F1FB;
+      --info-fg:                   #0C447C;
+
+      /* Semantic — Danger */
+      --danger-border:             #E24B4A;
+      --danger-fg:                 #A32D2D;
+
+      /* Department palette — Food Safety */
+      --dept-food-bg:              var(--accent-light);
+      --dept-food-fg:              var(--accent-dark);
+
+      /* Department palette — Evaluation */
+      --dept-eval-bg:              var(--warning-bg);
+      --dept-eval-fg:              var(--warning-fg);
+
+      /* Department palette — Store */
+      --dept-store-bg:             var(--info-bg);
+      --dept-store-fg:             var(--info-fg);
+
+      /* Department palette — IT */
+      --dept-it-bg:                #EEEDFE;
+      --dept-it-fg:                #3C3489;
+
+      /* RACI badge palette */
+      --raci-r-bg:                 var(--accent-light);
+      --raci-r-fg:                 var(--accent-dark);
+      --raci-a-bg:                 var(--warning-bg);
+      --raci-a-fg:                 var(--warning-fg);
+      --raci-c-bg:                 var(--info-bg);
+      --raci-c-fg:                 var(--info-fg);
+      --raci-i-bg:                 #F1EFE8;
+      --raci-i-fg:                 #444441;
+
+      /* Layout */
+      --sidebar-w:                 220px;
+
+      /* Border radii */
+      --radius-sm:                 4px;
+      --radius-md:                 8px;
+      --radius-lg:                 12px;
+      --radius-pill:               20px;
+
+      /* Borders */
+      --border-thin:               0.5px solid var(--color-border);
+      --border-accent:             2px solid var(--accent);
+      --border-warning:            0.5px solid var(--warning-border);
+      --border-warning-left:       3px solid var(--warning-border);
+
+      /* Spacing */
+      --section-padding-y:         1.5rem;
+      --card-padding:              12px 14px;
+      --panel-padding:             14px 16px;
+    }
+
+
+    /* ════════════════════════════════════════
+       RESET
+       ════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+
+
+    /* ════════════════════════════════════════
+       LAYOUT — SIDEBAR
+       ════════════════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: #fff;
+      border-right: var(--border-thin);
+      position: fixed;
+      top: 0; left: 0;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      padding: 20px 18px 16px;
+      border-bottom: var(--border-thin);
+    }
+    .sidebar-logo h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      line-height: 1.4;
+    }
+    .sidebar-logo p {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin-top: 3px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 14px 18px;
+      border-top: var(--border-thin);
+      font-size: 10px;
+      color: var(--color-text-secondary);
+    }
+
+
+    /* ════════════════════════════════════════
+       LAYOUT — NAV
+       ════════════════════════════════════════ */
+    .nav-section { padding: 12px 0 8px; }
+
+    .nav-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0 18px;
+      margin-bottom: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      transition: background .12s, color .12s;
+      border-left: 2px solid transparent;
+    }
+    .nav-item:hover {
+      background: var(--color-bg-secondary);
+      color: var(--color-text-primary);
+    }
+    .nav-item.active {
+      color: var(--accent-dark);
+      border-left-color: var(--accent);
+      background: var(--accent-light);
+      font-weight: 500;
+    }
+
+    .nav-num {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      min-width: 18px;
+    }
+
+
+    /* ════════════════════════════════════════
+       LAYOUT — MAIN
+       ════════════════════════════════════════ */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      max-width: 900px;
+      padding: 0 40px 60px;
+    }
+
+    .section-block {
+      padding: 40px 0 32px;
+      border-bottom: var(--border-thin);
+    }
+    .section-block:last-child,
+    .section-block:first-child { border-bottom: none; }
+
+    /* Inner wrapper — replaces .s1 .s5 .s6 .s7 .sd .rw (all were identical) */
+    .section-inner { padding: var(--section-padding-y) 0; }
+
+
+    /* ════════════════════════════════════════
+       TYPOGRAPHY — SECTION HEADINGS
+       ════════════════════════════════════════ */
+
+    /* .sh and .sec-head were identical — unified */
+    .sh,
+    .sec-head {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: .08em;
+      margin-bottom: .4rem;
+    }
+
+    /* .st and .sec-title were identical — unified */
+    .st,
+    .sec-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin: 0 0 1rem;
+    }
+
+    .desc {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+
+    /* ════════════════════════════════════════
+       SHARED COMPONENTS — BADGE / TAG / PILL
+       ════════════════════════════════════════ */
+    .logo-badge {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent-dark);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      font-weight: 500;
+    }
+    .badge-teal {
+      background: var(--accent-light);
+      color: var(--accent-dark);
+    }
+    .badge-gray {
+      background: var(--color-bg-secondary);
+      color: var(--color-text-secondary);
+      border: var(--border-thin);
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      background: var(--accent-light);
+      color: var(--accent-dark);
+    }
+    .tag-warn {
+      background: var(--warning-bg);
+      color: var(--warning-fg);
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+
+    /* ════════════════════════════════════════
+       SHARED COMPONENTS — CARDS & PANELS
+       ════════════════════════════════════════ */
+
+    /* Generic bordered card */
+    .card {
+      background: var(--color-bg-secondary);
+      border: var(--border-thin);
+      border-radius: var(--radius-lg);
+      padding: var(--panel-padding);
+    }
+    .card-label  { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+    .card-val    { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+    .card-sub    { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+
+    /* Content panel (white bg) */
+    .panel {
+      background: var(--color-bg-primary);
+      border: var(--border-thin);
+      border-radius: var(--radius-md);
+      padding: var(--panel-padding);
+    }
+    .panel-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin-bottom: 8px;
+      border-bottom: var(--border-thin);
+      padding-bottom: 6px;
+    }
+
+    /* Bullet row inside panels */
+    .pr {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* Alert / notice banner */
+    .fix-banner {
+      background: var(--warning-bg);
+      border: var(--border-warning);
+      border-radius: var(--radius-md);
+      padding: 7px 12px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: var(--warning-fg);
+    }
+
+    /* Note (muted) */
+    .note {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin-top: 8px;
+      padding: 6px 10px;
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+    }
+
+    /* Left-bordered callout */
+    .nb {
+      background: var(--color-bg-secondary);
+      border-left: var(--border-warning-left);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 10px 14px;
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+    }
+
+
+    /* ════════════════════════════════════════
+       SHARED COMPONENTS — GRIDS
+       (All grids consolidated with a base + modifier pattern)
+       ════════════════════════════════════════ */
+
+    .grid {
+      display: grid;
+      gap: 10px;
+    }
+    .grid--2col  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid--3col  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid--4col  { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid--gap-8 { gap: 8px; }
+    .grid--mb    { margin-bottom: 1rem; }
+
+    /* Aliases kept so existing HTML classes still resolve */
+    .card-row    { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 1rem; }
+    .two-col     { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .proj-compare{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .feat-grid   { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 1rem; }
+    .kpi-grid    { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .benefit-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+    .dg          { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .compare     { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+
+
+    /* ════════════════════════════════════════
+       COVER SECTION
+       ════════════════════════════════════════ */
+    .prd-wrap { padding: 2rem 0 1rem; }
+
+    .header-bar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: var(--border-accent);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .proj-title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+    .proj-sub   { font-size: 13px; color: var(--color-text-secondary); margin: 0; }
+
+    .meta-row {
+      display: flex;
+      gap: 24px;
+      margin-top: 1rem;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      flex-wrap: wrap;
+    }
+    .meta-row strong { color: var(--color-text-primary); font-weight: 500; }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .toc-card {
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      border: var(--border-thin);
+    }
+    .toc-num   { font-size: 11px; color: var(--accent); font-weight: 500; margin-bottom: 2px; }
+    .toc-label { font-size: 13px; color: var(--color-text-primary); font-weight: 500; }
+
+
+    /* ════════════════════════════════════════
+       SECTION 01 — BACKGROUND
+       ════════════════════════════════════════ */
+    .proj-card {
+      border-radius: var(--radius-md);
+      padding: var(--card-padding);
+      border: var(--border-thin);
+    }
+    /* Modifier classes replace inline border-color overrides */
+    .proj-card--food  { border-color: var(--accent); }
+    .proj-card--eval  { border-color: var(--warning-border); }
+
+    .proj-head { font-size: 16px; font-weight: 500; margin-bottom: 6px; }
+    .proj-head--food  { color: var(--accent-dark); }
+    .proj-head--eval  { color: var(--warning-fg); }
+
+    .proj-item { font-size: 14px; color: var(--color-text-secondary); padding: 2px 0; }
+
+
+    /* ════════════════════════════════════════
+       SVG DIAGRAM WRAPPER
+       ════════════════════════════════════════ */
+    .svg-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: var(--border-thin);
+      border-radius: var(--radius-lg);
+      background: #141412;
+      padding: 8px;
+    }
+    .svg-wrap svg { display: block; min-width: 580px; }
+
+
+    /* ════════════════════════════════════════
+       SECTION 03 — RACI TABLE
+       ════════════════════════════════════════ */
+    .raci-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .raci-table th,
+    .raci-table td {
+      padding: 8px;
+      border: var(--border-thin);
+      text-align: center;
+    }
+    .raci-table th {
+      background: var(--color-bg-secondary);
+      color: var(--color-text-secondary);
+      font-weight: 500;
+      font-size: 11px;
+    }
+    .raci-table td:first-child {
+      text-align: left;
+      color: var(--color-text-primary);
+    }
+
+    /* RACI badge — shared structure, individual color via modifier */
+    .raci-badge {
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      padding: 2px 8px;
+      display: inline-block;
+    }
+    .raci-badge--R { background: var(--raci-r-bg); color: var(--raci-r-fg); }
+    .raci-badge--A { background: var(--raci-a-bg); color: var(--raci-a-fg); }
+    .raci-badge--C { background: var(--raci-c-bg); color: var(--raci-c-fg); }
+    .raci-badge--I { background: var(--raci-i-bg); color: var(--raci-i-fg); }
+
+    /* Keep legacy class names as aliases */
+    .r-R { background: var(--raci-r-bg); color: var(--raci-r-fg); font-weight: 500; border-radius: var(--radius-sm); padding: 2px 8px; display: inline-block; }
+    .r-A { background: var(--raci-a-bg); color: var(--raci-a-fg); font-weight: 500; border-radius: var(--radius-sm); padding: 2px 8px; display: inline-block; }
+    .r-C { background: var(--raci-c-bg); color: var(--raci-c-fg); font-weight: 500; border-radius: var(--radius-sm); padding: 2px 8px; display: inline-block; }
+    .r-I { background: var(--raci-i-bg); color: var(--raci-i-fg); font-weight: 500; border-radius: var(--radius-sm); padding: 2px 8px; display: inline-block; }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+      font-size: 11px;
+      flex-wrap: wrap;
+    }
+
+
+    /* ════════════════════════════════════════
+       SECTION 04 — FEATURES + KPI
+       ════════════════════════════════════════ */
+    .feat-card {
+      border: var(--border-thin);
+      border-radius: var(--radius-md);
+      padding: var(--card-padding);
+    }
+    .feat-head {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .feat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    /* Modifier classes replace inline background on feat-dot */
+    .feat-dot--accent   { background: var(--accent); }
+    .feat-dot--warning  { background: var(--warning-border); }
+    .feat-dot--info     { background: var(--info-fg); }
+    .feat-dot--dark     { background: #3B6D11; }
+
+    .feat-item {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      padding: 2px 0 2px 16px;
+      position: relative;
+    }
+    .feat-item::before { content: '·'; position: absolute; left: 4px; color: var(--color-text-secondary); }
+
+    .kpi-card {
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      border: var(--border-thin);
+    }
+    .kpi-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+    .kpi-val   { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+    .kpi-val--sm { font-size: 13px; line-height: 1.4; }
+    .kpi-sub   { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+
+    /* Pipeline / governance bar */
+    .gov-bar {
+      display: flex;
+      margin-top: 12px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: var(--border-thin);
+    }
+    .gov-step {
+      flex: 1;
+      padding: 8px 4px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    /* Modifier classes replace inline background/color on each step */
+    .gov-step--staging    { background: var(--accent-light);   color: var(--accent-dark); }
+    .gov-step--validation { background: var(--info-bg);         color: var(--info-fg); }
+    .gov-step--approval   { background: var(--warning-bg);      color: var(--warning-fg); }
+    .gov-step--serve      { background: #EAF3DE;                color: #27500A; }
+
+    .gov-label { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+
+
+    /* ════════════════════════════════════════
+       SECTION 05 — CROSS-DEPT CONFIRMATION
+       ════════════════════════════════════════ */
+    .dc {
+      border: var(--border-thin);
+      border-radius: var(--radius-md);
+      padding: var(--card-padding);
+    }
+
+    .dn {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: var(--border-thin);
+    }
+    /* Modifier classes replace inline color on .dn */
+    .dn--food  { color: var(--dept-food-fg); }
+    .dn--eval  { color: var(--dept-eval-fg); }
+    .dn--store { color: var(--dept-store-fg); }
+    .dn--it    { color: var(--dept-it-fg); }
+
+    .ci {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 5px;
+    }
+
+    /* Confirm icon chip */
+    .cic {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Modifier classes replace inline background/color on .cic */
+    .cic--food  { background: var(--dept-food-bg);  color: var(--dept-food-fg); }
+    .cic--eval  { background: var(--dept-eval-bg);  color: var(--dept-eval-fg); }
+    .cic--store { background: var(--dept-store-bg); color: var(--dept-store-fg); }
+    .cic--it    { background: var(--dept-it-bg);    color: var(--dept-it-fg); }
+
+    .ct { font-size: 14px; color: var(--color-text-secondary); line-height: 1.4; }
+
+
+    /* ════════════════════════════════════════
+       SECTION 06 — ROADMAP / PHASES
+       ════════════════════════════════════════ */
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .phase {
+      border: var(--border-thin);
+      padding: 14px 12px;
+    }
+    .phase:not(:first-child) { border-left: none; }
+    .phase:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+    .phase:last-child  { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+
+    .ph-badge {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    /* Phase badge modifiers */
+    .ph-badge--mvp        { background: var(--accent-light); color: var(--accent-dark); }
+    .ph-badge--integration{ background: var(--info-bg);      color: var(--info-fg); }
+    .ph-badge--notify     { background: var(--warning-bg);   color: var(--warning-fg); }
+    .ph-badge--ai         { background: var(--dept-it-bg);   color: var(--dept-it-fg); }
+
+    .ph-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+
+    .ph-item {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      padding: 2px 0 2px 16px;
+      position: relative;
+      line-height: 1.4;
+    }
+    .ph-item::before { content: '·'; position: absolute; left: 1px; }
+
+    /* Benefit cards in roadmap section */
+    .ben-card {
+      border-radius: var(--radius-md);
+      padding: var(--card-padding);
+      border: var(--border-thin);
+    }
+    /* Modifier classes replace inline border-color on ben-card */
+    .ben-card--accent   { border-color: var(--accent); }
+    .ben-card--warning  { border-color: var(--warning-border); }
+    .ben-card--purple   { border-color: #7F77DD; }
+
+    .ben-num   { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+    .ben-num--accent   { color: var(--accent-dark); }
+    .ben-num--warning  { color: #BA7517; }
+    .ben-num--purple   { color: var(--dept-it-fg); }
+    .ben-label { font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; }
+
+
+    /* ════════════════════════════════════════
+       APPENDIX — SUBDEFECTS
+       ════════════════════════════════════════ */
+    .cp-card {
+      border: var(--border-thin);
+      border-radius: var(--radius-md);
+      padding: var(--card-padding);
+    }
+    .cp-head {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: var(--border-thin);
+    }
+    .cp-head--danger  { color: var(--danger-fg); }
+    .cp-head--success { color: var(--accent-dark); }
+
+    .old-text {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      font-style: italic;
+      background: var(--color-bg-secondary);
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--danger-border);
+    }
+
+    .item-card {
+      border: var(--border-thin);
+      border-radius: var(--radius-md);
+      padding: var(--card-padding);
+      margin-bottom: 10px;
+    }
+    .item-q { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 8px; line-height: 1.5; }
+
+    .sub-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .sub-tag {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      border: var(--border-thin);
+      background: var(--color-bg-secondary);
+      color: var(--color-text-primary);
+      cursor: default;
+    }
+    .sub-tag:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+    /* Active/selected sub-tag */
+    .sub-tag--active {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    /* Small benefit cards (appendix) */
+    .ben {
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      border: var(--border-thin);
+    }
+    .ben strong {
+      display: block;
+      color: var(--color-text-primary);
+      font-weight: 500;
+      margin-bottom: 3px;
+      font-size: 13px;
+    }
+
+
+    /* ════════════════════════════════════════
+       PRINT
+       ════════════════════════════════════════ */
+    @media print {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 20px; }
+      .section-block { page-break-inside: avoid; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Sidebar Navigation ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-badge">PRD v1.0</span>
+      <h1>門店食安巡檢系統</h1>
+      <p>Agile Kick-off Edition</p>
+    </div>
+
+    <nav class="nav-section">
+      <div class="nav-label">文件目錄</div>
+      <a class="nav-item" href="#s1"><span class="nav-num">01</span>專案背景與目標</a>
+      <a class="nav-item" href="#s2"><span class="nav-num">02</span>系統架構圖</a>
+      <a class="nav-item" href="#s3"><span class="nav-num">03</span>RACI 權責矩陣</a>
+      <a class="nav-item" href="#s4"><span class="nav-num">04</span>核心功能 + KPI</a>
+      <a class="nav-item" href="#s5"><span class="nav-num">05</span>跨部門確認事項</a>
+      <a class="nav-item" href="#s6"><span class="nav-num">06</span>階段目標</a>
+      <a class="nav-item" href="#sd"><span class="nav-num">附</span>說明</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      300+ 間門市 · 敏捷 Sprint<br>
+      GAS · SQL · Python ETL · BPM
+    </div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <main class="main">
+
+    <!-- ── Cover ── -->
+    <section class="section-block" id="cover">
+      <div class="prd-wrap">
+        <div class="header-bar">
+          <div>
+            <p class="proj-title">門店食安巡檢系統 · PRD v1.0</p>
+            <p class="proj-sub">Product Requirements Document — Agile Kick-off Edition</p>
+            <div class="badge-row">
+              <span class="badge badge-teal">食安專案</span>
+              <span class="badge badge-teal">評比專案</span>
+              <span class="badge badge-gray">Google Apps Script</span>
+              <span class="badge badge-gray">BPM 整合</span>
+              <span class="badge badge-gray">ETL Pipeline</span>
+            </div>
+          </div>
+          <div style="text-align:right;font-size:12px;color:var(--color-text-secondary);white-space:nowrap;padding-left:1rem">
+            <div>2026 Kick-off</div>
+            <div style="margin-top:4px;font-weight:500;color:var(--color-text-primary)">300+ 間門店</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 01 ── -->
+    <section class="section-block" id="s1">
+      <div class="section-inner">
+        <p class="sh">Section 01</p>
+        <p class="st">專案背景與目標</p>
+
+        <div class="card-row">
+          <div class="card">
+            <div class="card-label">涵蓋門市</div>
+            <div class="card-val">300+</div>
+            <div class="card-sub">間連鎖門市（持續增加）</div>
+          </div>
+          <div class="card">
+            <div class="card-label">年度效益目標</div>
+            <div class="card-val">100萬+</div>
+            <div class="card-sub">成本節省（估算）</div>
+          </div>
+          <div class="card">
+            <div class="card-label">每月資料量</div>
+            <div class="card-val">330–340</div>
+            <div class="card-sub">食安 30–40 ｜評比 300+（每月）</div>
+          </div>
+        </div>
+
+        <div class="proj-compare">
+          <div class="proj-card proj-card--food">
+            <div class="proj-head proj-head--food">食安專案</div>
+            <div class="proj-item">每月抽驗 30–40 間門市</div>
+            <div class="proj-item">低頻更動版次（優化子項指標）</div>
+            <div class="proj-item">巡檢後店經理簽名 產生報告 →給店經理</div>
+            <div class="proj-item">不需簽核、不需返分機制、不需原始照片</div>
+          </div>
+          <div class="proj-card proj-card--eval">
+            <div class="proj-head proj-head--eval">評比專案</div>
+            <div class="proj-item">每月全部 300+ 間門市</div>
+            <div class="proj-item">每月評比部制定一個版本</div>
+            <div class="proj-item">每月整合缺失評比報告</div>
+            <div class="proj-item">版本控管由評比部主導</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-title">專案痛點 / 現況問題</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>巡檢紙本作業，統計耗時</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>資料無法即時同步</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>缺失以文字說明，難以統計分析</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>KPI Dashboard 缺失，難以決策</div>
+            <div class="pr"><span class="dot" style="background:var(--warning-border)"></span>Google 專案共用限額問題</div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">專案目標</div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>店經理簽名後, 產生巡檢報告</div>
+                        <div class="pr"><span class="dot" style="background:var(--accent)"></span>巡檢項目版本控管</div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>建立子項指標，利於統計</div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>每日 ETL 整合 → BPM / Google Sheet</div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>Dashboard KPI 掌握趨勢</div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>數據分析與報告</div>
+            <div class="pr"><span class="dot" style="background:var(--accent)"></span>PDCA</div>
+          </div>
+        </div>
+
+        <div class="tag-list">
+          <span class="tag">食安：每月 30–40 間抽驗</span>
+          <span class="tag">評比：每月 300+ 間全跑</span>
+          <span class="tag">子項評核</span>
+          <span class="tag">店經理簽名即產生報告</span>
+          <span class="tag">專案 Google 帳號限額</span>
+          <span class="tag">開發方式：敏捷 Sprint</span>
+          <span class="tag">主要技術：GAS · SQL · Python ETL · BPM</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 02 ── -->
+    <section class="section-block" id="s2">
+      <p class="sh">Section 02</p>
+      <p class="st">系統架構圖</p>
+      <div class="svg-wrap">
+        <svg width="100%" viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow-s2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <!-- GAS -->
+          <rect x="40" y="40" width="200" height="76" rx="8" fill="#085041" stroke="#5DCAA5" stroke-width="0.5"/>
+          <text x="140" y="65" text-anchor="middle" dominant-baseline="central" fill="#9FE1CB" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">Google Apps Script</text>
+          <text x="140" y="85" text-anchor="middle" dominant-baseline="central" fill="#5DCAA5" font-family="'Noto Sans TC', sans-serif" font-size="12">前端介面 &amp; 照片上傳</text>
+
+          <rect x="280" y="40" width="180" height="76" rx="8" fill="#085041" stroke="#5DCAA5" stroke-width="0.5"/>
+          <text x="370" y="62" text-anchor="middle" dominant-baseline="central" fill="#9FE1CB" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">Google Sheets/Drive</text>
+          <text x="370" y="82" text-anchor="middle" dominant-baseline="central" fill="#5DCAA5" font-family="'Noto Sans TC', sans-serif" font-size="11">● 巡檢資料 (Sheet)</text>
+          <text x="370" y="98" text-anchor="middle" dominant-baseline="central" fill="#E57373" font-family="'Noto Sans TC', sans-serif" font-size="11">● 原始照片 (暫存)</text>
+
+          <rect x="500" y="40" width="140" height="76" rx="8" fill="#0C447C" stroke="#85B7EB" stroke-width="0.5"/>
+          <text x="570" y="62" text-anchor="middle" dominant-baseline="central" fill="#B5D4F4" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">PDF 產出</text>
+          <text x="570" y="85" text-anchor="middle" dominant-baseline="central" fill="#85B7EB" font-family="'Noto Sans TC', sans-serif" font-size="12">永久保留並交付</text>
+
+          <rect x="370" y="160" width="270" height="65" rx="8" fill="#0C447C" stroke="#85B7EB" stroke-width="0.5"/>
+          <text x="505" y="182" text-anchor="middle" dominant-baseline="central" fill="#B5D4F4" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">Python ETL (04:00 排程)</text>
+          <text x="505" y="202" text-anchor="middle" dominant-baseline="central" fill="#85B7EB" font-family="'Noto Sans TC', sans-serif" font-size="11">1. 資料同步 2. 確認入庫 3. 刪除雲端照片</text>
+
+          <rect x="60" y="160" width="270" height="65" rx="8" fill="#085041" stroke="#5DCAA5" stroke-width="0.5"/>
+          <text x="195" y="192" text-anchor="middle" dominant-baseline="central" fill="#9FE1CB" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">SQL 本地資料庫</text>
+
+          <rect x="60" y="260" width="580" height="74" rx="8" fill="rgba(24,95,165,0.12)" stroke="#185FA5" stroke-width="0.5"/>
+          <text x="350" y="282" text-anchor="middle" dominant-baseline="central" fill="#9FBEDF" font-family="'Noto Sans TC', sans-serif" font-size="14" font-weight="500">資料治理與儲存策略</text>
+          <text x="350" y="305" text-anchor="middle" dominant-baseline="central" fill="#6FA8D0" font-family="'Noto Sans TC', sans-serif" font-size="12">清理原則：刪除 Google Drive 原始照片，本地SQL 保留google sheet文字路徑與 PDF</text>
+
+          <rect x="60" y="380" width="110" height="54" rx="8" fill="#711B13" stroke="#F0997B" stroke-width="0.5"/>
+          <text x="115" y="407" text-anchor="middle" dominant-baseline="central" fill="#F5C4B3" font-family="'Noto Sans TC', sans-serif" font-size="13" font-weight="500">BPM</text>
+
+          <rect x="190" y="380" width="300" height="54" rx="8" fill="#27500A" stroke="#97C459" stroke-width="0.5"/>
+          <text x="340" y="400" text-anchor="middle" dominant-baseline="central" fill="#C0DD97" font-family="'Noto Sans TC', sans-serif" font-size="13" font-weight="500">Dashboard (KPI 即時更新)</text>
+          <text x="340" y="418" text-anchor="middle" dominant-baseline="central" fill="#97C459" font-family="'Noto Sans TC', sans-serif" font-size="10">數據更新時間 = ETL 完成時間 (含清理狀態)</text>
+
+          <rect x="510" y="380" width="130" height="54" rx="8" fill="#0C447C" stroke="#85B7EB" stroke-width="0.5"/>
+          <text x="575" y="407" text-anchor="middle" dominant-baseline="central" fill="#B5D4F4" font-family="'Noto Sans TC', sans-serif" font-size="13" font-weight="500">EIP 平台</text>
+
+          <line x1="240" y1="78" x2="280" y2="78" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+          <line x1="460" y1="78" x2="500" y2="78" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+          <path d="M370 116 L370 145 L505 145 L505 160" fill="none" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+          <line x1="370" y1="192" x2="330" y2="192" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+          <path d="M530 160 L530 135 L400 135 L400 116" fill="none" stroke="#E57373" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow-delete)"/>
+          <text x="465" y="130" text-anchor="middle" fill="#E57373" font-size="10">確認資料庫後刪除照片</text>
+          <line x1="195" y1="225" x2="195" y2="260" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+          <line x1="200" y1="334" x2="115" y2="380" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+          <line x1="340" y1="334" x2="340" y2="380" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+          <line x1="480" y1="334" x2="575" y2="380" stroke="#9CA09A" stroke-width="1.5" marker-end="url(#arrow-s2)"/>
+
+          <!-- Legend -->
+          <rect x="40"  y="474" width="10" height="10" rx="2" fill="#1D9E75" opacity=".8"/>
+          <text x="55"  y="483" fill="#C2C0B6" font-family="'Noto Sans TC', sans-serif" font-size="12">前端 / GAS</text>
+          <rect x="140" y="474" width="10" height="10" rx="2" fill="#185FA5" opacity=".8"/>
+          <text x="155" y="483" fill="#C2C0B6" font-family="'Noto Sans TC', sans-serif" font-size="12">資料層</text>
+          <rect x="230" y="474" width="10" height="10" rx="2" fill="#EF9F27" opacity=".8"/>
+          <text x="245" y="483" fill="#C2C0B6" font-family="'Noto Sans TC', sans-serif" font-size="12">排程 / 通知</text>
+          <rect x="340" y="474" width="10" height="10" rx="2" fill="#D85A30" opacity=".8"/>
+          <text x="355" y="483" fill="#C2C0B6" font-family="'Noto Sans TC', sans-serif" font-size="12">BPM / EIP</text>
+          <rect x="440" y="474" width="10" height="10" rx="2" fill="#639922" opacity=".8"/>
+          <text x="455" y="483" fill="#C2C0B6" font-family="'Noto Sans TC', sans-serif" font-size="12">Dashboard</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ── Section 03 ── -->
+    <section class="section-block" id="s3">
+      <div class="section-inner">
+        <p class="sh">Section 03</p>
+        <p class="st">RACI 權責矩陣</p>
+
+        <table class="raci-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;min-width:170px">流程 / 任務</th>
+              <th>店經理</th>
+              <th>食安部</th>
+              <th>評比/<br>營運部</th>
+              <th>IT/<br>資訊部</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>巡檢執行（食安 / 評比）</td>
+              <td><span class="r-R">R</span></td>
+              <td><span class="r-A">A</span></td>
+              <td><span class="r-C">C</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>店經理簽名 → 產生 PDF 報告</td>
+              <td><span class="r-R">R</span></td>
+              <td><span class="r-I">I</span></td>
+              <td><span class="r-I">I</span></td>
+              <td><span class="r-C">C</span></td>
+            </tr>
+            <tr>
+              <td>每月缺失評比報告整合</td>
+              <td></td>
+              <td><span class="r-C">C</span></td>
+              <td><span class="r-R">R</span></td>
+              <td><span class="r-A">A</span></td>
+            </tr>
+            <tr>
+              <td>資料推送 ETL（每日排程）</td>
+              <td></td>
+              <td><span class="r-I">I</span></td>
+              <td><span class="r-I">I</span></td>
+              <td><span class="r-R">R</span></td>
+            </tr>
+            <tr>
+              <td>KPI / Dashboard 更新</td>
+              <td></td>
+              <td><span class="r-C">C</span></td>
+              <td><span class="r-R">R</span></td>
+              <td><span class="r-A">A</span></td>
+            </tr>
+            <tr>
+              <td>異常 / 未改善通知</td>
+              <td><span class="r-I">I</span></td>
+              <td><span class="r-A">A</span></td>
+              <td><span class="r-R">R</span></td>
+              <td><span class="r-C">C</span></td>
+            </tr>
+            <tr>
+              <td>資料安全 &amp; Google 帳號管理</td>
+              <td></td>
+              <td><span class="r-C">C</span></td>
+              <td></td>
+              <td><span class="r-R">R</span></td>
+            </tr>
+            <tr>
+              <td>BPM / EIP 帳號與路徑整合</td>
+              <td></td>
+              <td><span class="r-C">C</span></td>
+              <td><span class="r-C">C</span></td>
+              <td><span class="r-R">R</span></td>
+            </tr>
+            <tr>
+              <td>食安版次管理</td>
+              <td></td>
+              <td><span class="r-R">R</span></td>
+              <td><span class="r-A">A</span></td>
+              <td><span class="r-I">I</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="legend">
+          <span><span class="r-R">R</span> Responsible 執行者</span>
+          <span><span class="r-A">A</span> Accountable 當責者</span>
+          <span><span class="r-C">C</span> Consulted 諮詢</span>
+          <span><span class="r-I">I</span> Informed 知會</span>
+        </div>
+        <div class="note">注意：本專案無區經理角色、無人工核准流程。店經理簽名為唯一觸發報告產出的動作。</div>
+      </div>
+    </section>
+
+    <!-- ── Section 04 ── -->
+    <section class="section-block" id="s4">
+      <div class="section-inner">
+        <p class="sh">Section 04</p>
+        <p class="st">核心功能列表 + KPI</p>
+
+        <div class="feat-grid">
+          <div class="feat-card">
+            <div class="feat-head">
+              <span class="feat-dot feat-dot--accent"></span>巡檢功能
+            </div>
+            <div class="feat-item">GPS定位打卡</div>
+            <div class="feat-item">手繪電子簽名</div>
+            <div class="feat-item">現場照片上傳</div>
+            <div class="feat-item">自訂評分機制</div>
+            <div class="feat-item">產出巡檢報告PDF</div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-head">
+              <span class="feat-dot feat-dot--warning"></span>問題管理
+            </div>
+            <div class="feat-item">分類: 子項評核指標</div>
+            <div class="feat-item">嚴重度分級（高 / 中 / 低）</div>
+            <div class="feat-item">指定負責人與截止日</div>
+            <div class="feat-item">改善追蹤（未完成 / 完成 / 逾期）</div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-head">
+              <span class="feat-dot feat-dot--info"></span>ETL &amp; 資料治理
+            </div>
+            <div class="feat-item">每日 04:00 GAS → SQL</div>
+            <div class="feat-item">食安：ETL 後刪除原始照片</div>
+             <div class="feat-item">ETL成功，註記已匯入，差異處理</div>
+            <div class="feat-item">Google Sheet 僅做讀取</div>
+          </div>
+          <div class="feat-card">
+            <div class="feat-head">
+              <span class="feat-dot feat-dot--dark"></span>Dashboard
+            </div>
+            <div class="feat-item">門店分數統計 + 趨勢圖</div>
+            <div class="feat-item">缺失項目統計</div>
+            <div class="feat-item">可匯出 CSV / PDF</div>
+            <!-- <div class="feat-item">API / ETL 操作需 Token 驗證</div> -->
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">成功標準 1</div>
+            <div class="kpi-val kpi-val--sm">前端完成<br>巡檢輸入</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">成功標準 2</div>
+            <div class="kpi-val kpi-val--sm">核准後自動<br>推送 BPM</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">成功標準 3</div>
+            <div class="kpi-val kpi-val--sm">KPI 即時<br>更新</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">成功標準 4</div>
+            <div class="kpi-val kpi-val--sm">無未授權<br>存取</div>
+          </div>
+        </div>
+
+        <div class="gov-bar">
+          <div class="gov-step gov-step--staging">Staging<div class="gov-label">原始暫存</div></div>
+          <div class="gov-step gov-step--validation">Validation<div class="gov-label">完整性檢查</div></div>
+          <div class="gov-step gov-step--approval">Approval<div class="gov-label">人工核准</div></div>
+          <div class="gov-step gov-step--serve">Serve<div class="gov-label">BPM/Dashboard</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 05 ── -->
+    <section class="section-block" id="s5">
+      <div class="section-inner">
+        <p class="sh">Section 05</p>
+        <p class="st">跨部門確認事項</p>
+
+        <div class="dg">
+          <div class="dc">
+            <div class="dn dn--food">食安部</div>
+            <div class="ci"><div class="cic cic--food">!</div><div class="ct">巡檢標準、分數算法</div></div>
+            <div class="ci"><div class="cic cic--food">!</div><div class="ct">定義子項評核指標</div></div>
+            <div class="ci"><div class="cic cic--food">!</div><div class="ct">異常定義與風險分級（高/中/低）</div></div>
+            <div class="ci"><div class="cic cic--food">!</div><div class="ct">不需簽核、不需返分機制確認、不需原始照片</div></div>
+            <div class="ci"><div class="cic cic--food">!</div><div class="ct">巡檢報告PDF給店經理</div></div>
+          </div>
+          <div class="dc">
+            <div class="dn dn--eval">評比部</div>
+            <div class="ci"><div class="cic cic--eval">!</div><div class="ct">定義評核項目版次</div></div>
+            <div class="ci"><div class="cic cic--eval">!</div><div class="ct">KPI 指標與排名規則</div></div>
+            <div class="ci"><div class="cic cic--eval">!</div><div class="ct">獎懲制度連結方式</div></div>
+            <div class="ci"><div class="cic cic--eval">!</div><div class="ct">每月資料量約300+ 筆</div></div>
+          </div>
+          <div class="dc">
+            <div class="dn dn--store">門店</div>
+            <div class="ci"><div class="cic cic--store">!</div><div class="ct">實際巡檢流程與負責人確認</div></div>
+            <div class="ci"><div class="cic cic--store">!</div><div class="ct">操作習慣與痛點（UX 優化依據）</div></div>
+            <div class="ci"><div class="cic cic--store">!</div><div class="ct">設備環境（手機/平板型號）</div></div>
+          </div>
+          <div class="dc">
+            <div class="dn dn--it">IT / 資訊部</div>
+            <div class="ci"><div class="cic cic--it">!</div><div class="ct">EIP 討論區 / 資料庫路徑確認</div></div>
+            <!-- <div class="ci"><div class="cic cic--it">!</div><div class="ct">BPM 公司內部資料存取規則</div></div> -->
+            <div class="ci"><div class="cic cic--it">!</div><div class="ct">API 整合方式</div></div>
+            <div class="ci"><div class="cic cic--it">!</div><div class="ct">資料安全控管（Token 驗證）</div></div>
+            <div class="ci"><div class="cic cic--it">!</div><div class="ct">Google帳號限額分流策略</div></div>
+          </div>
+        </div>
+
+        <div class="nb">
+          <strong style="color:var(--color-text-primary);font-weight:500">Kick-off 行動項目：</strong>
+          各部門指派單一 PIC，於 Sprint 1 結束前完成確認事項，回填至任務板。
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 06 ── -->
+    <section class="section-block" id="s6">
+      <div class="section-inner">
+        <p class="sh">Section 06</p>
+        <p class="st">階段目標</p>
+
+        <div class="roadmap">
+          <div class="phase">
+            <span class="ph-badge ph-badge--mvp">Phase 1 — MVP</span>
+            <div class="ph-title">核心交付</div>
+            <div class="ph-item">GPS定位打卡</div>
+            <div class="ph-item">現場照片上傳</div>
+            <div class="ph-item">自訂評分機制</div>
+            <div class="ph-item">手繪電子簽名</div>
+            <div class="ph-item">產出巡檢報告PDF</div>
+          </div>
+          <div class="phase">
+            <span class="ph-badge ph-badge--integration">Phase 2 — 整合</span>
+            <div class="ph-title">BPM 串接</div>
+            <div class="ph-item">API 中介層建立</div>
+            <div class="ph-item">即時串接 BPM</div>
+            <div class="ph-item">EIP 路徑整合</div>
+            <div class="ph-item">Dashboard KPI</div>
+            <div class="ph-item">每日 ETL 排程</div>
+            <div class="ph-item">SQL 本地資料庫</div>
+          </div>
+          <div class="phase">
+            <span class="ph-badge ph-badge--notify">Phase 3 — 通知</span>
+            <div class="ph-title">自動通知系統</div>
+            <div class="ph-item">Email</div>
+            <div class="ph-item">未改善自動推送</div>
+            <div class="ph-item">排名系統建立</div>
+            <div class="ph-item">績效連動</div>
+          </div>
+          <div class="phase">
+            <span class="ph-badge ph-badge--ai">Phase 4 — AI</span>
+            <div class="ph-title">智能分析</div>
+            <div class="ph-item">正式 DB 取代 Sheet</div>
+            <!-- <div class="ph-item">大規模資料分析</div>
+            <div class="ph-item">異常模式偵測</div> -->
+            <div class="ph-item">改善建議自動化</div>
+            <div class="ph-item">預測性維護</div>
+          </div>
+        </div>
+
+        <div class="benefit-row">
+          <div class="ben-card ben-card--accent">
+            <div class="ben-num ben-num--accent">100萬+</div>
+            <div class="ben-label">300 間+門店年度估算<br>成本節省</div>
+          </div>
+          <div class="ben-card ben-card--warning">
+            <div class="ben-num ben-num--warning">改善率</div>
+            <div class="ben-label">提升門店問題<br>改善追蹤效率</div>
+          </div>
+          <div class="ben-card ben-card--purple">
+            <div class="ben-num ben-num--purple">可擴展</div>
+            <div class="ben-label">建立可擴展的<br>數據治理架構</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Appendix ── -->
+    <section class="section-block" id="sd">
+      <div class="section-inner">
+        <p class="sh">食安專案 — 附錄</p>
+        <p class="st">子項評核指標</p>
+        <p class="desc">原本用文字欄位自由填寫的缺失說明，改為預設子項。統一分類讓後續統計、趨勢分析與報表產出更精確。</p>
+
+        <div class="compare">
+          <div class="cp-card">
+            <div class="cp-head cp-head--danger">舊做法：文字說明（難以統計）</div>
+            <div class="old-text">「食品標示有誤，現場張貼之原產地說明與實際不符，且宣稱有問題…」</div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">每筆說明格式不一，無法彙總統計</div>
+          </div>
+          <div class="cp-card">
+            <div class="cp-head cp-head--success">新做法：子項勾選</div>
+            <div class="sub-grid" style="margin-top:4px">
+              <span class="sub-tag sub-tag--active">原產地</span>
+              <span class="sub-tag sub-tag--active">重組肉</span>
+              <span class="sub-tag sub-tag--active">宣稱錯誤</span>
+              <span class="sub-tag sub-tag--active">自治條例項目</span>
+              <span class="sub-tag sub-tag--active">文宣品錯誤</span>
+              <span class="sub-tag sub-tag--active">其他</span>
+            </div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">勾選即記錄，可直接統計各子項發生頻率</div>
+          </div>
+        </div>
+
+        <div class="item-card">
+          <div style="font-size:11px;font-weight:500;color:var(--accent);margin-bottom:6px">範例巡檢項目結構</div>
+          <div class="item-q">總公司佈達張貼之食品相關標示正確，或販售食品標示無異常。（如：牛、豬原產地標示、宣稱日本食材等）</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">發現缺失時，勾選對應子項：</div>
+          <div class="sub-grid">
+            <span class="sub-tag">原產地</span>
+            <span class="sub-tag">重組肉</span>
+            <span class="sub-tag">宣稱錯誤</span>
+            <span class="sub-tag">自治條例項目</span>
+            <span class="sub-tag">文宣品錯誤</span>
+            <span class="sub-tag">其他</span>
+          </div>
+        </div>
+
+        <div class="benefit-row">
+          <div class="ben"><strong>統計精確</strong>每個子項可獨立計次，追蹤各類缺失發生率</div>
+          <div class="ben"><strong>版次低頻更動</strong>子項清單由食安部維護，不頻繁變動</div>
+          <div class="ben"><strong>報表自動化</strong>ETL 直接展開 subDefects，無需人工整理</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Active nav highlighting on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navItems = document.querySelectorAll('.nav-item');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navItems.forEach(n => n.classList.remove('active'));
+          const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { threshold: 0.3 });
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+
+</html>
