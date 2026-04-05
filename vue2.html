@@ -1,0 +1,3535 @@
+<!doctype html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#506bb0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>食安巡檢</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&display=swap"
+    rel="stylesheet" />
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      /* ── Brand tokens ── */
+      --ocean: #506bb0;
+      --ocean-dark: #3d5490;
+      --ocean-light: #e8eef8;
+      --ocean-mid: #c5d0e8;
+      --salmon: #dd704f;
+      --salmon-dark: #c45c3b;
+      --salmon-light: #F6BA9D;
+      --salmon-bg: #fdf1eb;
+
+      /* ── Blue (kept for backwards compat) ── */
+      --blue-700: #3d5490;
+      --blue-600: #506bb0;
+      --blue-500: #6b85c0;
+      --blue-200: #c5d0e8;
+      --blue-100: #dce3f2;
+      --blue-50: #e8eef8;
+      --green-700: #1a6b7a;
+      --green-600: #1e8a9a;
+      --green-500: #2ba8bb;
+      --green-200: #b3dde3;
+      --green-100: #e4f1fd;
+      --green-50: #e8f2f4;
+      --amber-700: #b45309;
+      --amber-600: #d97706;
+      --amber-500: #f59e0b;
+      --amber-200: #fde68a;
+      /* --amber-100: #fef3c7; */
+      --amber-100: #faebdb; 
+      --amber-50: #fffbeb;
+      --red-700: #b91c1c;
+      --red-600: #dc2626;
+      --red-500: #ef4444;
+      --red-200: #fca5a5;
+      --red-100: #fee2e2;
+      --red-50: #fef2f2;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --white: #ffffff;
+      --r: 12px;
+      --r-sm: 8px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 17px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family:
+        "Outfit",
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+      background: #f4f7f9;
+      color: var(--slate-900);
+      min-height: 100vh;
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+      -webkit-font-smoothing: antialiased;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      font-family: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--ocean);
+      border-bottom: none;
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      box-shadow: 0 2px 8px rgba(80,107,176,0.25);
+    }
+
+    .topbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px 10px;
+    }
+
+    .brand {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .brand em {
+      color: var(--salmon-light);
+      font-style: normal;
+    }
+
+    .conn-lbl {
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+      font-weight: 500;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .prog-wrap {
+      padding: 0 16px 14px;
+    }
+
+    .prog-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 7px;
+    }
+
+    .prog-meta strong {
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .prog-track {
+      height: 8px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .prog-fill {
+      height: 100%;
+      background: var(--salmon);
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .prog-fill.complete {
+      background: var(--salmon-light);
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      padding: 0 16px;
+    }
+
+    .tab-btn {
+      padding: 11px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--slate-500);
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer;
+      transition:
+        color 0.15s,
+        border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: var(--ocean);
+      border-bottom-color: var(--ocean);
+      font-weight: 700;
+    }
+    /* ── SHARED PANEL (full-bleed white block) ── */
+    .panel,
+    .card,
+    .geo-card,
+    .stats-grid,
+    .sum-card,
+    .success-card,
+    .view-tog,
+    .bottom-act,
+    .cat-card {
+      background: var(--white);
+      border: 1px solid rgba(80,107,176,0.10);
+      border-radius: var(--r);
+      /* margin: 10px 12px 0; */
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(80,107,176,0.07);
+    }
+
+    .card,
+    .geo-card,
+    .sum-card,
+    .success-card {
+      border-radius: var(--r);
+    }
+
+    /* ── GATE: hidden until checklist loaded ── */
+    [data-gate] {
+      display: none;
+    }
+
+    .checklist-loaded [data-gate] {
+      display: block;
+    }
+
+    .checklist-loaded .stats-grid {
+      display: grid;
+      margin: 10px 0;
+    }
+
+    .checklist-loaded .view-tog {
+      display: flex;
+      margin:12px 0;
+    }
+
+    .checklist-loaded .bottom-act {
+      display: flex;
+      margin: 10px 12px 0;
+    }
+
+    /* ── ALERTS ── */
+    .alert {
+      margin: 8px 0 0;
+      padding: 13px 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .alert.error {
+      background: var(--red-50);
+      border: 1px solid var(--red-200);
+      color: #991b1b;
+    }
+
+    .alert.warn {
+      background: var(--amber-50);
+      border: 1px solid var(--amber-200);
+      color: #92400e;
+    }
+
+    .alert code {
+      background: rgba(0, 0, 0, 0.07);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-size: 12px;
+    }
+
+    /* ── CARD ── */
+    .card-hd {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--slate-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+
+    /* ── VERSION BAR ── */
+    .ver-bar {
+      background: var(--ocean-light);
+      border-bottom: 1px solid var(--ocean-mid);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+      border-radius: var(--r);
+      box-shadow: 0 1px 4px rgba(80,107,176,0.07);
+    }
+
+    .ver-lbl {
+      font-size: 13px;
+      color: var(--slate-500);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .ver-sel {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--r-sm);
+      padding: 8px 30px 8px 11px;
+      font-size: 14px;
+      background: var(--white);
+      color: var(--slate-900);
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      min-height: 40px;
+    }
+
+    .ver-sel:focus {
+      border-color: var(--ocean);
+      box-shadow: 0 0 0 3px rgba(80,107,176,0.15);
+    }
+
+    .ver-pill {
+      font-size: 12px;
+      background: var(--ocean);
+      color: var(--white);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ── FORM ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .fg {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .fg.full {
+      grid-column: 1/-1;
+    }
+
+    .form-lbl {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--r-sm);
+      padding: 11px 12px;
+      font-size: 15px;
+      color: var(--slate-900);
+      background: var(--white);
+      outline: none;
+      transition:
+        border-color 0.15s,
+        box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .form-input {
+      min-height: 46px;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      border-color: var(--ocean);
+      box-shadow: 0 0 0 3px rgba(80,107,176,0.15);
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: var(--slate-400);
+    }
+
+    /* ── STATS ── */
+    .stats-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stat-cell {
+      padding: 14px 6px;
+      text-align: center;
+      border-right: 1px solid var(--slate-100);
+    }
+
+    .stat-cell:last-child {
+      border-right: none;
+    }
+
+    .stat-n {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .stat-n.g {
+      color: #1e8a9a;
+    }
+
+    .stat-n.a {
+      color: var(--amber-600);
+    }
+
+    .stat-n.r {
+      color: var(--red-600);
+    }
+
+    .stat-n.b {
+      color: var(--ocean);
+    }
+
+    .stat-l {
+      font-size: 12px;
+      color: var(--slate-400);
+      margin-top: 3px;
+      font-weight: 500;
+    }
+
+    /* ── VIEW TOGGLE ── */
+    .view-tog {
+      align-items: center;
+      gap: 4px;
+      padding: 6px 16px;
+    }
+
+    .vtb {
+      flex: 1;
+      padding: 9px 8px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--slate-500);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .vtb.active {
+      background: var(--ocean);
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .iss-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 0 5px;
+      background: var(--red-200);
+      color: var(--red-700);
+      transition: background 0.2s;
+    }
+
+    .vtb.active .iss-badge {
+      background: rgba(255, 255, 255, 0.25);
+      color: var(--white);
+    }
+
+    /* ── CATEGORY CARD ── */
+    .cat-card {
+      /* margin: 6px 12px 0; */
+       margin: 6px  0;
+      transition: opacity 0.2s;
+      border-radius: var(--r) !important;
+    }
+
+    .cat-card+.cat-card {
+      margin-top: 6px;
+    }
+
+    .cat-hd {
+      padding: 14px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .cat-hd:active {
+      background: var(--slate-50);
+    }
+
+    .cat-row1 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .cat-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--slate-800);
+      flex: 1;
+      line-height: 1.3;
+    }
+
+    .cat-prog-lbl {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-400);
+      white-space: nowrap;
+    }
+
+    .cat-prog-lbl.done {
+      color: #1e8a9a;
+    }
+
+    .cat-chev {
+      color: var(--slate-400);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+    }
+
+    .cat-chev.open {
+      transform: rotate(180deg);
+    }
+
+    .cat-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .cat-bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--slate-100);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .cat-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition:
+        width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        background 0.3s;
+    }
+
+    .cat-pct-lbl {
+      font-size: 12px;
+      color: var(--slate-400);
+      font-weight: 600;
+      min-width: 32px;
+      text-align: right;
+    }
+
+    .cat-foot {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-allok {
+      padding: 8px 13px;
+      min-height: 36px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1.5px solid var(--green-600);
+      border-radius: var(--r-sm);
+      color: var(--green-700);
+      background: var(--green-50);
+
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-allok:active {
+      /* background: var(--green-100); */
+      background: #e4f1fd;
+    }
+
+    .dots-wrap {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot.ok {
+      background: #2ba8bb;
+    }
+
+    .dot.warn {
+      background: var(--amber-500);
+    }
+
+    .dot.fail {
+      background: var(--red-500);
+    }
+
+    .dot.unset {
+      background: var(--slate-200);
+    }
+
+    /* ── ITEM ROW ── */
+    .cat-body {
+      border-top: 1px solid var(--slate-100);
+    }
+
+    .cat-body.collapsed {
+      display: none;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 14px;
+      min-height: 56px;
+      border-bottom: 1px solid var(--slate-100);
+      border-left: 3.5px solid transparent;
+      cursor: pointer;
+      transition:
+        background 0.1s,
+        border-left-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .item-row:last-child {
+      border-bottom: none;
+    }
+
+    .item-row:active {
+      background: var(--slate-50);
+    }
+
+    .item-row.ok-r {
+      border-left-color: #2ba8bb;
+      background: #e4f1fd;
+    }
+
+    .item-row.warn-r {
+      border-left-color: var(--amber-500);
+      background: var(--amber-50);
+    }
+
+    .item-row.fail-r {
+      border-left-color: var(--red-500);
+      background: var(--red-50);
+    }
+
+    .hidden,
+    .item-row.hidden,
+    .cat-card.hidden {
+      display: none !important;
+    }
+
+    .i-no {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--slate-400);
+      min-width: 28px;
+      flex-shrink: 0;
+    }
+
+    .i-lv {
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 4px;
+      padding: 2px 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .i-lv.crit {
+      background: var(--red-100);
+      color: var(--red-700);
+    }
+
+    .i-lv.major {
+      background: var(--amber-100);
+      color: var(--amber-700);
+    }
+
+    .i-lv.norm {
+      background: var(--slate-100);
+      color: var(--slate-600);
+    }
+
+    .i-txt {
+      flex: 1;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--slate-700);
+    }
+
+    .i-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      border: 1.5px solid var(--slate-200);
+      background: var(--white);
+      color: var(--slate-400);
+      transition: all 0.2s;
+    }
+
+    .i-icon.ok {
+      background: #e4f1fd;
+      /* border-color: #b3dde3; */
+      border-color: #2ba8bb;
+      color: #1a6b7a;
+    }
+
+    .i-icon.warn {
+      background: var(--amber-100);
+      border-color: var(--amber-200);
+      color: var(--amber-700);
+    }
+
+    .i-icon.fail {
+      background: var(--red-100);
+      border-color: var(--red-200);
+      color: var(--red-700);
+    }
+
+    /* ── ITEM PANEL ── */
+    .item-panel {
+      background: var(--slate-50);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0 14px 14px;
+      display: none;
+    }
+
+    .item-panel.open {
+      display: block;
+    }
+
+    .s3-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 7px;
+      padding-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    .s3-btn {
+      padding: 11px 6px;
+      min-height: 52px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--r-sm);
+      border: 1.5px solid var(--slate-200);
+      background: var(--white);
+      color: var(--slate-500);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .s3-btn:active {
+      transform: scale(0.96);
+    }
+
+    .s3-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .s3-lbl {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .s3-btn.a-ok {
+      background: #e4f1fd;
+      border-color: #2ba8bb;
+      color: #1a6b7a;
+    }
+
+    .s3-btn.a-warn {
+      background: var(--amber-100);
+      border-color: var(--amber-500);
+      color: var(--amber-700);
+    }
+
+    .s3-btn.a-fail {
+      background: var(--salmon);
+      border-color: var(--salmon-dark);
+      color: var(--white);
+    }
+
+    .s3-btn.a-fail .s3-icon,
+    .s3-btn.a-fail .s3-lbl {
+      color: var(--white);
+    }
+
+    .photo-area {
+      margin-bottom: 10px;
+    }
+
+    .photo-btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .btn-photo {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 14px;
+      min-height: 44px;
+      border: none;
+      border-radius: var(--r-sm);
+      background: var(--ocean);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-photo:active {
+      background: var(--ocean-dark);
+    }
+
+    .photo-thumbs-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .photo-thumb-wrap {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      flex-shrink: 0;
+    }
+
+    .photo-thumb {
+      width: 76px;
+      height: 76px;
+      border-radius: var(--r-sm);
+      object-fit: cover;
+      border: 1px solid var(--slate-200);
+      display: block;
+    }
+
+    .photo-thumb-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-thumb-overlay.uploading {
+      background: rgba(0,0,0,0.45);
+    }
+
+    .photo-thumb-overlay.fail {
+      background: rgba(220,38,38,0.65);
+    }
+
+    .photo-del-x {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--salmon);
+      border: 2.5px solid var(--white);
+      color: var(--white);
+      font-size: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      transition: background 0.15s;
+      padding: 0;
+    }
+
+    .photo-del-x:active {
+      background: var(--salmon-dark);
+    }
+
+    /* Legacy del button hidden */
+    .photo-del { display: none; }
+
+    .deduct-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .deduct-lbl {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--slate-700);
+    }
+
+    .deduct-inp {
+      width: 68px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--r-sm);
+      padding: 8px 6px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--red-600);
+      text-align: center;
+      outline: none;
+      background: var(--white);
+      min-height: 44px;
+      -webkit-appearance: none;
+    }
+
+    .deduct-inp:focus {
+      border-color: var(--salmon);
+    }
+
+    .deduct-hint {
+      font-size: 12px;
+      color: var(--slate-400);
+    }
+
+    .remark-inp {
+      width: 100%;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--r-sm);
+      padding: 10px 11px;
+      font-size: 14px;
+      color: var(--slate-700);
+      resize: vertical;
+      min-height: 56px;
+      outline: none;
+      transition: border-color 0.15s;
+      background: var(--white);
+    }
+
+    .remark-inp::placeholder {
+      color: var(--slate-400);
+    }
+
+    .remark-inp:focus {
+      border-color: var(--ocean);
+    }
+
+    /* ── SUMMARY ── */
+    .sum-hd {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      border-bottom: 1px solid var(--slate-100);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sum-hd:active {
+      background: var(--slate-50);
+    }
+
+    .sum-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--slate-800);
+    }
+
+    .sum-chev {
+      color: var(--slate-400);
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+
+    .sum-chev.open {
+      transform: rotate(180deg);
+    }
+
+    .sum-body {
+      display: none;
+    }
+
+    .sum-body.open {
+      display: block;
+    }
+
+    .sum-score-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--slate-100);
+    }
+
+    .sum-score-cell {
+      padding: 14px 8px;
+      text-align: center;
+      border-right: 1px solid var(--slate-100);
+    }
+
+    .sum-status-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--slate-100);
+    }
+
+    .sum-sc {
+      padding: 12px 4px;
+      text-align: center;
+      border-right: 1px solid var(--slate-100);
+    }
+
+    .sum-score-cell:last-child,
+    .sum-sc:last-child {
+      border-right: none;
+    }
+
+    .sum-big {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .sum-sublbl {
+      font-size: 12px;
+      color: var(--slate-400);
+      margin-top: 3px;
+      font-weight: 500;
+    }
+
+    .sum-sn {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .sum-sl {
+      font-size: 11px;
+      color: var(--slate-400);
+      margin-top: 3px;
+    }
+
+    .issues-hdr {
+      padding: 10px 16px 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .iss-row {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--slate-100);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .iss-row:last-child {
+      border-bottom: none;
+    }
+
+    .iss-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .iss-dot.warn {
+      background: var(--amber-500);
+    }
+
+    .iss-dot.fail {
+      background: var(--red-500);
+    }
+
+    .iss-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .iss-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+      flex-wrap: wrap;
+    }
+
+    .iss-no {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--slate-400);
+    }
+
+    .iss-badge-w,
+    .iss-badge-f {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .iss-badge-w {
+      color: var(--amber-700);
+    }
+
+    .iss-badge-f {
+      color: var(--red-700);
+    }
+
+    .iss-deduct {
+      font-size: 12px;
+      color: var(--red-600);
+      font-weight: 700;
+      margin-left: auto;
+    }
+
+    .iss-txt {
+      font-size: 14px;
+      color: var(--slate-700);
+      line-height: 1.45;
+    }
+
+    .iss-remark {
+      font-size: 12px;
+      color: var(--slate-500);
+      margin-top: 3px;
+    }
+
+    /* ── 子項缺失選單 ── */
+    .sr-wrap {
+      margin: 0 0 10px;
+      padding: 10px 12px;
+      background: var(--red-50);
+      border-radius: var(--r-sm);
+      border: 1px solid var(--red-200);
+    }
+
+    .sr-wrap.warn-mode {
+      background: var(--amber-50);
+      border-color: var(--amber-200);
+    }
+
+    .sr-lbl {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--red-700);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .sr-wrap.warn-mode .sr-lbl {
+      color: var(--amber-700);
+    }
+
+    .sr-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .sr-opt {
+      /* 手機 min touch target 44px */
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1.5px solid var(--slate-200);
+      background: var(--white);
+      color: var(--slate-600);
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
+      position: relative;
+    }
+
+    .sr-opt:active {
+      transform: scale(0.97);
+    }
+
+    .sr-opt.selected {
+      background: var(--salmon);
+      border-color: var(--salmon-dark);
+      border-width: 2px;
+      color: var(--white);
+      font-weight: 700;
+      box-shadow: 0 0 0 3px rgba(221,112,79,0.18);
+    }
+
+    /* 選中時左側顯示勾 */
+    .sr-opt.selected::before {
+      content: "✓";
+      margin-right: 6px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    /* 已選中的文字摘要列 — hidden (視覺顏色已傳達) */
+    .sr-selected-summary { display: none !important; }
+
+    .iss-reason {
+      font-size: 12px;
+      color: var(--red-600);
+      font-weight: 700;
+      margin-top: 3px;
+    }
+
+    .no-issues {
+      padding: 24px 16px;
+      text-align: center;
+      color: var(--green-600);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    /* ── SCOREBOARD ── */
+    .scoreboard {
+      position: fixed;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      right: 16px;
+      background: var(--ocean);
+      color: var(--white);
+      border-radius: 14px;
+      padding: 12px 16px;
+      min-width: 96px;
+      text-align: center;
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(80,107,176,0.35);
+    }
+
+    .sc-n {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .sc-l {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .grade-chip {
+      display: inline-block;
+      margin-top: 7px;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .gA {
+      background: var(--green-100);
+      color: var(--green-700);
+    }
+
+    .gB {
+      background: var(--ocean-light);
+      color: var(--ocean-dark);
+    }
+
+    .gC {
+      background: var(--amber-100);
+      color: var(--amber-700);
+    }
+
+    .gD {
+      background: var(--red-100);
+      color: var(--red-700);
+    }
+
+    /* ── BOTTOM ACTIONS ── */
+    .bottom-act {
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--slate-200);
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: var(--r);
+      padding: 15px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition:
+        opacity 0.15s,
+        transform 0.1s;
+      min-height: 52px;
+    }
+
+    .btn-primary {
+      background: var(--ocean);
+      color: var(--white);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--ocean-dark);
+    }
+
+    .btn-ghost {
+      background: var(--white);
+      color: var(--slate-600);
+      border: 1.5px solid var(--slate-200);
+      font-size: 14px;
+      padding: 12px;
+      min-height: 46px;
+    }
+
+    .btn:active,
+    .btn-pdf:active {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled,
+    .btn-pdf:disabled,
+    .btn-geo:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── CHECKBOX ── */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 15px;
+      color: var(--slate-700);
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .check-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--ocean);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ── MANAGE TAB ── */
+    .ver-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .ver-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--slate-50);
+      color: var(--slate-500);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--slate-200);
+    }
+
+    .ver-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--slate-100);
+      vertical-align: top;
+    }
+
+    .ver-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .v-lbl {
+      font-weight: 700;
+      color: var(--slate-900);
+    }
+
+    .v-date {
+      color: var(--slate-500);
+      font-size: 13px;
+    }
+
+    /* ── SUCCESS CARD ── */
+    .success-card {
+      border-color: #b3dde3;
+      display: none;
+    }
+
+    .success-card.show {
+      display: block;
+    }
+
+    .success-hd {
+      background: #e8f2f4;
+      padding: 14px 16px;
+      border-bottom: 1px solid #e4f1fd;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .success-icon {
+      font-size: 22px;
+    }
+
+    .success-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a6b7a;
+    }
+
+    .success-body {
+      padding: 16px;
+    }
+
+    .success-meta {
+      font-size: 13px;
+      color: var(--slate-500);
+      margin-bottom: 14px;
+      line-height: 1.8;
+    }
+
+    .success-meta strong {
+      color: var(--slate-800);
+    }
+
+    .btn-pdf {
+      width: 100%;
+      border: none;
+      border-radius: var(--r);
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--ocean), var(--ocean-dark));
+      color: var(--white);
+    }
+
+    .btn-pdf.done {
+      /* background: linear-gradient(135deg, #1a6b7a, #1e8a9a); */
+    background: var(--ocean);
+    color: var(--white);
+
+    }
+
+    .pdf-result {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .pdf-result.ok {
+      background: #e8f2f4;
+      border: 1px solid #b3dde3;
+      color: #1a6b7a;
+    }
+
+    .pdf-result.err {
+      background: var(--red-50);
+      border: 1px solid var(--red-200);
+      color: var(--red-700);
+    }
+
+    .pdf-result a {
+      color: var(--ocean);
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    /* ── GEO CARD ── */
+    .geo-hd {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid var(--slate-100);
+      background: var(--slate-50);
+    }
+
+    .geo-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--slate-700);
+    }
+
+    .geo-body {
+      padding: 14px 16px;
+    }
+
+    .geo-filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .geo-filter-sel,
+    .geo-store-sel {
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--r-sm);
+      background: var(--white);
+      color: var(--slate-700);
+    }
+
+    .geo-filter-sel {
+      flex: 1;
+      min-width: 100px;
+      height: 36px;
+      padding: 0 8px;
+      font-size: 13px;
+    }
+
+    .geo-store-sel {
+      flex: 1;
+      height: 40px;
+      padding: 0 10px;
+      font-size: 14px;
+      color: var(--slate-800);
+    }
+
+    .geo-store-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn-geo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      min-height: 40px;
+      border: none;
+      border-radius: var(--r-sm);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      background: var(--ocean);
+      color: var(--white);
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-geo:active {
+      transform: scale(0.97);
+    }
+
+    .geo-status {
+      font-size: 13px;
+      border-radius: var(--r-sm);
+      padding: 10px 12px;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .geo-status.show {
+      display: block;
+    }
+
+    .geo-status.loading {
+      background: var(--slate-50);
+      color: var(--slate-500);
+    }
+
+    .geo-status.ok {
+      background: #e8f2f4;
+      color: #1a6b7a;
+      border: 1px solid #b3dde3;
+    }
+
+    .geo-status.warn {
+      background: var(--amber-50);
+      color: var(--amber-700);
+      border: 1px solid var(--amber-200);
+    }
+
+    .geo-status.err {
+      background: var(--red-50);
+      color: var(--red-700);
+      border: 1px solid var(--red-200);
+    }
+
+    .geo-badge {
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 99px;
+      padding: 3px 10px;
+      white-space: nowrap;
+    }
+
+    .geo-badge.ok {
+      background: #e4f1fd;
+      color: #1a6b7a;
+    }
+
+    .geo-badge.warn {
+      background: var(--amber-100);
+      color: var(--amber-700);
+    }
+
+    .geo-badge.none {
+      background: var(--slate-100);
+      color: var(--slate-500);
+    }
+
+    /* ── MATERIAL ICONS ── */
+    .material-symbols-outlined {
+      font-family: "Material Symbols Outlined";
+      font-weight: normal;
+      font-style: normal;
+      font-size: inherit;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      vertical-align: middle;
+    }
+
+    .icon-btn-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(255, 255, 255, 0.96);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .loading-overlay.hidden {
+      display: none;
+    }
+
+    .loading-logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--slate-700);
+      letter-spacing: -0.5px;
+    }
+
+    .loading-logo em {
+      color: var(--ocean);
+      font-style: normal;
+    }
+
+    .loading-ring {
+      width: 44px;
+      height: 44px;
+      border: 3px solid var(--slate-200);
+      border-top-color: var(--ocean);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loading-txt {
+      font-size: 14px;
+      color: var(--slate-400);
+      font-weight: 500;
+    }
+
+    /* ── 7-1 POSITION → ISSUE ACCORDION ── */
+    .mr7-wrap {
+      margin: 0 0 10px;
+      padding: 10px 12px 6px;
+      background: var(--red-50);
+      border-radius: var(--r-sm);
+      border: 1px solid var(--red-200);
+    }
+
+    .mr7-wrap.warn-mode {
+      background: var(--amber-50);
+      border-color: var(--amber-200);
+    }
+
+    .mr7-summary {
+      font-size: 13px;
+      color: var(--slate-700);
+      background: var(--white);
+      border-radius: 6px;
+      padding: 7px 10px;
+      margin-bottom: 8px;
+      border: 1px solid var(--slate-200);
+      line-height: 1.7;
+    }
+
+    .mr7-pos-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .mr7-pos-chip {
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1.5px solid var(--slate-300);
+      background: var(--white);
+      color: var(--slate-600);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.12s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mr7-pos-chip.has-issues {
+      border-color: var(--red-400);
+      background: var(--red-50);
+      color: var(--red-700);
+      font-weight: 700;
+    }
+
+    .mr7-wrap.warn-mode .mr7-pos-chip.has-issues {
+      border-color: var(--amber-400);
+      background: var(--amber-50);
+      color: var(--amber-700);
+    }
+
+    .mr7-pos-chip.mr7-active {
+      border-color: var(--ocean) !important;
+      background: var(--ocean-light) !important;
+      color: var(--ocean-dark) !important;
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .mr7-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--red-500);
+      color: var(--white);
+      padding: 0 3px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .mr7-wrap.warn-mode .mr7-badge {
+      background: var(--amber-500);
+    }
+
+    .mr7-iss-section {
+      background: var(--white);
+      border-radius: 8px;
+      border: 1.5px solid var(--ocean-mid);
+      padding: 8px 10px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .mr7-iss-lbl {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ocean);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .mr7-iss-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mr7-iss-chip {
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1.5px solid var(--slate-200);
+      background: var(--slate-50);
+      color: var(--slate-600);
+      cursor: pointer;
+      transition: all 0.12s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mr7-iss-chip.selected {
+      background: var(--red-100);
+      border-color: var(--red-500);
+      color: var(--red-700);
+      font-weight: 700;
+    }
+
+    .mr7-wrap.warn-mode .mr7-iss-chip.selected {
+      background: var(--amber-100);
+      border-color: var(--amber-500);
+      color: var(--amber-700);
+    }
+
+    /* ── ALLOK TOGGLE ── */
+    .btn-allok.active-ok {
+      background: #e4f1fd;
+      border-color: #2ba8bb;
+      color: #1a6b7a;
+    }
+
+    #checklist-area {
+      padding-bottom: 12px;
+    }
+
+    /* ── OFFLINE BANNER ── */
+    .offline-banner {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: #92400e;
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .offline-banner.show {
+      display: flex;
+    }
+
+    /* ── QUOTA WARN BANNER (F1.2) ── */
+    .quota-banner {
+      display: none;
+      background: #78350f;
+      color: #fef3c7;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .quota-banner.show {
+      display: flex;
+    }
+
+    .quota-banner a {
+      color: #fde68a;
+      font-size: 12px;
+      margin-left: 8px;
+      cursor: pointer;
+    }
+
+    /* ── DRAFT RESTORE BANNER ── */
+    .draft-banner {
+      display: none;
+      background: var(--ocean-light);
+      border: 1px solid var(--ocean-mid);
+      border-radius: var(--r-sm);
+      margin: 10px 12px 0;
+      padding: 12px 16px;
+      font-size: 14px;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .draft-banner.show {
+      display: flex;
+    }
+
+    .draft-banner-txt {
+      flex: 1;
+      color: var(--ocean-dark);
+    }
+
+    .draft-btn {
+      padding: 7px 14px;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+
+    .draft-btn-restore {
+      background: var(--ocean);
+      color: #fff;
+    }
+
+    .draft-btn-discard {
+      background: var(--white) !important;
+      color: var(--slate-500);
+      border: 1.5px solid var(--slate-200) !important;
+    }
+
+    /* ── IMPORT ZONE ── */
+    .import-zone {
+      border: 2px dashed var(--slate-300);
+      border-radius: var(--r);
+      padding: 22px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--white);
+    }
+
+    .import-zone:hover,
+    .import-zone.drag-over {
+      border-color: var(--ocean);
+      background: var(--ocean-light);
+    }
+
+    .import-preview {
+      margin-top: 10px;
+      max-height: 240px;
+      overflow-y: auto;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--r-sm);
+      font-size: 13px;
+    }
+
+    .import-preview table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .import-preview th {
+      background: var(--slate-800);
+      color: #fff;
+      padding: 7px 10px;
+      text-align: left;
+      font-size: 12px;
+      position: sticky;
+      top: 0;
+    }
+
+    .import-preview td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--slate-100);
+      vertical-align: top;
+      color: var(--slate-700);
+    }
+
+    .import-preview tr:nth-child(even) td {
+      background: var(--slate-50);
+    }
+
+    .ver-action-btn {
+      padding: 5px 10px;
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--slate-200);
+      background: var(--white);
+      color: var(--slate-600);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.12s;
+    }
+
+    .ver-action-btn:hover {
+      background: var(--slate-50);
+    }
+
+    .ver-action-btn.danger {
+      color: var(--red-600);
+      border-color: var(--red-200);
+    }
+
+    .ver-action-btn.danger:hover {
+      background: var(--red-50);
+    }
+
+    .ver-active-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--ocean);
+      color: #fff;
+      border-radius: 99px;
+      padding: 2px 8px;
+    }
+
+    .import-msg {
+      padding: 10px 14px;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+
+    .import-msg.ok {
+      background: #e8f2f4;
+      border: 1px solid #b3dde3;
+      color: #1a6b7a;
+    }
+
+    .import-msg.err {
+      background: var(--red-50);
+      border: 1px solid var(--red-200);
+      color: var(--red-700);
+    }
+
+    .loading-msg {
+      padding: 48px 16px;
+      text-align: center;
+      color: var(--slate-400);
+      font-size: 15px;
+    }
+
+    .spin {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 2.5px solid var(--slate-200);
+      border-top-color: var(--ocean);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .empty-msg {
+      padding: 40px 16px;
+      text-align: center;
+      color: var(--slate-400);
+      font-size: 15px;
+    }
+
+    /* ── RWD ── */
+    @media (max-width: 360px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .fg.full {
+        grid-column: 1;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stat-cell:nth-child(2) {
+        border-right: none;
+      }
+
+      .stat-cell:nth-child(3),
+      .stat-cell:nth-child(4) {
+        border-top: 1px solid var(--slate-100);
+      }
+
+      .stat-cell:nth-child(4) {
+        border-right: none;
+      }
+    }
+
+    @media (min-width: 600px) {
+      body {
+        max-width: 480px;
+        margin: 0 auto;
+      }
+
+      .topbar {
+        max-width: 480px;
+        margin: 0 auto;
+        left: auto;
+        transform: none;
+        position: sticky;
+        top: 0;
+        width: 100%;
+      }
+
+      .scoreboard {
+        right: calc(50% - 232px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+
+    <!-- OFFLINE BANNER -->
+    <div class="offline-banner" :class="{show: !S.isOnline}">
+      <span class="material-symbols-outlined" style="font-size:18px">wifi_off</span>
+      目前處於離線狀態，資料已自動暫存。恢復連線後可繼續送出。
+    </div>
+    <div class="quota-banner" :class="{show: S.quotaBanner}">
+      ⚠️ <span>{{ S.quotaBannerTxt }}</span>
+      <a @click="S.quotaBanner=false">✕ 關閉</a>
+    </div>
+
+    <!-- DRAFT BANNER -->
+    <div class="draft-banner" :class="{show: S.draftBanner}">
+      <span class="material-symbols-outlined" style="font-size:20px;color:var(--ocean)">history</span>
+      <span class="draft-banner-txt">{{ S.draftBannerTxt }}</span>
+      <button class="draft-btn draft-btn-restore" @click="restoreDraft()">
+        <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-2px">restore</span> 還原草稿
+      </button>
+      <button class="draft-btn draft-btn-discard" @click="discardDraft()">捨棄</button>
+    </div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" :class="{hidden: !S.loadingOverlay}">
+      <div class="loading-logo">爭鮮<em> 食安巡檢</em></div>
+      <div class="loading-ring"></div>
+      <div class="loading-txt">系統載入中，請稍候…</div>
+    </div>
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-row">
+        <div class="brand">爭鮮<em> 食安巡檢</em></div>
+        <div class="conn-lbl">{{ S.connName }}</div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-meta">
+          <span>已評估 <strong>{{ scoreResult.done }}</strong> / <strong>{{ S.currentItems.length }}</strong></span>
+          <strong>{{ scoreResult.pct }}%</strong>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill" :class="{complete: scoreResult.pct===100}" :style="{width: scoreResult.pct+'%'}"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn" :class="{active: S.currentTab==='inspect'}" @click="S.currentTab='inspect'">巡檢作業</button>
+      <button class="tab-btn" :class="{active: S.currentTab==='manage'}" @click="S.currentTab='manage'">版次管理</button>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="alert error" v-if="S.alertError" v-html="S.alertError" style="display:block"></div>
+    <div class="alert warn" v-if="S.alertWarn" v-html="S.alertWarn" style="display:block"></div>
+
+    <!-- ═══ TAB: 巡檢 ═══ -->
+    <div id="tab-inspect" v-show="S.currentTab==='inspect'" :class="{'checklist-loaded': S.currentItems.length}">
+
+      <!-- Version bar -->
+      <div class="ver-bar">
+        <span class="ver-lbl">版次</span>
+        <select class="ver-sel" v-model="S.versionId" @change="loadChecklist()">
+          <option value="">{{ S.versionList.length ? '— 選擇版次 —' : '載入中…' }}</option>
+          <option v-for="v in S.versionList" :key="v.versionId" :value="v.versionId">
+            {{ v.label }}（{{ v.createdDate }}）
+          </option>
+        </select>
+      </div>
+
+      <!-- 定位確認 -->
+      <div class="geo-card" id="geoSection" data-gate>
+        <div class="geo-hd">
+          <span class="geo-title">
+            <span class="material-symbols-outlined"
+              style="font-size:18px;vertical-align:-3px;margin-right:4px">location_on</span>現場定位確認
+          </span>
+          <span class="geo-badge" :class="geoBadgeClass">{{ geoBadgeText }}</span>
+        </div>
+        <div class="geo-body">
+          <div class="geo-filter-row">
+            <select class="geo-filter-sel" v-model="S.geoFilterBrand" @change="filterStoreList()">
+              <option value="">全部品牌</option>
+              <option v-for="b in geoBrands" :key="b" :value="b">{{ b }}</option>
+            </select>
+            <select class="geo-filter-sel" v-model="S.geoFilterRegion" @change="filterStoreList()">
+              <option value="">全部地區</option>
+              <option v-for="r in geoRegions" :key="r" :value="r">{{ r }}</option>
+            </select>
+          </div>
+          <div class="geo-store-row">
+            <select class="geo-store-sel" v-model="S.geoStoreIdx">
+              <option value="">— 選擇巡檢門市（共{{ geoFiltered.length }}間）—</option>
+              <option v-for="s in geoFiltered" :key="s._idx" :value="s._idx">{{ s.name }}{{ s.city ? '　'+s.city : '' }}
+              </option>
+            </select>
+            <button class="btn-geo" @click="doGeoCheck()" :disabled="S.geoStoreIdx===''">
+              <span class="material-symbols-outlined" style="font-size:18px">gps_fixed</span> 定位確認
+            </button>
+          </div>
+          <div class="geo-status" :class="S.geoStatusClass" v-html="S.geoStatusHtml"></div>
+        </div>
+      </div>
+
+      <!-- Meta -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">基本資料</span></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="fg">
+              <label class="form-lbl">門市名稱</label>
+              <input class="form-input" type="text" v-model="S.storeName" placeholder="例：信義店" autocomplete="off"
+                @input="scheduleDraft" />
+            </div>
+            <div class="fg">
+              <label class="form-lbl">稽核員</label>
+              <input class="form-input" type="text" v-model="S.inspector" placeholder="姓名" autocomplete="off"
+                @input="scheduleDraft" />
+            </div>
+            <div class="fg">
+              <label class="form-lbl">日期</label>
+              <input class="form-input" type="date" v-model="S.inspectDate" @change="scheduleDraft" />
+            </div>
+            <div class="fg">
+              <label class="form-lbl">時間</label>
+              <input class="form-input" type="time" v-model="S.inspectTime" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" data-gate>
+        <div class="stat-cell">
+          <div class="stat-n g">{{ scoreResult.r.ok }}</div>
+          <div class="stat-l"><span class="material-symbols-outlined" style="font-size:13px">check_circle</span> 合格
+          </div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-n a">{{ scoreResult.r.warn }}</div>
+          <div class="stat-l"><span class="material-symbols-outlined" style="font-size:13px">warning</span> 需注意</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-n r">{{ scoreResult.r.fail }}</div>
+          <div class="stat-l"><span class="material-symbols-outlined" style="font-size:13px">cancel</span> 不合格</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-n b">{{ scoreResult.r.total }}</div>
+          <div class="stat-l"><span class="material-symbols-outlined" style="font-size:13px">remove_circle</span> 累計扣分
+          </div>
+        </div>
+      </div>
+
+      <!-- View toggle -->
+      <div class="view-tog" data-gate>
+        <button class="vtb" :class="{active: S.currentView==='all'}" @click="switchView('all')">全部項目</button>
+        <button class="vtb" :class="{active: S.currentView==='issues'}" @click="switchView('issues')">
+          待處理 <span class="iss-badge"
+            :style="{background: scoreResult.issues>0?'var(--red-200)':'var(--slate-200)', color: scoreResult.issues>0?'var(--red-700)':'var(--slate-600)'}">{{
+            scoreResult.issues }}</span>
+        </button>
+      </div>
+
+      <!-- Checklist -->
+      <div id="checklist-area">
+        <div v-if="S.checklistLoading" class="loading-msg">
+          <div class="spin"></div><br>載入中…
+        </div>
+        <template v-else-if="S.currentItems.length">
+          <div v-for="cat in groups.order" :key="cat" class="cat-card" :id="'cc_'+catId(cat,groups.groups[cat][0])"
+            v-show="S.currentView==='all' || groups.groups[cat].some(i=>!S.STATUS[i.n]||S.STATUS[i.n]!=='ok')">
+
+            <!-- Category header -->
+            <div class="cat-hd" @click="toggleCat(catId(cat,groups.groups[cat][0]))">
+              <div class="cat-row1">
+                <span class="cat-name">{{ cat }}</span>
+                <span class="cat-prog-lbl" :class="{done: getCatPct(groups.groups[cat])===100}">
+                  {{ getCatDone(groups.groups[cat]) }}/{{ groups.groups[cat].length }}
+                </span>
+                <svg class="cat-chev" :class="{open: !S.collapsedCats[catId(cat,groups.groups[cat][0])]}"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </div>
+              <div class="cat-bar-row">
+                <div class="cat-bar-track">
+                  <div class="cat-bar-fill"
+                    :style="{width: getCatPct(groups.groups[cat])+'%', background: getCatColor(groups.groups[cat])}">
+                  </div>
+                </div>
+                <span class="cat-pct-lbl">{{ getCatPct(groups.groups[cat]) }}%</span>
+              </div>
+              <div class="cat-foot" @click.stop>
+                <button class="btn-allok" :class="{'active-ok': isAllOk(groups.groups[cat])}" @click="markAllOk(cat)">
+                  <span class="material-symbols-outlined" style="font-size:15px;vertical-align:-2px">check_circle</span>
+                  {{ isAllOk(groups.groups[cat]) ? '全部合格（點擊取消）' : '全部合格' }}
+                </button>
+                <div class="dots-wrap">
+                  <span v-for="item in groups.groups[cat].slice(0,12)" :key="item.n" class="dot"
+                    :class="dotClass(item.n)" :title="item.n"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Items -->
+            <div class="cat-body" :class="{collapsed: S.collapsedCats[catId(cat,groups.groups[cat][0])]}">
+              <template v-for="item in groups.groups[cat]" :key="item.n">
+
+                <!-- Item row -->
+                <div class="item-row" :class="rowClass(item.n)" :id="'row-'+item.n"
+                  v-show="S.currentView==='all' || S.STATUS[item.n]!=='ok'" @click="togglePanel(item.n)">
+                  <span class="i-no">{{ item.n }}</span>
+                  <span class="i-lv" :class="lvClass(item.lv)">{{ item.lv }}</span>
+                  <span class="i-txt">{{ item.t }}</span>
+                  <div class="i-icon" :class="S.STATUS[item.n]||''" :id="'iico-'+item.n">
+                    <span v-if="S.STATUS[item.n]==='ok'" class="material-symbols-outlined"
+                      style="font-size:18px">check</span>
+                    <span v-else-if="S.STATUS[item.n]==='warn'" class="material-symbols-outlined"
+                      style="font-size:18px">warning</span>
+                    <span v-else-if="S.STATUS[item.n]==='fail'" class="material-symbols-outlined"
+                      style="font-size:18px">close</span>
+                    <span v-else style="font-size:14px;color:var(--slate-300)">—</span>
+                  </div>
+                </div>
+
+                <!-- Item panel -->
+                <div class="item-panel" :class="{open: S.openPanels[item.n]}" :id="'pnl-'+item.n">
+
+                  <!-- 3-state buttons -->
+                  <div class="s3-wrap">
+                    <button class="s3-btn" :class="{'a-ok': S.STATUS[item.n]==='ok'}"
+                      @click.stop="setStatus(item.n,'ok',0)">
+                      <span class="s3-icon"><span class="material-symbols-outlined">check_circle</span></span><span
+                        class="s3-lbl">合格</span>
+                    </button>
+                    <button class="s3-btn" :class="{'a-warn': S.STATUS[item.n]==='warn'}"
+                      @click.stop="setStatus(item.n,'warn',defDeduct(item.lv))">
+                      <span class="s3-icon"><span class="material-symbols-outlined">warning</span></span><span
+                        class="s3-lbl">需注意</span>
+                    </button>
+                    <button class="s3-btn" :class="{'a-fail': S.STATUS[item.n]==='fail'}"
+                      @click.stop="setStatus(item.n,'fail',defDeduct(item.lv))">
+                      <span class="s3-icon"><span class="material-symbols-outlined">cancel</span></span><span
+                        class="s3-lbl">不合格</span>
+                    </button>
+                  </div>
+
+                  <!-- 7-1 位置→問題 -->
+                  <template v-if="item.n==='7-1' && isFail(item.n)">
+                    <div class="mr7-wrap" :class="{'warn-mode': S.STATUS[item.n]==='warn'}">
+                      <div class="sr-lbl"
+                        :style="{color: S.STATUS[item.n]==='warn'?'var(--amber-700)':'var(--red-700)'}">
+                        位置 → 問題（先點位置，再多選問題）
+                      </div>
+                      <!-- 摘要 -->
+                    <div v-if="get71Text(item.n)" class="mr7-summary">{{ get71Text(item.n) }}</div>
+                      <!-- 位置 chips -->
+                      <div class="mr7-pos-row">
+                        <span v-for="pos in POSITIONS_71" :key="pos" class="mr7-pos-chip" :class="{
+                              'has-issues': S.MULTI_REASONS[item.n] && S.MULTI_REASONS[item.n][pos] && S.MULTI_REASONS[item.n][pos].length,
+                              'mr7-active': S.ACTIVE_POS_71[item.n]===pos
+                            }" @click.stop="mr7SelectPos(item.n, pos)">
+                          {{ pos }}
+                          <span
+                            v-if="S.MULTI_REASONS[item.n] && S.MULTI_REASONS[item.n][pos] && S.MULTI_REASONS[item.n][pos].length"
+                            class="mr7-badge">{{ S.MULTI_REASONS[item.n][pos].length }}</span>
+                        </span>
+                      </div>
+                      <!-- 問題 chips -->
+                      <template v-if="S.ACTIVE_POS_71[item.n]">
+                        <div class="mr7-iss-section">
+                          <div class="mr7-iss-lbl">
+                            <span class="material-symbols-outlined" style="font-size:15px">arrow_forward</span>
+                            <strong>{{ S.ACTIVE_POS_71[item.n] }}</strong> 的問題（多選）
+                          </div>
+                          <div class="mr7-iss-row">
+                            <span v-for="iss in ISSUES_71" :key="iss" class="mr7-iss-chip"
+                              :class="{selected: S.MULTI_REASONS[item.n] && S.MULTI_REASONS[item.n][S.ACTIVE_POS_71[item.n]] && S.MULTI_REASONS[item.n][S.ACTIVE_POS_71[item.n]].includes(iss)}"
+                              @click.stop="mr7ToggleIss(item.n, S.ACTIVE_POS_71[item.n], iss)">{{ iss }}</span>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+
+                  <!-- Sub-defect chips (非 7-1) -->
+                  <template v-else-if="getEffectiveSubs(item).length && isFail(item.n)">
+                    <div class="sr-wrap" :class="{'warn-mode': S.STATUS[item.n]==='warn'}">
+                      <div class="sr-lbl">不合格原因（選一）</div>
+                      <div class="sr-chip-row">
+                        <span v-for="sd in getEffectiveSubs(item)" :key="sd.id" class="sr-opt"
+                          :class="{selected: S.SUB_REASONS[item.n] && S.SUB_REASONS[item.n].id===sd.id}"
+                          @click.stop="setSR(item.n, sd.id, sd.t)">{{ sd.t }}</span>
+                      </div>
+                      <div class="sr-selected-summary" :class="{show: S.SUB_REASONS[item.n]}">
+                        已選：<strong>{{ S.SUB_REASONS[item.n] && S.SUB_REASONS[item.n].t }}</strong>（再次點擊可取消）
+                      </div>
+                    </div>
+                  </template>
+
+                  <!-- Photos -->
+                  <template v-if="isFail(item.n)">
+                    <div class="photo-area" :id="'pa-'+item.n">
+                      <!-- 拍照 / 選圖庫 按鈕 -->
+                      <div class="photo-btn-row" v-if="(S.PHOTOS[item.n]||[]).length < MAX_PHOTOS">
+                        <button class="btn-photo" @click.stop="capturePhoto(item.n,true)" type="button">
+                          <span class="material-symbols-outlined" style="font-size:18px">photo_camera</span>
+                          拍照
+                        </button>
+                        <button class="btn-photo" @click.stop="capturePhoto(item.n,false)" type="button">
+                          <span class="material-symbols-outlined" style="font-size:18px">photo_library</span>
+                          選圖庫
+                        </button>
+                        <span v-if="(S.PHOTOS[item.n]||[]).length" style="font-size:12px;color:var(--slate-400);align-self:center">
+                          {{ (S.PHOTOS[item.n]||[]).length }}/{{ MAX_PHOTOS }}
+                        </span>
+                      </div>
+                      <p v-else style="font-size:12px;color:var(--slate-400);margin:0 0 8px">已達上限（{{ MAX_PHOTOS }}/{{ MAX_PHOTOS }}）</p>
+
+                      <!-- 1:1 方形縮圖列 -->
+                      <div class="photo-thumbs-row">
+                        <div v-for="(ph,idx) in (S.PHOTOS[item.n]||[])" :key="idx" class="photo-thumb-wrap">
+                          <img v-if="photoSrc(ph)" class="photo-thumb" :src="photoSrc(ph)" :alt="'照片'+(idx+1)" />
+                          <!-- 上傳中 overlay -->
+                          <div v-if="ph.state==='uploading'" class="photo-thumb-overlay uploading">
+                            <span class="material-symbols-outlined" style="font-size:20px;color:#fff;animation:spin 0.8s linear infinite">autorenew</span>
+                          </div>
+                          <!-- 失敗 overlay -->
+                          <div v-if="ph.state==='fail'" class="photo-thumb-overlay fail" :title="ph.errorMsg">
+                            <span class="material-symbols-outlined" style="font-size:20px;color:#fff">error</span>
+                          </div>
+                          <!-- 鮭魚橘 X 刪除按鈕 -->
+                          <button class="photo-del-x" @click.stop="delPhoto(item.n,idx)" title="刪除照片">
+                            <span class="material-symbols-outlined" style="font-size:15px">close</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Deduct -->
+                    <div class="deduct-row">
+                      <span class="deduct-lbl">扣分</span>
+                      <input class="deduct-inp" type="number" min="0" max="100"
+                        :value="S.SCORES[item.n]!==undefined ? S.SCORES[item.n] : defDeduct(item.lv)" @click.stop
+                        @input.stop="S.SCORES[item.n]=parseInt($event.target.value)||0" />
+                      <span class="deduct-hint">預設 {{ item.lv }} = -{{ defDeduct(item.lv) }}，可調整</span>
+                    </div>
+
+                    <!-- Remark -->
+                    <textarea class="remark-inp" placeholder="缺失說明（選填）…" :value="S.REMARKS[item.n]||''" @click.stop
+                      @input.stop="S.REMARKS[item.n]=$event.target.value"></textarea>
+                  </template>
+
+                </div><!-- /item-panel -->
+              </template>
+            </div><!-- /cat-body -->
+          </div><!-- /cat-card -->
+        </template>
+        <div v-else-if="!S.checklistLoading && S.versionId" class="empty-msg">尚無巡檢項目</div>
+      </div><!-- /checklist-area -->
+
+      <!-- Summary -->
+      <div class="sum-card" id="sumCard" v-show="S.currentItems.length">
+        <div class="sum-hd" @click="toggleSummary()">
+          <span class="sum-title">巡檢總結報告</span>
+          <span class="sum-chev" :class="{open: S.summaryOpen}">▼</span>
+        </div>
+        <div class="sum-body" :class="{open: S.summaryOpen}" v-html="summaryHtml"></div>
+      </div>
+
+      <!-- Suggestion + Sign + Submit -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">建議事項</span></div>
+        <div class="card-body">
+          <textarea class="form-textarea" v-model="S.suggestion" placeholder="填寫本次巡檢整體建議（選填）"
+            @input="scheduleDraft"></textarea>
+          <label class="check-row" style="margin-top:12px">
+            <input type="checkbox" v-model="S.managerPresent" /> 店長在店
+          </label>
+          <div class="fg" style="margin-top:10px">
+            <label class="form-lbl">店長簽名</label>
+            <input type="hidden" v-model="S.managerSignature" />
+            <div id="sigPadWrap"
+              style="border:1.5px solid var(--slate-200);border-radius:var(--r-sm);background:var(--white);position:relative;overflow:hidden">
+              <div id="sigHint"
+                style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-size:14px;color:var(--slate-300);letter-spacing:1px">
+                請在此手寫簽名</div>
+              <canvas id="sigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair"
+                height="200"></canvas>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <button type="button" @click="sigClear()"
+                style="flex:1;padding:9px;font-size:13px;font-weight:600;border:1.5px solid var(--slate-200);border-radius:var(--r-sm);background:var(--white);color:var(--slate-600);cursor:pointer">
+                <span class="material-symbols-outlined" style="font-size:16px">delete</span> 清除重簽
+              </button>
+              <div
+                style="flex:2;padding:9px;font-size:13px;text-align:center;color:var(--slate-400);display:flex;align-items:center;justify-content:center">
+                {{ S.hasSig ? '✅ 已簽名' : '尚未簽名' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="bottom-act" data-gate>
+        <button class="btn btn-primary" :disabled="S.submitting" @click="submitForm()">
+          {{ S.submitting ? '送出中…' : '送出巡檢結果' }}
+        </button>
+        <button class="btn btn-ghost" @click="resetForm()">重新填寫</button>
+      </div>
+
+      <!-- Success card -->
+      <div class="success-card" :class="{show: S.successCard}">
+        <div class="success-hd">
+          <span class="success-icon"><span class="material-symbols-outlined"
+              style="font-size:22px;color:#1a6b7a">check_circle</span></span>
+          <span class="success-title">巡檢結果已成功送出</span>
+        </div>
+        <div class="success-body">
+          <div class="success-meta" v-html="S.successMeta"></div>
+          <button class="btn-pdf" :class="{done: S.pdfDone}" :disabled="S.pdfGenerating" @click="generatePdf()">
+            <span class="material-symbols-outlined" style="font-size:20px;vertical-align:-4px">{{ S.pdfDone ? 'task_alt'
+              : 'description' }}</span>
+            {{ S.pdfGenerating ? '產生中…（約20~40秒）' : S.pdfDone ? 'PDF 已產生' : '產生 PDF 報告' }}
+          </button>
+          <div v-html="S.pdfResultHtml"></div>
+        </div>
+      </div>
+
+    </div><!-- /tab-inspect -->
+
+    <!-- ═══ TAB: 版次管理 ═══ -->
+    <div id="tab-manage" v-show="S.currentTab==='manage'">
+      <div class="card" style="margin-top:8px">
+        <div class="card-hd">
+          <span class="card-title">現有版次</span>
+          <span style="font-size:12px;color:var(--slate-400)">{{ S.versionList.length }} 個版次</span>
+        </div>
+        <div v-if="!S.versionList.length" class="empty-msg">尚無版次</div>
+        <table v-else class="ver-table">
+          <thead>
+            <tr>
+              <th>標籤</th>
+              <th>建立日期</th>
+              <th>說明</th>
+              <th style="text-align:center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="v in S.versionList" :key="v.versionId">
+              <td class="v-lbl">
+                {{ v.label }}
+                <span v-if="v.versionId===S.versionId" class="ver-active-badge">使用中</span>
+              </td>
+              <td class="v-date">{{ v.createdDate }}</td>
+              <td class="v-date">{{ v.description || '—' }}</td>
+              <td style="text-align:center;white-space:nowrap">
+                <button class="ver-action-btn" @click="cloneVersion(v.versionId, v.label)" title="複製此版次">
+                  <span class="material-symbols-outlined" style="font-size:14px">content_copy</span>複製
+                </button>
+                <button class="ver-action-btn" @click="exportVersionExcel(v.versionId, v.label)" title="匯出 Excel">
+                  <span class="material-symbols-outlined" style="font-size:14px">table_view</span>匯出
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Excel Import -->
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">匯入 Excel / CSV 建立版次</span>
+          <button @click="downloadTemplate()"
+            style="padding:5px 12px;font-size:12px;font-weight:700;border:1.5px solid var(--green-600);border-radius:var(--r-sm);background:var(--green-50);color:var(--green-700);cursor:pointer;display:flex;align-items:center;gap:4px">
+            <span class="material-symbols-outlined" style="font-size:15px">download</span>下載模板
+          </button>
+        </div>
+        <div class="card-body">
+          <div
+            style="background:var(--slate-50);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--slate-600);line-height:1.8">
+            <strong style="color:var(--slate-800)">Excel 欄位格式（Sheet1）：</strong><br />
+            <code style="background:#fff;border-radius:4px;padding:1px 6px;font-size:12px">A: 類別</code>
+            <code style="background:#fff;border-radius:4px;padding:1px 6px;font-size:12px">B: 項次</code>
+            <code style="background:#fff;border-radius:4px;padding:1px 6px;font-size:12px">C: 等級(★/▲/□)</code>
+            <code style="background:#fff;border-radius:4px;padding:1px 6px;font-size:12px">D: 說明</code>
+            <code style="background:#fff;border-radius:4px;padding:1px 6px;font-size:12px">E: 子項（分號分隔）</code>
+          </div>
+          <div class="import-zone" @click="$refs.importFile.click()"
+            @dragover.prevent="$event.currentTarget.classList.add('drag-over')"
+            @dragleave="$event.currentTarget.classList.remove('drag-over')"
+            @drop.prevent="$event.currentTarget.classList.remove('drag-over'); handleImportDrop($event)">
+            <span class="material-symbols-outlined" style="font-size:36px;color:var(--slate-300)">upload_file</span>
+            <div style="margin-top:8px;font-size:14px;color:var(--slate-500);font-weight:600">點擊或拖曳檔案至此</div>
+            <div style="font-size:12px;color:var(--slate-400);margin-top:4px">.xlsx / .xls / .csv</div>
+            <input type="file" ref="importFile" accept=".xlsx,.xls,.csv" style="display:none"
+              @change="handleImportFile($event.target.files[0])" />
+          </div>
+          <div v-if="S.importMsg.text" class="import-msg" :class="S.importMsg.type" style="display:block">{{
+            S.importMsg.text }}</div>
+          <div v-if="S.importPreview" class="import-preview" style="display:block" v-html="S.importPreview"></div>
+          <div v-if="S.importSettingsVisible"
+            style="margin-top:12px;padding:12px;background:var(--slate-50);border-radius:var(--r-sm)">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+              <div class="fg" style="flex:2;min-width:140px">
+                <label class="form-lbl">版次標籤</label>
+                <input class="form-input" type="text" v-model="S.importVersionLabel" placeholder="例：202604版" />
+              </div>
+              <div class="fg" style="flex:3;min-width:200px">
+                <label class="form-lbl">說明</label>
+                <input class="form-input" type="text" v-model="S.importVersionDesc" placeholder="版本說明（選填）" />
+              </div>
+              <button @click="confirmImport()"
+                style="background:var(--ocean);color:#fff;border:none;border-radius:var(--r);padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;min-height:46px;display:flex;align-items:center;gap:6px;white-space:nowrap">
+                <span class="material-symbols-outlined" style="font-size:18px">check_circle</span>確認匯入建立版次
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual create -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">手動建立新版次</span></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="fg full"><label class="form-lbl">版次標籤</label><input class="form-input" type="text"
+                v-model="S.newVersionLabel" placeholder="例：202604版" /></div>
+            <div class="fg full"><label class="form-lbl">說明</label><input class="form-input" type="text"
+                v-model="S.newVersionDesc" placeholder="版本說明（選填）" /></div>
+            <div class="fg full">
+              <label class="form-lbl">項目 JSON</label>
+              <textarea class="form-textarea" v-model="S.newVersionItems"
+                style="min-height:130px;font-family:monospace;font-size:13px"
+                placeholder='[{"c":"類別","n":"1-1","lv":"▲","t":"說明","subDefects":[{"id":1,"t":"原因"}]}]'></textarea>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button @click="createNewVersion()"
+                style="flex:1;min-width:120px;background:var(--ocean);color:var(--white);border:none;border-radius:var(--r);padding:13px;font-size:15px;font-weight:700;cursor:pointer;min-height:50px">建立版次</button>
+              <button @click="copyCurrentItems()"
+                style="flex:1;min-width:120px;background:var(--white);color:var(--slate-600);border:1.5px solid var(--slate-200);border-radius:var(--r);padding:13px;font-size:14px;font-weight:600;cursor:pointer;min-height:50px">複製現有版次</button>
+              <button @click="loadDefaultChecklist()"
+                style="flex:1;min-width:120px;background:#e8f2f4;color:#1a6b7a;border:1.5px solid #b3dde3;border-radius:var(--r);padding:13px;font-size:14px;font-weight:600;cursor:pointer;min-height:50px;display:flex;align-items:center;justify-content:center;gap:6px">
+                <span class="material-symbols-outlined" style="font-size:16px">download</span> 載入預設版次
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-manage -->
+
+    <!-- SCOREBOARD -->
+    <div class="scoreboard">
+      <div class="sc-n">{{ scoreResult.r.score }}</div>
+      <div class="sc-l">分數</div>
+      <div class="grade-chip" :class="gradeClass">{{ scoreResult.r.grade }}</div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <script>
+    const { createApp, reactive, computed, onMounted, nextTick } = Vue
+
+    // ═══════════════════════════════════════════════════════
+    //  ★ CONFIG
+    // ═══════════════════════════════════════════════════════
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxCpX8DcNrK9p2gqrq3CPJjbKuPXp4nr5DXvx_XxWhd27DbTfrwN4v5wvnZNuaV52oZ/exec'
+    const GAS_TOKEN = 'sushi-safety-2026'
+
+    // ── GAS fetch (text/plain → no CORS preflight) ──
+    function _gasCallRaw(action, payload) {
+      const body = JSON.stringify(Object.assign({ action, token: GAS_TOKEN }, payload || {}))
+      return fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body })
+        .then(r => r.text())
+        .then(text => {
+          let json
+          try { json = JSON.parse(text) } catch (e) {
+            throw new Error('GAS 回傳非 JSON（doPost 是否已部署？）: ' + text.slice(0, 160))
+          }
+          if (json.status === 'success' && json.data !== undefined) return json.data
+          if (json.status === 'error') return { ok: false, error: json.message || json.error || '未知錯誤' }
+          return json
+        })
+    }
+
+    // ── google.script.run 相容層 ──
+    const google = {
+      script: {
+        get run() {
+          let _s = null, _f = null
+          const runner = {
+            withSuccessHandler(fn) { _s = fn; return runner },
+            withFailureHandler(fn) { _f = fn; return runner }
+          }
+            ;['getSystemStatus', 'getVersionList', 'getChecklistByVersion', 'getStoreList',
+              'saveResponse', 'uploadPhoto', 'generateReport', 'createVersion', 'getQuotaStatus'
+            ].forEach(name => {
+              runner[name] = arg => {
+                const payload = (arg == null) ? {} : typeof arg === 'object' ? arg : { versionId: arg }
+                _gasCallRaw(name, payload).then(res => _s && _s(res)).catch(e => _f && _f(e))
+              }
+            })
+          return runner
+        }
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  CONSTANTS
+    // ═══════════════════════════════════════════════════════
+    const DEF_DEDUCT = { '★': 10, '▲': 3, '□': 1 }
+    const MAX_PHOTOS = 3
+    const GEO_MAX_DIST = 500
+    const POSITIONS_71 = ['地面', '牆壁', '管線', '支柱', '天花板', '層架', '燈座', '冷氣出風口']
+    const ISSUES_71 = ['破損', '剝落', '孔洞', '積灰', '積垢', '長霉', '積水', '結露', '其他']
+    const REGION_ORDER = ['北部', '中部', '南部', '東部', '離島']
+    const DRAFT_KEY = 'fsInspect_draft_v2'
+    const QUEUE_KEY = 'fsInspect_queue_v1'
+    const CACHE_TTL = 24 * 60 * 60 * 1000
+    const _memCache = {}
+
+    // ═══════════════════════════════════════════════════════
+    //  STORAGE
+    // ═══════════════════════════════════════════════════════
+    function _storageSet(k, v) { try { localStorage.setItem(k, v); return } catch { } try { sessionStorage.setItem(k, v); return } catch { } _memCache[k] = v }
+    function _storageGet(k) { try { const v = localStorage.getItem(k); if (v !== null) return v } catch { } try { const v = sessionStorage.getItem(k); if (v !== null) return v } catch { } return _memCache[k] ?? null }
+    function _storageRemove(k) { try { localStorage.removeItem(k) } catch { } try { sessionStorage.removeItem(k) } catch { } delete _memCache[k] }
+    function _cacheSet(k, d) { _storageSet(k, JSON.stringify({ data: d, ts: Date.now() })) }
+    function _cacheGet(k) { try { const r = _storageGet(k); if (!r) return null; const o = JSON.parse(r); if (!o || (Date.now() - o.ts) > CACHE_TTL) { _storageRemove(k); return null } return o.data } catch { return null } }
+
+    // ═══════════════════════════════════════════════════════
+    //  IMAGE COMPRESS
+    // ═══════════════════════════════════════════════════════
+    function _compressImage(file, maxW = 1600, q = 0.7) {
+      return new Promise((res, rej) => {
+        const r = new FileReader(); r.onerror = rej
+        r.onload = ev => {
+          const img = new Image(); img.onerror = rej
+          img.onload = () => {
+            let w = img.width, h = img.height
+            if (w > maxW) { h = Math.round(h * maxW / w); w = maxW }
+            const c = document.createElement('canvas'); c.width = w; c.height = h
+            c.getContext('2d').drawImage(img, 0, 0, w, h)
+            res({ base64: c.toDataURL('image/jpeg', q), fileName: file.name, origSize: file.size })
+          }
+          img.src = ev.target.result
+        }
+        r.readAsDataURL(file)
+      })
+    }
+    function _escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
+
+    // ═══════════════════════════════════════════════════════
+    //  DEFAULT CHECKLIST (compressed)
+    // ═══════════════════════════════════════════════════════
+    const DEFAULT_CHECKLIST = [{ "c": "一、食品存放與容器", "n": "1-1", "lv": "▲", "t": "食品存放：應按照衛生安全高低，依即食→原件蔬果→非即食由上而下放置。若空間不足需放置同層，原件蔬果及非即食須以保鮮盒、實心籃盛裝，和即食區隔。", "subDefects": [{ "id": 1, "t": "混放" }, { "id": 2, "t": "未按衛生高低" }, { "id": 3, "t": "非即食未放實心籃" }, { "id": 4, "t": "其他" }] }, { "c": "一、食品存放與容器", "n": "1-2", "lv": "▲", "t": "即食與非即食容器具(如：夾子、刀具、醬刷、保鮮盒等)不得混用/同放。", "subDefects": [{ "id": 1, "t": "混用(不分項)" }, { "id": 2, "t": "混放-夾子" }, { "id": 3, "t": "混放-醬刷" }, { "id": 4, "t": "混放-砧板" }, { "id": 5, "t": "其他" }] }, { "c": "一、食品存放與容器", "n": "1-3", "lv": "□", "t": "非即食容器具應以束帶或標籤貼分類管理，以利與即食用容器具區別。", "subDefects": [{ "id": 1, "t": "夾子" }, { "id": 2, "t": "醬刷" }, { "id": 3, "t": "醬杯" }, { "id": 4, "t": "保鮮盒" }, { "id": 5, "t": "器具盛裝盒" }, { "id": 6, "t": "其他" }] }, { "c": "二、清潔消毒", "n": "2-1", "lv": "★", "t": "設備、冰箱、操作台等處應定時清潔消毒，展示櫃門把、霜淇淋機花嘴應每小時消毒。", "subDefects": [{ "id": 1, "t": "展示櫃門把" }, { "id": 2, "t": "霜淇淋機花嘴" }, { "id": 3, "t": "李斯特菌高風險區" }, { "id": 4, "t": "其他" }] }, { "c": "二、清潔消毒", "n": "2-2", "lv": "▲", "t": "白色抹布：接觸食品與食品容器具，需定位於抹布盒，不得放於桌面，或與其它清潔用抹布混放。", "subDefects": [{ "id": 1, "t": "接觸桌面" }, { "id": 2, "t": "接觸層架" }, { "id": 3, "t": "抹布盒無標示" }, { "id": 4, "t": "防滑白抹布未管理" }, { "id": 5, "t": "其他" }] }, { "c": "二、清潔消毒", "n": "2-3", "lv": "▲", "t": "白色抹布應浸泡於500ppm漂白水中備用，並每小時更換。", "subDefects": [{ "id": 1, "t": "濃度不足" }, { "id": 2, "t": "未整點更換" }, { "id": 3, "t": "配製方式錯誤" }, { "id": 4, "t": "其他" }] }, { "c": "三、人員衛生管理", "n": "3-1", "lv": "▲", "t": "依各品牌內場/外場服裝儀容規範，應穿戴整潔之工作衣帽(鞋)，並正確配戴口罩。", "subDefects": [{ "id": 1, "t": "工作衣帽(鞋)" }, { "id": 2, "t": "口罩" }, { "id": 3, "t": "其他" }] }, { "c": "三、人員衛生管理", "n": "3-2", "lv": "▲", "t": "不得蓄留指甲、塗抹指甲油及佩戴飾物等。", "subDefects": [{ "id": 1, "t": "指甲" }, { "id": 2, "t": "指甲油" }, { "id": 3, "t": "耳環" }, { "id": 4, "t": "項鍊" }, { "id": 5, "t": "其他" }] }, { "c": "三、人員衛生管理", "n": "3-3", "lv": "★", "t": "手部應依洗手鐘定時清潔，並依正確步驟洗手及消毒；不可直接以手拿取非即食/生肉。", "subDefects": [{ "id": 1, "t": "洗手鐘未響" }, { "id": 2, "t": "鐘響未洗手" }, { "id": 3, "t": "洗手步驟錯誤" }, { "id": 4, "t": "以手拿生肉" }, { "id": 5, "t": "其他" }] }, { "c": "三、人員衛生管理", "n": "3-4", "lv": "▲", "t": "調理食品時應穿戴消毒清潔之不透水手套。", "subDefects": [{ "id": 1, "t": "未戴手套" }, { "id": 2, "t": "手部不潔" }, { "id": 3, "t": "其他" }] }, { "c": "三、人員衛生管理", "n": "3-5", "lv": "★", "t": "若有手部傷口，須妥善包紮處理；若感冒/發燒等情況，不得從事與食品接觸之工作。", "subDefects": [{ "id": 1, "t": "傷口未包紮" }, { "id": 2, "t": "包紮錯誤" }, { "id": 3, "t": "身體不適仍製餐" }, { "id": 4, "t": "其他" }] }, { "c": "三、人員衛生管理", "n": "3-6", "lv": "▲", "t": "人員工作時，不得有吸菸、嚼檳榔、嚼口香糖、飲食或其他可能污染食品之行為。", "subDefects": [{ "id": 1, "t": "飲食" }, { "id": 2, "t": "嚼口香糖" }, { "id": 3, "t": "吸菸、嚼檳榔" }, { "id": 4, "t": "其他" }] }, { "c": "四、食材管理", "n": "4-1", "lv": "▲", "t": "進貨時應經驗收，驗收不合格者應存放退貨區並與正常品區隔。", "subDefects": [{ "id": 1, "t": "未驗收" }, { "id": 2, "t": "退貨未放專區" }, { "id": 3, "t": "其他" }] }, { "c": "四、食材管理", "n": "4-2", "lv": "★", "t": "食品不得直接放置地面，不與高汙染物、非食品容器具混放。", "subDefects": [{ "id": 1, "t": "未離地" }, { "id": 2, "t": "桌面" }, { "id": 3, "t": "清潔用品" }, { "id": 4, "t": "化學品" }, { "id": 5, "t": "其他" }] }, { "c": "四、食材管理", "n": "4-3", "lv": "▲", "t": "食品保存及分裝，應整齊堆放，不得有污染及腐敗情形。", "subDefects": [{ "id": 1, "t": "盛裝盒" }, { "id": 2, "t": "食品外包裝" }, { "id": 3, "t": "其他" }] }, { "c": "四、食材管理", "n": "4-4", "lv": "▲", "t": "食品使用過程應落實批號管理及先進先出。", "subDefects": [{ "id": 1, "t": "未先進先出" }, { "id": 2, "t": "分裝品無效期" }, { "id": 3, "t": "效期標模糊消失" }, { "id": 4, "t": "其他" }] }, { "c": "四、食材管理", "n": "4-5", "lv": "★", "t": "食品應在保存期限內使用，未見逾有效日期食品。", "subDefects": [{ "id": 1, "t": "食材過期" }, { "id": 2, "t": "原件過期" }, { "id": 3, "t": "其他" }] }, { "c": "四、食材管理", "n": "4-6", "lv": "★", "t": "食品之貯存及供應應維持適當溫度。", "subDefects": [{ "id": 1, "t": "冷藏(凍)溫度設定錯誤" }, { "id": 2, "t": "熱藏湯鍋" }, { "id": 3, "t": "冷藏" }, { "id": 4, "t": "冷凍" }, { "id": 5, "t": "其他" }] }, { "c": "四、食材管理", "n": "4-7", "lv": "▲", "t": "食材解凍方式正確，並防止品質劣化或交叉污染。", "subDefects": [{ "id": 1, "t": "重複解凍複凍" }, { "id": 2, "t": "解凍方式錯誤" }, { "id": 3, "t": "其他" }] }, { "c": "五、食品製程管理", "n": "5-1", "lv": "★", "t": "食品在製程中，應採取有效措施防止酒精、冷凝水、金屬或其他異物混入食品中。", "subDefects": [{ "id": 1, "t": "酒精" }, { "id": 2, "t": "冷凝水" }, { "id": 3, "t": "金屬" }, { "id": 4, "t": "其他" }] }, { "c": "五、食品製程管理", "n": "5-2", "lv": "▲", "t": "食品處理應於乾淨操作台調理、加工及操作。", "subDefects": [{ "id": 1, "t": "操作台混亂" }, { "id": 2, "t": "共用操作台" }, { "id": 3, "t": "其他" }] }, { "c": "五、食品製程管理", "n": "5-3", "lv": "★", "t": "食品製程應遵守衛生規範，不得有污染食品之情形。", "subDefects": [{ "id": 1, "t": "其他" }] }, { "c": "五、食品製程管理", "n": "5-4", "lv": "▲", "t": "食品接觸面應妥善管理，不可接觸高汙染物。", "subDefects": [{ "id": 1, "t": "保鮮盒" }, { "id": 2, "t": "保鮮蓋" }, { "id": 3, "t": "廢棄物" }, { "id": 4, "t": "其他" }] }, { "c": "六、設備容器管理", "n": "6-1", "lv": "▲", "t": "設備與容器具或食品接觸面使用前應確認其清潔，使用後應清洗乾淨。", "subDefects": [{ "id": 1, "t": "剪刀" }, { "id": 2, "t": "刀具" }, { "id": 3, "t": "砧板" }, { "id": 4, "t": "保鮮盒" }, { "id": 5, "t": "其他" }] }, { "c": "六、設備容器管理", "n": "6-2", "lv": "▲", "t": "設備與容器具或食品接觸面應保持完整無破損。", "subDefects": [{ "id": 1, "t": "醋飯盤" }, { "id": 2, "t": "保鮮蓋" }, { "id": 3, "t": "保鮮盒" }, { "id": 4, "t": "其他" }] }, { "c": "六、設備容器管理", "n": "6-3", "lv": "▲", "t": "已清洗消毒之設備、容器具應妥善管理、定位存放，避免再受污染。", "subDefects": [{ "id": 1, "t": "盛裝盒不潔" }, { "id": 2, "t": "洞籃不潔" }, { "id": 3, "t": "未定位放置" }, { "id": 4, "t": "其他" }] }, { "c": "七、環境衛生", "n": "7-1", "lv": "▲", "t": "食品作業區整體環境(如：地面、牆壁、管線、支柱、天花板、層架等)、照明設備及空調系統須維持清潔整齊，避免破損、剝落、孔洞、積灰、積垢、長霉、積水或結露現象。", "subDefects": [{ "id": 1, "t": "地面" }, { "id": 2, "t": "牆壁" }, { "id": 3, "t": "天花板" }, { "id": 4, "t": "層架" }] }, { "c": "七、環境衛生", "n": "7-2", "lv": "▲", "t": "出入口、門窗、通風口及其他孔道應設置防止病媒侵入設施。", "subDefects": [{ "id": 1, "t": "出入口" }, { "id": 2, "t": "門窗" }, { "id": 3, "t": "其他" }] }, { "c": "七、環境衛生", "n": "7-7", "lv": "▲", "t": "洗手設施：有完整洗手設備(擦手紙、洗手乳)；張貼完整之「正確洗手步驟」標語圖示。", "subDefects": [{ "id": 1, "t": "洗手設施" }, { "id": 2, "t": "洗手乳" }, { "id": 3, "t": "洗手步驟" }, { "id": 4, "t": "其他" }] }, { "c": "七、環境衛生", "n": "7-14", "lv": "★", "t": "不得有病媒或其出沒之痕跡。(如：活蟲、蟲屍、卵鞘、糞便等)", "subDefects": [{ "id": 1, "t": "活蟲" }, { "id": 2, "t": "蟲屍" }, { "id": 3, "t": "蟑螂" }, { "id": 4, "t": "老鼠" }, { "id": 5, "t": "其他" }] }, { "c": "八、文件記錄管理", "n": "8-1", "lv": "★", "t": "食品從業人員應有經醫療機構健康檢查(年度)合格報告。", "subDefects": [{ "id": 1, "t": "無健檢報告" }, { "id": 2, "t": "報告不合格" }, { "id": 3, "t": "其他" }] }, { "c": "八、文件記錄管理", "n": "8-2", "lv": "▲", "t": "門市人員至少一人有教育訓練紀錄。", "subDefects": [{ "id": 1, "t": "無紀錄" }, { "id": 2, "t": "其他" }] }, { "c": "八、文件記錄管理", "n": "8-3", "lv": "▲", "t": "食品作業管理表單(冰箱溫度記錄、廚餘紀錄等)紀錄完整。", "subDefects": [{ "id": 1, "t": "缺漏" }, { "id": 2, "t": "誤植" }, { "id": 3, "t": "其他" }] }]
+
+    const ITEM_DEFECT_CATALOG = (() => {
+      const m = {}
+      DEFAULT_CHECKLIST.forEach(item => { if (item.subDefects?.length) m[item.n] = item.subDefects })
+      return m
+    })()
+
+    // ─── Vue App ───────────────────────────────────────────
+    createApp({
+      setup() {
+        // ═══ REACTIVE STATE ═══
+        const S = reactive({
+          // App
+          currentTab: 'inspect', isOnline: navigator.onLine, loadingOverlay: true,
+          connName: '連線中…', alertError: '', alertWarn: '',
+          quotaBanner: false, quotaBannerTxt: '', draftBanner: false, draftBannerTxt: '',
+          // Checklist
+          STATUS: {}, SCORES: {}, REMARKS: {}, PHOTOS: {},
+          SUB_REASONS: {}, MULTI_REASONS: {}, ACTIVE_POS_71: {},
+          currentItems: [], versionList: [], storeList: [],
+          currentView: 'all', summaryOpen: false,
+          openPanels: {}, collapsedCats: {},
+          checklistLoading: false,
+          // Form
+          storeName: '', inspector: '', inspectDate: '', inspectTime: '',
+          suggestion: '', managerPresent: false, versionId: '',
+          hasSig: false, managerSignature: '',
+          // Geo
+          geoResult: null, geoFilterBrand: '', geoFilterRegion: '', geoStoreIdx: '',
+          geoStatusClass: '', geoStatusHtml: '',
+          // Submit/PDF
+          submitting: false, successCard: false, successMeta: '',
+          pdfGenerating: false, pdfDone: false, pdfResultHtml: '',
+          lastPayload: null,
+          // Manage
+          newVersionLabel: '', newVersionDesc: '', newVersionItems: '',
+          importedItems: [], importPreview: '', importSettingsVisible: false,
+          importVersionLabel: '', importVersionDesc: '',
+          importMsg: { type: '', text: '' },
+        })
+
+        // ═══ COMPUTED ═══
+        const groups = computed(() => {
+          const g = {}, order = []
+          S.currentItems.forEach(item => {
+            if (!g[item.c]) { g[item.c] = []; order.push(item.c) }
+            g[item.c].push(item)
+          })
+          return { groups: g, order }
+        })
+
+        const scoreResult = computed(() => {
+          let total = 0, ok = 0, warn = 0, fail = 0, unset = 0, critFail = 0, majorFail = 0, normFail = 0
+          const catC = {}
+          S.currentItems.forEach(item => {
+            const s = S.STATUS[item.n]
+            if (s === 'ok') ok++
+            else if (s === 'warn') { warn++; total += S.SCORES[item.n] || 0 }
+            else if (s === 'fail') {
+              fail++; total += S.SCORES[item.n] !== undefined ? S.SCORES[item.n] : DEF_DEDUCT[item.lv] || 1
+              const cat = item.n.split('-')[0]; catC[cat] = (catC[cat] || 0) + 1
+              if (item.lv === '★') critFail++; else if (item.lv === '▲') majorFail++; else normFail++
+            } else unset++
+          })
+          let penalty = 0
+          Object.values(catC).forEach(c => { if (c >= 3) penalty += 3 })
+          total += penalty
+          const score = Math.max(0, 100 - total)
+          const grade = score >= 90 ? '優' : score >= 80 ? '良' : score >= 70 ? '普' : '需改善'
+          const done = ok + warn + fail
+          const pct = S.currentItems.length ? Math.round(done / S.currentItems.length * 100) : 0
+          return { r: { score, total, grade, ok, warn, fail, unset, critFail, majorFail, normFail, penalty }, done, pct, issues: warn + fail }
+        })
+
+        const gradeClass = computed(() => ({ '優': 'gA', '良': 'gB', '普': 'gC', '需改善': 'gD' }[scoreResult.value.r.grade]))
+
+        const geoBrands = computed(() => [...new Set(S.storeList.map(s => s.brand).filter(Boolean))].sort())
+        const geoRegions = computed(() => [...new Set(S.storeList.map(s => s.region).filter(Boolean))].sort((a, b) => REGION_ORDER.indexOf(a) - REGION_ORDER.indexOf(b)))
+        const geoFiltered = computed(() => S.storeList.map((s, i) => ({ ...s, _idx: i })).filter(s => (!S.geoFilterBrand || s.brand === S.geoFilterBrand) && (!S.geoFilterRegion || s.region === S.geoFilterRegion)))
+
+        const geoBadgeClass = computed(() => {
+          if (!S.geoResult) return 'geo-badge none'
+          return S.geoResult.ok ? 'geo-badge ok' : 'geo-badge warn'
+        })
+        const geoBadgeText = computed(() => {
+          if (!S.geoResult) return '未確認'
+          return S.geoResult.ok ? '✅ 已確認' : '⚠ 距離過遠'
+        })
+
+        const summaryHtml = computed(() => {
+          const r = scoreResult.value.r
+          const issues = S.currentItems.filter(i => S.STATUS[i.n] === 'warn' || S.STATUS[i.n] === 'fail')
+          const gc = { '優': 'var(--green-700)', '良': 'var(--ocean)', '普': 'var(--amber-700)', '需改善': 'var(--red-700)' }
+          let h = `<div class="sum-score-row">
+              <div class="sum-score-cell"><div class="sum-big">${r.score}</div><div class="sum-sublbl">總分</div></div>
+              <div class="sum-score-cell"><div class="sum-big" style="color:${r.fail > 0 ? 'var(--red-600)' : 'var(--amber-600)'}">${issues.length}</div><div class="sum-sublbl">問題項目</div></div>
+              <div class="sum-score-cell"><div class="sum-big">${S.currentItems.length}</div><div class="sum-sublbl">總項目</div></div>
+            </div>
+            <div style="padding:12px 16px;background:var(--slate-50);border-bottom:1px solid var(--slate-100);font-size:13px;color:var(--slate-700);line-height:1.9">
+              本次巡檢結果：總分 <strong>${r.score} 分</strong>、
+              <span style="color:var(--red-600);font-weight:700">★ 重大缺失(-10分) ${r.critFail} 項</span>、
+              <span style="color:var(--amber-700);font-weight:700">▲ 主要缺失(-3分) ${r.majorFail} 項</span>、
+              <span style="color:var(--slate-600);font-weight:700">□ 一般缺失(-1分) ${r.normFail} 項</span>
+              ${r.penalty > 0 ? `　<span style="color:var(--red-700);font-size:12px">{相同條文缺失三項(含)以上再加重 -${r.penalty} 分}</span>` : ''}
+              <br>評核等級：<strong style="color:${gc[r.grade] || 'inherit'}">${r.grade}</strong>（優: 90分以上｜良: 89~80分｜普: 79~70分｜需改善: 69分以下）
+            </div>
+            <div class="sum-status-row">
+              ${[{ lbl: '合格', cnt: r.ok, clr: 'var(--green-600)', icon: 'check_circle' }, { lbl: '需注意', cnt: r.warn, clr: 'var(--amber-600)', icon: 'warning' }, { lbl: '不合格', cnt: r.fail, clr: 'var(--red-600)', icon: 'cancel' }, { lbl: '未評估', cnt: r.unset, clr: 'var(--slate-400)', icon: 'pending' }]
+              .map(s => `<div class="sum-sc"><div class="sum-sn" style="color:${s.clr}">${s.cnt}</div><div class="sum-sl"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:-2px">${s.icon}</span> ${s.lbl}</div></div>`).join('')}
+            </div>`
+          if (!issues.length) {
+            h += '<div class="no-issues"><span class="material-symbols-outlined" style="font-size:20px;vertical-align:-4px;color:var(--green-600)">check_circle</span> 本次巡檢無異常項目</div>'
+          } else {
+            h += '<div class="issues-hdr">非合格項目清單</div>'
+            issues.forEach(item => {
+              const s = S.STATUS[item.n], deduct = S.SCORES[item.n] || 0
+              const shortTxt = item.t.length > 60 ? item.t.slice(0, 60) + '…' : item.t
+              h += `<div class="iss-row"><span class="iss-dot ${s}"></span><div class="iss-content">
+                      <div class="iss-meta">
+                        <span class="iss-no">${item.n}</span>
+                        <span class="${s === 'fail' ? 'iss-badge-f' : 'iss-badge-w'}">${s === 'fail' ? '✕ 不合格' : '⚠ 需注意'}</span>
+                        ${deduct > 0 ? `<span class="iss-deduct">-${deduct}分</span>` : ''}
+                      </div>
+                      <div class="iss-txt">${shortTxt}</div>
+                      ${item.n === '7-1' && _get71Text(item.n) ? `<div class="iss-reason">${_get71Text(item.n)}</div>` : ''}
+                      ${item.n !== '7-1' && S.SUB_REASONS[item.n] ? `<div class="iss-reason">原因 ${S.SUB_REASONS[item.n].id}：${S.SUB_REASONS[item.n].t}</div>` : ''}
+                      ${S.REMARKS[item.n] ? `<div class="iss-remark">${S.REMARKS[item.n]}</div>` : ''}
+                    </div></div>`
+            })
+          }
+          return h
+        })
+
+        // ═══ HELPERS ═══
+        const defDeduct = lv => DEF_DEDUCT[lv] || 1
+        const isFail = n => S.STATUS[n] === 'warn' || S.STATUS[n] === 'fail'
+        const dotClass = n => S.STATUS[n] || 'unset'
+        const lvClass = lv => lv === '★' ? 'crit' : lv === '▲' ? 'major' : 'norm'
+        const rowClass = n => { const s = S.STATUS[n]; return s ? s + '-r' : '' }
+        const photoSrc = ph => (ph.state === 'done' && ph.fileId) ? `https://drive.google.com/thumbnail?id=${ph.fileId}&sz=w400` : ph.b64 || ''
+        const catId = (cat, firstItem) => `cc_${cat.charCodeAt(0)}_${firstItem.n.replace('-', '')}`
+
+        const getCatDone = items => items.filter(i => S.STATUS[i.n]).length
+        const getCatPct = items => items.length ? Math.round(getCatDone(items) / items.length * 100) : 0
+        const getCatColor = items => {
+          const fail = items.some(i => S.STATUS[i.n] === 'fail'), warn = items.some(i => S.STATUS[i.n] === 'warn')
+          return getCatPct(items) === 100 ? 'var(--green-500)' : fail ? 'var(--red-400)' : warn ? 'var(--amber-500)' : 'var(--ocean)'
+        }
+        const isAllOk = items => items.length && items.every(i => S.STATUS[i.n] === 'ok')
+        const getEffectiveSubs = item => item.subDefects?.length ? item.subDefects : ITEM_DEFECT_CATALOG[item.n] || []
+
+        // ═══ 7-1 ═══
+        const _get71Text = n => {
+          const mr = S.MULTI_REASONS[n] || {}
+          return POSITIONS_71.filter(pos => mr[pos]?.length).map(pos => `${pos}：${mr[pos].join('、')}`).join(' ／ ')
+        }
+        const _get71Pairs = n => {
+          const mr = S.MULTI_REASONS[n] || {}, pairs = []
+          POSITIONS_71.forEach(pos => { if (mr[pos]) mr[pos].forEach(iss => pairs.push({ p: pos, i: iss })) })
+          return pairs
+        }
+        const mr7SelectPos = (n, pos) => { S.ACTIVE_POS_71[n] = S.ACTIVE_POS_71[n] === pos ? null : pos }
+        const mr7ToggleIss = (n, pos, iss) => {
+          if (!S.MULTI_REASONS[n]) S.MULTI_REASONS[n] = {}
+          if (!S.MULTI_REASONS[n][pos]) S.MULTI_REASONS[n][pos] = []
+          const arr = S.MULTI_REASONS[n][pos]
+          const idx = arr.indexOf(iss)
+          if (idx >= 0) arr.splice(idx, 1); else arr.push(iss)
+          if (!arr.length) delete S.MULTI_REASONS[n][pos]
+        }
+
+        // ═══ STATUS / SR ═══
+        const setStatus = (n, status, defaultScore) => {
+          S.STATUS[n] = status
+          if (status === 'ok') { S.SCORES[n] = 0; delete S.SUB_REASONS[n]; delete S.MULTI_REASONS[n]; S.openPanels[n] = false }
+          else if (status === 'fail' && !S.SCORES[n]) S.SCORES[n] = defaultScore
+          else if (status === 'warn' && S.SCORES[n] === undefined) S.SCORES[n] = defaultScore
+          if (status !== 'ok') {
+            S.openPanels[n] = true
+            nextTick(() => {
+              const el = document.getElementById('pnl-' + n)
+              el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            })
+          }
+          _scheduleDraft()
+        }
+        const setSR = (n, id, t) => {
+          if (S.SUB_REASONS[n]?.id === id) delete S.SUB_REASONS[n]
+          else S.SUB_REASONS[n] = { id, t }
+        }
+        // const togglePanel = n => { if (S.STATUS[n] !== 'ok') S.openPanels[n] = !S.openPanels[n] }
+        
+        // ✅ 修正（任何狀態都可展開面板）
+        const togglePanel = n => { S.openPanels[n] = !S.openPanels[n] }
+        const toggleCat = cid => { S.collapsedCats[cid] = !S.collapsedCats[cid] }
+        const toggleSummary = () => { S.summaryOpen = !S.summaryOpen }
+        const switchView = view => { S.currentView = view }
+
+        // const markAllOk = cat => {
+        //   const items = groups.value.groups[cat] || []
+        //   const allOk = items.every(i => S.STATUS[i.n] === 'ok')
+        //   if (allOk) { items.forEach(i => { delete S.STATUS[i.n]; delete S.SCORES[i.n] }) }
+        //   else { items.forEach(i => { S.STATUS[i.n] = 'ok'; S.SCORES[i.n] = 0 }) }
+        // }
+
+        // ✅ 修正
+        const markAllOk = cat => {
+          const items = groups.value.groups[cat] || []
+          const allOk = items.every(i => S.STATUS[i.n] === 'ok')
+          if (allOk) {
+            // 取消全合格 → 清除狀態與面板
+            items.forEach(i => {
+              delete S.STATUS[i.n]
+              delete S.SCORES[i.n]
+              S.openPanels[i.n] = false
+            })
+          } else {
+            // 全設合格 → 關閉所有面板並清理殘留子原因
+            items.forEach(i => {
+              S.STATUS[i.n] = 'ok'
+              S.SCORES[i.n] = 0
+              S.openPanels[i.n] = false
+              delete S.SUB_REASONS[i.n]
+              delete S.MULTI_REASONS[i.n]
+            })
+          }
+          _scheduleDraft()
+        }
+
+        // ═══ PHOTOS ═══
+        const capturePhoto = (itemNo, useCamera) => {
+          if (!S.PHOTOS[itemNo]) S.PHOTOS[itemNo] = []
+          if (S.PHOTOS[itemNo].length >= MAX_PHOTOS) { alert(`每個項目最多上傳 ${MAX_PHOTOS} 張照片`); return }
+          const input = document.createElement('input')
+          input.type = 'file'; input.accept = 'image/*'; input.style.display = 'none'
+          if (useCamera) input.capture = 'environment'
+          document.body.appendChild(input)
+          input.onchange = async e => {
+            document.body.removeChild(input)
+            const file = e.target.files[0]; if (!file) return
+            const idx = S.PHOTOS[itemNo].length
+            S.PHOTOS[itemNo].push({ state: 'uploading', b64: null, viewUrl: null, fileId: null, fileName: file.name, errorMsg: '' })
+            try {
+              const r = await _compressImage(file)
+              S.PHOTOS[itemNo][idx].b64 = r.base64
+              S.PHOTOS[itemNo][idx].fileName = r.fileName
+              google.script.run
+                .withSuccessHandler(res => {
+                  if (res.ok) { Object.assign(S.PHOTOS[itemNo][idx], { state: 'done', viewUrl: res.viewUrl, fileId: res.fileId }) }
+                  else Object.assign(S.PHOTOS[itemNo][idx], { state: 'fail', errorMsg: res.error || '未知錯誤' })
+                })
+                .withFailureHandler(err => { Object.assign(S.PHOTOS[itemNo][idx], { state: 'fail', errorMsg: err?.message || '失敗' }) })
+                .uploadPhoto({ base64: r.base64, itemNo, photoIdx: idx, fileName: r.fileName, storeName: S.storeName || 'store', inspectDate: S.inspectDate || '' })
+            } catch (err) { Object.assign(S.PHOTOS[itemNo][idx], { state: 'fail', errorMsg: err.message }) }
+          }
+          input.click()
+        }
+        const delPhoto = (itemNo, idx) => {
+          S.PHOTOS[itemNo].splice(idx, 1)
+          if (!S.PHOTOS[itemNo].length) delete S.PHOTOS[itemNo]
+        }
+
+        // ═══ SIGNATURE ═══
+        let _sigCtx = null, _sigDrawing = false, _sigHasSig = false
+        const sigClear = () => {
+          _sigHasSig = false; S.hasSig = false; S.managerSignature = ''
+          initSigPad()
+          const hint = document.getElementById('sigHint'); if (hint) hint.style.display = 'flex'
+          const wrap = document.getElementById('sigPadWrap'); if (wrap) wrap.style.borderColor = 'var(--slate-200)'
+        }
+        const initSigPad = () => {
+          const canvas = document.getElementById('sigCanvas'), wrap = document.getElementById('sigPadWrap')
+          if (!canvas) return
+          const dpr = window.devicePixelRatio || 1, rect = wrap.getBoundingClientRect()
+          canvas.width = rect.width * dpr; canvas.height = 200 * dpr
+          _sigCtx = canvas.getContext('2d'); _sigCtx.scale(dpr, dpr)
+          _sigCtx.strokeStyle = '#1e293b'; _sigCtx.lineWidth = 2.5; _sigCtx.lineCap = 'round'; _sigCtx.lineJoin = 'round'
+          const getPos = e => { const r = canvas.getBoundingClientRect(), s = e.touches ? e.touches[0] : e; return { x: s.clientX - r.left, y: s.clientY - r.top } }
+          const onStart = e => { e.preventDefault(); _sigDrawing = true; const p = getPos(e); _sigCtx.beginPath(); _sigCtx.moveTo(p.x, p.y); const h = document.getElementById('sigHint'); if (h) h.style.display = 'none' }
+          const onMove = e => { if (!_sigDrawing) return; e.preventDefault(); const p = getPos(e); _sigCtx.lineTo(p.x, p.y); _sigCtx.stroke() }
+          const onEnd = () => { if (!_sigDrawing) return; _sigDrawing = false; _sigHasSig = true; S.hasSig = true; S.managerSignature = canvas.toDataURL('image/png'); const w = document.getElementById('sigPadWrap'); if (w) w.style.borderColor = 'var(--green-500)' }
+          canvas.addEventListener('mousedown', onStart, { passive: false }); canvas.addEventListener('mousemove', onMove, { passive: false })
+          canvas.addEventListener('mouseup', onEnd); canvas.addEventListener('mouseleave', onEnd)
+          canvas.addEventListener('touchstart', onStart, { passive: false }); canvas.addEventListener('touchmove', onMove, { passive: false }); canvas.addEventListener('touchend', onEnd, { passive: false })
+        }
+
+        // ═══ GEO ═══
+        const filterStoreList = () => { } // computed handles it
+        const doGeoCheck = () => {
+          const idx = parseInt(S.geoStoreIdx); if (isNaN(idx)) return
+          const store = S.storeList[idx]; if (!store) return
+          S.geoStatusClass = 'geo-status show loading'; S.geoStatusHtml = '正在取得 GPS 位置，請稍候…'
+          navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude, lng = pos.coords.longitude
+            const R = 6371000, dL = (store.lat - lat) * Math.PI / 180, dG = (store.lng - lng) * Math.PI / 180
+            const a = Math.sin(dL / 2) ** 2 + Math.cos(lat * Math.PI / 180) * Math.cos(store.lat * Math.PI / 180) * Math.sin(dG / 2) ** 2
+            const dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)))
+            const ok = dist <= GEO_MAX_DIST
+            S.geoResult = { ok, storeName: store.name, distance: dist, lat, lng, brand: store.brand || '', region: store.region || '', storeId: store.storeNo || store.name || '' }
+            if (!S.storeName) S.storeName = store.name
+            S.geoStatusClass = `geo-status show ${ok ? 'ok' : 'warn'}`
+            S.geoStatusHtml = ok
+              ? `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">check_circle</span> 定位成功，距離 <strong>${store.name}</strong> 約 <strong>${dist} 公尺</strong>`
+              : `<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px">warning</span> 距離 <strong>${store.name}</strong> 約 <strong>${dist} 公尺</strong>，超過允許範圍（仍可送出）`
+          }, err => {
+            S.geoStatusClass = 'geo-status show err'; S.geoStatusHtml = '定位失敗：' + ({ 1: '使用者拒絕定位授權', 2: '無法取得位置', 3: '定位逾時' }[err.code] || err.message)
+          }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 })
+        }
+
+        // ═══ VERSION ═══
+        const loadVersionList = () => {
+          const cached = _cacheGet('fsInspect_versionList')
+          if (cached?.length) { S.versionList = cached; return }
+          google.script.run
+            .withSuccessHandler(res => {
+              if (!res.ok) { S.alertError = '版次載入失敗：' + res.error; return }
+              S.versionList = res.data; _cacheSet('fsInspect_versionList', res.data)
+            })
+            .withFailureHandler(e => { S.alertError = '版次載入失敗：' + e.message })
+            .getVersionList()
+        }
+
+        const loadStoreList = () => {
+          const cached = _cacheGet('fsInspect_storeList')
+          if (cached?.length) { S.storeList = cached; return }
+          google.script.run
+            .withSuccessHandler(res => { if (res.ok && res.data?.length) { S.storeList = res.data; _cacheSet('fsInspect_storeList', res.data) } })
+            .withFailureHandler(() => { })
+            .getStoreList()
+        }
+
+        const loadChecklist = () => {
+          if (!S.versionId) return
+          S.checklistLoading = true; S.currentItems = []
+          Object.keys(S.STATUS).forEach(k => delete S.STATUS[k]); Object.keys(S.SCORES).forEach(k => delete S.SCORES[k])
+          Object.keys(S.REMARKS).forEach(k => delete S.REMARKS[k]); Object.keys(S.PHOTOS).forEach(k => delete S.PHOTOS[k])
+          Object.keys(S.MULTI_REASONS).forEach(k => delete S.MULTI_REASONS[k]); Object.keys(S.openPanels).forEach(k => delete S.openPanels[k])
+          google.script.run
+            .withSuccessHandler(res => {
+              S.checklistLoading = false
+              if (!res.ok) { S.alertError = '載入項目失敗：' + res.error; return }
+              S.currentItems = res.data
+            })
+            .withFailureHandler(e => { S.checklistLoading = false; S.alertError = '載入失敗：' + e.message })
+            .getChecklistByVersion(S.versionId)
+        }
+
+        // ═══ DRAFT ═══
+        const _getDraftUserId = () => {
+          const name = (S.inspector || '').trim().replace(/\s+/g, '_').slice(0, 20)
+          if (name) return name
+          let did = _storageGet('fsInspect_deviceId'); if (!did) { did = 'dev_' + Date.now(); _storageSet('fsInspect_deviceId', did) } return did
+        }
+        const _getDraftKey = () => `fsInspect_draft_v2_${_getDraftUserId()}`
+
+        let _draftTimer = null
+        const _scheduleDraft = () => { clearTimeout(_draftTimer); _draftTimer = setTimeout(saveDraft, 3000) }
+      
+        
+        const saveDraft = () => {
+          try {
+            _storageSet(_getDraftKey(), JSON.stringify({
+              storeName: S.storeName, inspector: S.inspector, inspectDate: S.inspectDate,
+              inspectTime: S.inspectTime, suggestion: S.suggestion, versionId: S.versionId,
+              STATUS: { ...S.STATUS }, SCORES: { ...S.SCORES }, REMARKS: { ...S.REMARKS },
+              SUB_REASONS: { ...S.SUB_REASONS }, MULTI_REASONS: JSON.parse(JSON.stringify(S.MULTI_REASONS)),
+              savedAt: new Date().toISOString()
+            }))
+          } catch (e) { }
+        }
+        const _checkDraft = () => {
+          try {
+            const raw = _storageGet(_getDraftKey()) || _storageGet(DRAFT_KEY)
+            if (!raw) return
+            const d = JSON.parse(raw)
+            if (!d?.storeName) return
+            const ago = Math.round((Date.now() - new Date(d.savedAt).getTime()) / 60000)
+            S.draftBannerTxt = `偵測到 ${ago} 分鐘前的草稿（${d.storeName}，${d.inspectDate}），是否還原？`
+            S.draftBanner = true
+            window._pendingDraft = d
+          } catch (e) { }
+        }
+        const restoreDraft = () => {
+          const d = window._pendingDraft; if (!d) return
+          Object.assign(S, { storeName: d.storeName || '', inspector: d.inspector || '', inspectDate: d.inspectDate || '', inspectTime: d.inspectTime || '', suggestion: d.suggestion || '', versionId: d.versionId || '' })
+          Object.assign(S.STATUS, d.STATUS || {}); Object.assign(S.SCORES, d.SCORES || {})
+          Object.assign(S.REMARKS, d.REMARKS || {}); Object.assign(S.SUB_REASONS, d.SUB_REASONS || {})
+          Object.assign(S.MULTI_REASONS, d.MULTI_REASONS || {})
+          S.draftBanner = false; _storageRemove(_getDraftKey()); _storageRemove(DRAFT_KEY)
+          if (S.versionId) loadChecklist()
+        }
+        const discardDraft = () => {
+          S.draftBanner = false; _storageRemove(_getDraftKey()); _storageRemove(DRAFT_KEY)
+        }
+        const clearDraft = () => { _storageRemove(_getDraftKey()); _storageRemove(DRAFT_KEY) }
+
+        // ═══ OFFLINE QUEUE ═══
+        const _enqueuePayload = payload => {
+          try {
+            const q = JSON.parse(_storageGet(QUEUE_KEY) || '[]')
+            const isDup = q.some(i => i.payload.storeName === payload.storeName && i.payload.inspectDate === payload.inspectDate)
+            if (isDup) return
+            q.push({ payload, queuedAt: new Date().toISOString() }); _storageSet(QUEUE_KEY, JSON.stringify(q))
+          } catch (e) { }
+        }
+        const _syncOfflineQueue = () => {
+          try {
+            const raw = _storageGet(QUEUE_KEY); if (!raw) return
+            const q = JSON.parse(raw); if (!q.length) return
+            const item = q.shift(); _storageSet(QUEUE_KEY, JSON.stringify(q))
+            google.script.run
+              .withSuccessHandler(res => { if (res.ok) { alert('離線資料已成功同步送出'); _syncOfflineQueue() } })
+              .withFailureHandler(() => { try { const q2 = JSON.parse(_storageGet(QUEUE_KEY) || '[]'); q2.unshift(item); _storageSet(QUEUE_KEY, JSON.stringify(q2)) } catch { } })
+              .saveResponse(item.payload)
+          } catch (e) { }
+        }
+
+        // ═══ SUBMIT ═══
+        const submitForm = () => {
+          if (!S.storeName || !S.inspector || !S.inspectDate) { alert('請填寫門市名稱、稽核員、巡檢日期'); return }
+          if (!S.versionId) { alert('請選擇巡檢版次'); return }
+          if (!S.geoResult && !confirm('尚未進行定位確認，確定要送出嗎？')) return
+          if (S.geoResult && !S.geoResult.ok && !confirm(`定位距離超過允許範圍（${S.geoResult.distance} 公尺），確定仍要送出嗎？`)) return
+          const r = scoreResult.value.r
+          const vObj = S.versionList.find(v => v.versionId === S.versionId)
+          const defList = S.currentItems.filter(i => ['warn', 'fail'].includes(S.STATUS[i.n])).map(i => {
+            const dp = (S.PHOTOS[i.n] || []).filter(p => p.state === 'done' && p.fileId)
+            return {
+              itemNo: i.n, level: i.lv, content: i.t, status: S.STATUS[i.n], deductScore: S.SCORES[i.n] || 0, remark: S.REMARKS[i.n] || '',
+              subReasonId: S.SUB_REASONS[i.n]?.id || null, subReasonText: i.n === '7-1' ? _get71Text(i.n) : S.SUB_REASONS[i.n]?.t || '',
+              multiReasonPairs: i.n === '7-1' ? JSON.stringify(_get71Pairs(i.n)) : null,
+              hasPhoto: dp.length > 0, photoViewUrl: dp[0]?.viewUrl || '', photoThumbUrl: dp[0] ? `https://drive.google.com/thumbnail?id=${dp[0].fileId}&sz=w400` : ''
+            }
+          })
+          const savePayload = {
+            storeName: S.storeName, inspector: S.inspector, inspectDate: S.inspectDate, inspectTime: S.inspectTime,
+            versionId: S.versionId, versionLabel: vObj?.label || '', defects: defList,
+            totalScore: r.score, grade: r.grade, okCount: r.ok, warnCount: r.warn, failCount: r.fail,
+            critFail: r.critFail, majorFail: r.majorFail, normFail: r.normFail, penalty: r.penalty,
+            suggestion: S.suggestion, storeManagerPresent: S.managerPresent ? '是' : '否', managerSignature: S.managerSignature,
+            geoVerified: S.geoResult ? (S.geoResult.ok ? '是' : '警告') : '未確認',
+            geoDistance: S.geoResult?.distance || null, geoLat: S.geoResult?.lat || null, geoLng: S.geoResult?.lng || null,
+            brand: S.geoResult?.brand || '', region: S.geoResult?.region || '', storeId: S.geoResult?.storeId || '',
+            inspectType: 'food', userId: _getDraftUserId(),
+            deviceId: _storageGet('fsInspect_deviceId') || '', userAgent: navigator.userAgent.slice(0, 120)
+          }
+          S.lastPayload = JSON.parse(JSON.stringify(savePayload))
+          S.submitting = true
+          google.script.run
+            .withSuccessHandler(res => {
+              S.submitting = false
+              if (res.ok) {
+                S.lastPayload.responseId = res.responseId; S.lastPayload.submittedAt = res.submittedAt
+                S.lastPayload.allItems = _buildAllItems()
+                const gc = { '優': 'var(--green-700)', '良': 'var(--ocean)', '普': 'var(--amber-700)', '需改善': 'var(--red-700)' }
+                S.successMeta = `回應編號：<strong>${res.responseId}</strong><br>提交時間：<strong>${res.submittedAt}</strong><br>總分：<strong style="color:${gc[r.grade] || 'inherit'}">${r.score} 分（${r.grade}）</strong><br>合格 ${r.ok} ／ 需注意 ${r.warn} ／ 不合格 ${r.fail}`
+                S.successCard = true; S.pdfDone = false; S.pdfResultHtml = ''; clearDraft()
+                nextTick(() => document.getElementById('successCard')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }))
+              } else { alert('送出失敗：' + (res.error || '未知錯誤')) }
+            })
+            .withFailureHandler(e => { S.submitting = false; alert('系統錯誤：' + e?.message) })
+            .saveResponse(savePayload)
+        }
+
+        const _buildAllItems = () => S.currentItems.map(item => {
+          const dp = (S.PHOTOS[item.n] || []).filter(p => p.state === 'done' && p.fileId)
+          return {
+            itemNo: item.n, category: item.c, level: item.lv, content: item.t, status: S.STATUS[item.n] || '',
+            deductScore: S.SCORES[item.n] || 0, remark: S.REMARKS[item.n] || '',
+            subReasonId: S.SUB_REASONS[item.n]?.id || null, subReasonText: item.n === '7-1' ? _get71Text(item.n) : S.SUB_REASONS[item.n]?.t || '',
+            multiReasonPairs: item.n === '7-1' ? JSON.stringify(_get71Pairs(item.n)) : null,
+            photoFileId: dp[0]?.fileId || '', photoFileIds: dp.map(p => p.fileId), photoViewUrl: dp[0]?.viewUrl || ''
+          }
+        })
+
+        const generatePdf = () => {
+          if (!S.lastPayload) { alert('請先送出巡檢結果'); return }
+          S.lastPayload.allItems = _buildAllItems()
+          S.pdfGenerating = true; S.pdfDone = false
+          google.script.run
+            .withSuccessHandler(res => {
+              S.pdfGenerating = false
+              if (res.ok) { S.pdfDone = true; S.pdfResultHtml = `<div class="pdf-result ok"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-2px">description</span> PDF 報告已儲存至 Google Drive<br><a href="${res.pdfUrl}" target="_blank">點此開啟 PDF 報告 ↗</a>${res.pdfRelativePath ? `<br><span style="font-size:11px;color:var(--slate-400)">檔案路徑：${res.pdfRelativePath}</span>` : ''}</div>` }
+              else S.pdfResultHtml = `<div class="pdf-result err">PDF 產生失敗：${res.error}</div>`
+            })
+            .withFailureHandler(e => { S.pdfGenerating = false; S.pdfResultHtml = `<div class="pdf-result err">系統錯誤：${e.message}</div>` })
+            .generateReport(S.lastPayload)
+        }
+
+        const resetForm = () => {
+          Object.keys(S.STATUS).forEach(k => delete S.STATUS[k]); Object.keys(S.SCORES).forEach(k => delete S.SCORES[k])
+          Object.keys(S.REMARKS).forEach(k => delete S.REMARKS[k]); Object.keys(S.PHOTOS).forEach(k => delete S.PHOTOS[k])
+          Object.keys(S.SUB_REASONS).forEach(k => delete S.SUB_REASONS[k]); Object.keys(S.MULTI_REASONS).forEach(k => delete S.MULTI_REASONS[k])
+          Object.assign(S, {
+            storeName: '', inspector: '', suggestion: '', managerSignature: '', managerPresent: false, hasSig: false,
+            versionId: '', currentItems: [], successCard: false, pdfDone: false, pdfResultHtml: '', lastPayload: null, geoResult: null,
+            geoStatusClass: '', geoStatusHtml: '', geoStoreIdx: ''
+          })
+          nextTick(sigClear)
+        }
+
+        // ═══ MANAGE ═══
+        const loadDefaultChecklist = () => {
+          S.newVersionLabel = '20260331版'
+          S.newVersionDesc = `20260331 完整版，共${DEFAULT_CHECKLIST.length}項`
+          S.newVersionItems = JSON.stringify(DEFAULT_CHECKLIST, null, 2)
+          alert(`已填入預設版次資料（共 ${DEFAULT_CHECKLIST.length} 項），請確認後點「建立版次」。`)
+        }
+        const copyCurrentItems = () => {
+          if (!S.currentItems.length) { alert('請先在巡檢頁選擇版次'); return }
+          S.newVersionItems = JSON.stringify(S.currentItems, null, 2); alert('已複製，可在下方編輯後建立新版次。')
+        }
+        const createNewVersion = () => {
+          if (!S.newVersionLabel) { alert('請輸入版次標籤'); return }
+          let items; try { items = JSON.parse(S.newVersionItems) } catch (e) { alert('JSON 格式錯誤：' + e.message); return }
+          google.script.run
+            .withSuccessHandler(res => {
+              if (res.ok) {
+                alert('版次建立成功\nID：' + res.versionId)
+                S.newVersionLabel = ''; S.newVersionDesc = ''; S.newVersionItems = ''
+                _cacheSet('fsInspect_versionList', null)
+                loadVersionList()
+              } else alert('建立失敗：' + res.error)
+            })
+            .withFailureHandler(e => alert('失敗：' + e.message))
+            .createVersion({ label: S.newVersionLabel, description: S.newVersionDesc, items })
+        }
+        const cloneVersion = (vId, label) => {
+          const newLabel = prompt(`複製版次「${label}」，請輸入新版次標籤：`, label + '_複製'); if (!newLabel) return
+          google.script.run
+            .withSuccessHandler(res => {
+              if (!res.ok) { alert('載入失敗：' + res.error); return }
+              google.script.run
+                .withSuccessHandler(r2 => { if (r2.ok) { alert('複製成功！新版次 ID：' + r2.versionId); _cacheSet('fsInspect_versionList', null); loadVersionList() } else alert('建立失敗：' + r2.error) })
+                .withFailureHandler(e => alert('失敗：' + e.message))
+                .createVersion({ label: newLabel, description: `複製自「${label}」`, items: res.data })
+            })
+            .withFailureHandler(e => alert('失敗：' + e.message))
+            .getChecklistByVersion(vId)
+        }
+        const exportVersionExcel = (vId, label) => {
+          if (typeof XLSX === 'undefined') { alert('SheetJS 尚未載入'); return }
+          google.script.run
+            .withSuccessHandler(res => {
+              if (!res.ok) { alert('載入失敗：' + res.error); return }
+              const headers = ['類別', '項次', '等級(★/▲/□)', '說明', '子項（分號分隔）']
+              const rows = res.data.map(item => [item.c, item.n, item.lv, item.t, (item.subDefects || []).map(s => s.t).join(';')])
+              const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet([headers].concat(rows))
+              ws['!cols'] = [{ wch: 20 }, { wch: 8 }, { wch: 10 }, { wch: 60 }, { wch: 50 }]
+              XLSX.utils.book_append_sheet(wb, ws, '巡檢項目'); XLSX.writeFile(wb, `爭鮮食安_${label}.xlsx`)
+            })
+            .withFailureHandler(e => alert('匯出失敗：' + e.message))
+            .getChecklistByVersion(vId)
+        }
+        const downloadTemplate = () => {
+          if (typeof XLSX === 'undefined') { alert('SheetJS 尚未載入'); return }
+          const headers = ['類別', '項次', '等級(★/▲/□)', '說明', '子項（分號分隔，格式：說明1;說明2）']
+          const dataRows = DEFAULT_CHECKLIST.map(item => [item.c, item.n, item.lv, item.t, (item.subDefects || []).map(s => s.t).join(';')])
+          const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet([headers].concat(dataRows))
+          ws['!cols'] = [{ wch: 20 }, { wch: 8 }, { wch: 10 }, { wch: 60 }, { wch: 50 }]
+          XLSX.utils.book_append_sheet(wb, ws, '巡檢項目'); XLSX.writeFile(wb, '爭鮮食安巡檢項目模板.xlsx')
+        }
+        const handleImportFile = file => {
+          if (!file) return
+          const reader = new FileReader()
+          reader.onload = e => _parseImportFile(e.target.result, file.name)
+          reader.onerror = () => { S.importMsg = { type: 'err', text: '⚠ 檔案讀取失敗' } }
+          reader.readAsBinaryString(file)
+        }
+        const handleImportDrop = e => { const file = e.dataTransfer.files[0]; if (file) handleImportFile(file) }
+        const _parseImportFile = (raw, name) => {
+          try {
+            const wb = XLSX.read(raw, { type: 'binary', cellDates: true }), ws = wb.Sheets[wb.SheetNames[0]]
+            const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }); if (rows.length < 2) { S.importMsg = { type: 'err', text: '⚠ 檔案至少需有 2 列（含標題）' }; return }
+            const data = rows.slice(1).filter(r => r[1] && r[3])
+            if (!data.length) { S.importMsg = { type: 'err', text: '⚠ 未找到有效資料' }; return }
+            S.importedItems = data.map(r => {
+              const subRaw = String(r[4] || '').trim()
+              const subs = subRaw ? subRaw.split(';').map((s, i) => { s = s.trim(); if (!s) return null; const m = s.match(/^(\d+)=(.+)$/); return m ? { id: parseInt(m[1]), t: m[2].trim() } : { id: i + 1, t: s } }).filter(Boolean) : []
+              return { c: String(r[0] || '').trim() || '未分類', n: String(r[1] || '').trim(), lv: ['★', '▲', '□'].includes(String(r[2] || '').trim()) ? String(r[2]).trim() : '▲', t: String(r[3] || '').trim(), subDefects: subs }
+            })
+            const cats = {}; S.importedItems.forEach(i => { cats[i.c] = (cats[i.c] || 0) + 1 })
+            S.importPreview = `<div style="padding:8px 12px;background:var(--slate-100);font-size:12px;color:var(--slate-600)"><strong>${name}</strong>　${Object.entries(cats).map(([c, n]) => `${c}(${n})`).join(' ／ ')}</div><table><thead><tr><th>項次</th><th>等級</th><th>類別</th><th>說明</th></tr></thead><tbody>${S.importedItems.slice(0, 20).map(item => `<tr><td style="white-space:nowrap">${item.n}</td><td>${item.lv}</td><td>${item.c}</td><td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.t}</td></tr>`).join('')}</tbody></table>`
+            S.importSettingsVisible = true
+            const d = new Date(); S.importVersionLabel = S.importVersionLabel || (d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '版')
+            S.importMsg = { type: 'ok', text: `✔ 解析完成：共 ${S.importedItems.length} 項，請確認預覽後填寫版次標籤，再點「確認匯入」。` }
+          } catch (ex) { S.importMsg = { type: 'err', text: '⚠ 解析失敗：' + ex.message } }
+        }
+        const confirmImport = () => {
+          if (!S.importedItems.length) { S.importMsg = { type: 'err', text: '⚠ 請先上傳檔案' }; return }
+          if (!S.importVersionLabel) { alert('請填寫版次標籤'); return }
+          google.script.run
+            .withSuccessHandler(res => {
+              if (res.ok) {
+                S.importMsg = { type: 'ok', text: `✔ 版次「${S.importVersionLabel}」建立成功！ID：${res.versionId}` }
+                S.importedItems = []; S.importPreview = ''; S.importSettingsVisible = false; S.importVersionLabel = ''; S.importVersionDesc = ''
+                _cacheSet('fsInspect_versionList', null); loadVersionList()
+              } else S.importMsg = { type: 'err', text: '⚠ 建立失敗：' + res.error }
+            })
+            .withFailureHandler(e => { S.importMsg = { type: 'err', text: '⚠ 系統錯誤：' + e.message } })
+            .createVersion({ label: S.importVersionLabel, description: S.importVersionDesc, items: S.importedItems })
+        }
+
+        // ═══ QUOTA ═══
+        const _checkQuota = () => {
+          google.script.run
+            .withSuccessHandler(res => {
+              if (!res?.ok) return
+              const msgs = []
+              if (res.mailWarn) msgs.push(`Email 剩餘額度：${res.mailQuota} 封`)
+              if (res.uploadWarn) msgs.push(`今日上傳次數：${res.uploadCount} 次（接近上限）`)
+              if (msgs.length) { S.quotaBannerTxt = '⚠ GAS 額度警告：' + msgs.join('　'); S.quotaBanner = true }
+            })
+            .withFailureHandler(() => { })
+            .getQuotaStatus()
+        }
+
+        // ═══ MOUNTED ═══
+        onMounted(() => {
+          // defaults
+          const now = new Date()
+          S.inspectDate = now.toISOString().slice(0, 10)
+          S.inspectTime = now.toTimeString().slice(0, 5)
+
+          // online/offline
+          window.addEventListener('online', () => { S.isOnline = true; _syncOfflineQueue() })
+          window.addEventListener('offline', () => { S.isOnline = false })
+
+          // sig pad
+          nextTick(initSigPad)
+
+          // init GAS
+          google.script.run
+            .withSuccessHandler(res => {
+              if (!res.ok) { S.alertError = `設定錯誤：${res.error}<br>請在 GAS 指令碼屬性新增 <code>SPREADSHEET_ID</code>`; S.loadingOverlay = false; return }
+              if (!res.initialized) { S.alertWarn = '試算表尚未初始化，請在 GAS 編輯器執行 <code>initSpreadsheet()</code> 後重新整理。'; S.loadingOverlay = false; return }
+              S.connName = res.ssName || '已連線'
+              loadVersionList(); loadStoreList(); _checkQuota()
+              S.loadingOverlay = false
+              setTimeout(_checkDraft, 1200)
+            })
+            .withFailureHandler(e => { S.alertError = '連線失敗：' + e.message; S.loadingOverlay = false })
+            .getSystemStatus()
+        })
+
+        return {
+          S, groups, scoreResult, gradeClass, summaryHtml,
+          geoBrands, geoRegions, geoFiltered, geoBadgeClass, geoBadgeText,
+          // helpers
+          defDeduct, isFail, dotClass, lvClass, rowClass, photoSrc, catId,
+          getCatDone, getCatPct, getCatColor, isAllOk, getEffectiveSubs,
+          // _get71Text, _get71Pairs, POSITIONS_71, ISSUES_71, MAX_PHOTOS,
+          get71Text: _get71Text, get71Pairs: _get71Pairs, POSITIONS_71, ISSUES_71, MAX_PHOTOS,
+
+          // actions
+          loadChecklist, setStatus, setSR, togglePanel, toggleCat, toggleSummary, switchView, markAllOk,
+          capturePhoto, delPhoto, sigClear,
+          filterStoreList, doGeoCheck,
+          restoreDraft, discardDraft, scheduleDraft: _scheduleDraft,
+          submitForm, resetForm, generatePdf,
+          mr7SelectPos, mr7ToggleIss,
+          loadDefaultChecklist, copyCurrentItems, createNewVersion,
+          cloneVersion, exportVersionExcel, downloadTemplate,
+          handleImportFile, handleImportDrop, confirmImport,
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+
+</html>
