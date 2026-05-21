@@ -1,1962 +1,1150 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PRD Template</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap"
-    rel="stylesheet">
-
-  <!-- ══════════════════════════════════════════
-       TEMPLATE ENGINE STYLES
-       Shared layout, tokens, and all components.
-       ══════════════════════════════════════════ -->
-  <style>
-    /* ── Design Tokens ── */
-    :root {
-      --font-sans: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-mono: 'DM Mono', monospace;
-
-      --text-primary: #1A1917;
-      --text-secondary: #5C5A52;
-      --bg-primary: #FAFAF8;
-      --bg-secondary: #F4F3EF;
-      --border-color: #E2E0D8;
-
-      --accent: #1D9E75;
-      --accent-dark: #0F6E56;
-      --accent-light: #E1F5EE;
-
-      --warn-bg: #FAEEDA;
-      --warn-fg: #633806;
-      --warn-border: #EF9F27;
-
-      --info-bg: #E6F1FB;
-      --info-fg: #0C447C;
-
-      --danger-border: #E24B4A;
-      --danger-fg: #A32D2D;
-
-      --dept-food-bg: var(--accent-light);
-      --dept-food-fg: var(--accent-dark);
-      --dept-eval-bg: var(--warn-bg);
-      --dept-eval-fg: var(--warn-fg);
-      --dept-store-bg: var(--info-bg);
-      --dept-store-fg: var(--info-fg);
-      --dept-it-bg: #EEEDFE;
-      --dept-it-fg: #3C3489;
-
-      --raci-r-bg: var(--accent-light);
-      --raci-r-fg: var(--accent-dark);
-      --raci-a-bg: var(--warn-bg);
-      --raci-a-fg: var(--warn-fg);
-      --raci-c-bg: var(--info-bg);
-      --raci-c-fg: var(--info-fg);
-      --raci-i-bg: #F1EFE8;
-      --raci-i-fg: #444441;
-
-      --sidebar-w: 220px;
-      --r-sm: 4px;
-      --r-md: 8px;
-      --r-lg: 12px;
-      --r-pill: 20px;
-      --border: 0.5px solid var(--border-color);
-      --border-accent: 2px solid var(--accent);
-      --border-warn: 0.5px solid var(--warn-border);
-      --border-warn-l: 3px solid var(--warn-border);
-    }
-
-    /* ── Reset ── */
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: var(--font-sans);
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    /* ══════════════════════════════
-       LAYOUT — SIDEBAR
-       ══════════════════════════════ */
-    .sidebar {
-      width: var(--sidebar-w);
-      background: #fff;
-      border-right: var(--border);
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      overflow-y: auto;
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-      transition: transform .25s ease;
-    }
-
-    .sidebar-logo {
-      padding: 20px 18px 16px;
-      border-bottom: var(--border);
-    }
-
-    .logo-badge {
-      display: inline-block;
-      background: var(--accent-light);
-      color: var(--accent-dark);
-      font-size: 10px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: var(--r-pill);
-      letter-spacing: .06em;
-      margin-bottom: 8px;
-    }
-
-    .sidebar-logo h1 {
-      font-size: 16px;
-      font-weight: 600;
-      line-height: 1.4;
-    }
-
-    .sidebar-logo p {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-top: 3px;
-    }
-
-    .sidebar-footer {
-      margin-top: auto;
-      padding: 14px 18px;
-      border-top: var(--border);
-      font-size: 10px;
-      color: var(--text-secondary);
-    }
-
-    /* ── Nav ── */
-    .nav-section {
-      padding: 12px 0 8px;
-    }
-
-    .nav-label {
-      font-size: 10px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      padding: 0 18px;
-      margin-bottom: 6px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 18px;
-      font-size: 14px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      border-left: 2px solid transparent;
-      transition: background .12s, color .12s;
-    }
-
-    .nav-item:hover {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-    }
-
-    .nav-item.active {
-      color: var(--accent-dark);
-      border-left-color: var(--accent);
-      background: var(--accent-light);
-      font-weight: 500;
-    }
-
-    .nav-num {
-      font-size: 10px;
-      font-family: var(--font-mono);
-      color: var(--accent);
-      min-width: 18px;
-    }
-
-    /* ── Mobile Top Bar ── */
-    .topbar {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 52px;
-      z-index: 300;
-      background: #fff;
-      border-bottom: var(--border);
-      align-items: center;
-      padding: 0 16px;
-      gap: 12px;
-    }
-
-    .topbar-title {
-      font-size: 15px;
-      font-weight: 600;
-      flex: 1;
-    }
-
-    .topbar-badge {
-      font-size: 10px;
-      font-weight: 600;
-      background: var(--accent-light);
-      color: var(--accent-dark);
-      padding: 2px 7px;
-      border-radius: var(--r-pill);
-    }
-
-    .menu-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
-      border-radius: var(--r-sm);
-    }
-
-    .menu-btn span {
-      display: block;
-      width: 20px;
-      height: 1.5px;
-      background: var(--text-primary);
-      transition: .2s;
-    }
-
-    .menu-btn.open span:nth-child(1) {
-      transform: translateY(6.5px) rotate(45deg);
-    }
-
-    .menu-btn.open span:nth-child(2) {
-      opacity: 0;
-    }
-
-    .menu-btn.open span:nth-child(3) {
-      transform: translateY(-6.5px) rotate(-45deg);
-    }
-
-    /* Overlay */
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .35);
-      z-index: 150;
-    }
-
-    .overlay.show {
-      display: block;
-    }
-
-    /* ── Main ── */
-    .main {
-      margin-left: var(--sidebar-w);
-      max-width: 940px;
-      padding: 0 40px 80px;
-    }
-
-    .section-block {
-      padding: 40px 0 32px;
-      border-bottom: var(--border);
-    }
-
-    .section-block:last-child {
-      border-bottom: none;
-    }
-
-    .section-inner {
-      padding: 1.5rem 0;
-    }
-
-    /* ══════════════════════════════
-       TYPOGRAPHY
-       ══════════════════════════════ */
-    .sh {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--accent);
-      letter-spacing: .08em;
-      margin-bottom: .4rem;
-    }
-
-    .st {
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin: 0 0 1rem;
-    }
-
-    .desc {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-bottom: 1rem;
-      line-height: 1.6;
-    }
-
-    /* ══════════════════════════════
-       BADGES & TAGS
-       ══════════════════════════════ */
-    .badge {
-      font-size: 11px;
-      padding: 3px 10px;
-      border-radius: var(--r-pill);
-      font-weight: 500;
-    }
-
-    .badge-teal {
-      background: var(--accent-light);
-      color: var(--accent-dark);
-    }
-
-    .badge-gray {
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      border: var(--border);
-    }
-
-    .badge-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .tag {
-      font-size: 11px;
-      padding: 3px 9px;
-      border-radius: var(--r-pill);
-      background: var(--accent-light);
-      color: var(--accent-dark);
-    }
-
-    .tag-warn {
-      background: var(--warn-bg);
-      color: var(--warn-fg);
-    }
-
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
-    }
-
-    /* ══════════════════════════════
-       CARDS & PANELS
-       ══════════════════════════════ */
-    .card {
-      background: var(--bg-secondary);
-      border: var(--border);
-      border-radius: var(--r-lg);
-      padding: 14px 16px;
-    }
-
-    .card-label {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-bottom: 4px;
-    }
-
-    .card-val {
-      font-size: 20px;
-      font-weight: 500;
-    }
-
-    .card-sub {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-
-    .panel {
-      background: var(--bg-primary);
-      border: var(--border);
-      border-radius: var(--r-md);
-      padding: 14px 16px;
-    }
-
-    .panel-title {
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: var(--border);
-    }
-
-    .pr {
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-      margin-bottom: 6px;
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-top: 3px;
-    }
-
-    .dot--accent {
-      background: var(--accent);
-    }
-
-    .dot--warn {
-      background: var(--warn-border);
-    }
-
-    .fix-banner {
-      background: var(--warn-bg);
-      border: var(--border-warn);
-      border-radius: var(--r-md);
-      padding: 7px 12px;
-      margin-bottom: 12px;
-      font-size: 14px;
-      color: var(--warn-fg);
-    }
-
-    .note {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-top: 8px;
-      padding: 6px 10px;
-      background: var(--bg-secondary);
-      border-radius: var(--r-md);
-    }
-
-    .callout {
-      background: var(--bg-secondary);
-      border-left: var(--border-warn-l);
-      border-radius: 0 var(--r-md) var(--r-md) 0;
-      padding: 10px 14px;
-      margin-top: 12px;
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    /* ══════════════════════════════
-       GRIDS (responsive)
-       ══════════════════════════════ */
-    .grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .g-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .g-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .g-4 {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    /* ══════════════════════════════
-       COVER
-       ══════════════════════════════ */
-    .prd-wrap {
-      padding: 2rem 0 1rem;
-    }
-
-    .header-bar {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      border-bottom: var(--border-accent);
-      padding-bottom: 1rem;
-      margin-bottom: 1.5rem;
-      gap: 16px;
-    }
-
-    .proj-title {
-      font-size: 22px;
-      font-weight: 500;
-      margin: 0 0 4px;
-    }
-
-    .proj-sub {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .hbar-meta {
-      text-align: right;
-      font-size: 12px;
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-
-    .hbar-meta strong {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-top: 4px;
-    }
-
-    .toc-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .toc-card {
-      background: var(--bg-secondary);
-      border-radius: var(--r-md);
-      padding: 10px 12px;
-      border: var(--border);
-    }
-
-    .toc-num {
-      font-size: 11px;
-      color: var(--accent);
-      font-weight: 500;
-      margin-bottom: 2px;
-    }
-
-    .toc-label {
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    /* ══════════════════════════════
-       SECTION 01 — PROJ COMPARE
-       ══════════════════════════════ */
-    .proj-card {
-      border-radius: var(--r-md);
-      padding: 12px 14px;
-      border: var(--border);
-    }
-
-    .proj-card--food {
-      border-color: var(--accent);
-    }
-
-    .proj-card--eval {
-      border-color: var(--warn-border);
-    }
-
-    .proj-head {
-      font-size: 16px;
-      font-weight: 500;
-      margin-bottom: 6px;
-    }
-
-    .proj-head--food {
-      color: var(--accent-dark);
-    }
-
-    .proj-head--eval {
-      color: var(--warn-fg);
-    }
-
-    .proj-item {
-      font-size: 14px;
-      color: var(--text-secondary);
-      padding: 2px 0;
-    }
-
-    /* ══════════════════════════════
-       SECTION 02 — SVG WRAP
-       ══════════════════════════════ */
-    .svg-wrap {
-      width: 100%;
-      overflow-x: auto;
-      border: var(--border);
-      border-radius: var(--r-lg);
-      background: #141412;
-      padding: 8px;
-    }
-
-    .svg-wrap svg {
-      display: block;
-      min-width: 580px;
-    }
-
-    /* ══════════════════════════════
-       SECTION 03 — RACI
-       ══════════════════════════════ */
-    .raci-scroll {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .raci-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      min-width: 560px;
-    }
-
-    .raci-table th,
-    .raci-table td {
-      padding: 8px;
-      border: var(--border);
-      text-align: center;
-    }
-
-    .raci-table th {
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      font-weight: 500;
-      font-size: 11px;
-    }
-
-    .raci-table td:first-child {
-      text-align: left;
-    }
-
-    .rb {
-      font-weight: 500;
-      border-radius: var(--r-sm);
-      padding: 2px 8px;
-      display: inline-block;
-    }
-
-    .rb-R {
-      background: var(--raci-r-bg);
-      color: var(--raci-r-fg);
-    }
-
-    .rb-A {
-      background: var(--raci-a-bg);
-      color: var(--raci-a-fg);
-    }
-
-    .rb-C {
-      background: var(--raci-c-bg);
-      color: var(--raci-c-fg);
-    }
-
-    .rb-I {
-      background: var(--raci-i-bg);
-      color: var(--raci-i-fg);
-    }
-
-    .raci-legend {
-      display: flex;
-      gap: 16px;
-      margin-top: 10px;
-      font-size: 11px;
-      flex-wrap: wrap;
-    }
-
-    /* ══════════════════════════════
-       SECTION 04 — FEATURES
-       ══════════════════════════════ */
-    .feat-card {
-      border: var(--border);
-      border-radius: var(--r-md);
-      padding: 12px 14px;
-    }
-
-    .feat-head {
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .feat-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .feat-dot--accent {
-      background: var(--accent);
-    }
-
-    .feat-dot--warn {
-      background: var(--warn-border);
-    }
-
-    .feat-dot--info {
-      background: var(--info-fg);
-    }
-
-    .feat-dot--dark {
-      background: #3B6D11;
-    }
-
-    .feat-dot--purple {
-      background: var(--dept-it-fg);
-    }
-
-    .feat-card--wide {
-      grid-column: span 2;
-    }
-
-    .feat-item {
-      font-size: 14px;
-      color: var(--text-secondary);
-      padding: 2px 0 2px 16px;
-      position: relative;
-    }
-
-    .feat-item::before {
-      content: '·';
-      position: absolute;
-      left: 4px;
-      color: var(--text-secondary);
-    }
-
-    /* ══════════════════════════════
-       SECTION 05 — DEPT GRID
-       ══════════════════════════════ */
-    .dc {
-      border: var(--border);
-      border-radius: var(--r-md);
-      padding: 12px 14px;
-    }
-
-    .dn {
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: var(--border);
-    }
-
-    .dn--food {
-      color: var(--dept-food-fg);
-    }
-
-    .dn--eval {
-      color: var(--dept-eval-fg);
-    }
-
-    .dn--store {
-      color: var(--dept-store-fg);
-    }
-
-    .dn--it {
-      color: var(--dept-it-fg);
-    }
-
-    .ci {
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-      margin-bottom: 5px;
-    }
-
-    .cic {
-      width: 16px;
-      height: 16px;
-      border-radius: 3px;
-      flex-shrink: 0;
-      margin-top: 1px;
-      font-size: 9px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .cic--food {
-      background: var(--dept-food-bg);
-      color: var(--dept-food-fg);
-    }
-
-    .cic--eval {
-      background: var(--dept-eval-bg);
-      color: var(--dept-eval-fg);
-    }
-
-    .cic--store {
-      background: var(--dept-store-bg);
-      color: var(--dept-store-fg);
-    }
-
-    .cic--it {
-      background: var(--dept-it-bg);
-      color: var(--dept-it-fg);
-    }
-
-    .ct {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-
-    /* ══════════════════════════════
-       SECTION 06 — ROADMAP
-       ══════════════════════════════ */
-    .roadmap {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .phase {
-      border: var(--border);
-      padding: 14px 12px;
-    }
-
-    .phase:not(:first-child) {
-      border-left: none;
-    }
-
-    .phase:first-child {
-      border-radius: var(--r-md) 0 0 var(--r-md);
-    }
-
-    .phase:last-child {
-      border-radius: 0 var(--r-md) var(--r-md) 0;
-    }
-
-    .ph-badge {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 2px 8px;
-      border-radius: var(--r-pill);
-      display: inline-block;
-      margin-bottom: 8px;
-    }
-
-    .ph-badge--mvp {
-      background: var(--accent-light);
-      color: var(--accent-dark);
-    }
-
-    .ph-badge--integration {
-      background: var(--info-bg);
-      color: var(--info-fg);
-    }
-
-    .ph-badge--notify {
-      background: var(--warn-bg);
-      color: var(--warn-fg);
-    }
-
-    .ph-badge--ai {
-      background: var(--dept-it-bg);
-      color: var(--dept-it-fg);
-    }
-
-    .ph-title {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 8px;
-    }
-
-    .ph-item {
-      font-size: 14px;
-      color: var(--text-secondary);
-      padding: 2px 0 2px 16px;
-      position: relative;
-      line-height: 1.4;
-    }
-
-    .ph-item::before {
-      content: '·';
-      position: absolute;
-      left: 1px;
-    }
-
-    .ben-card {
-      border-radius: var(--r-md);
-      padding: 12px 14px;
-      border: var(--border);
-    }
-
-    .ben-card--accent {
-      border-color: var(--accent);
-    }
-
-    .ben-card--warning {
-      border-color: var(--warn-border);
-    }
-
-    .ben-card--purple {
-      border-color: #7F77DD;
-    }
-
-    .ben-num {
-      font-size: 22px;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    .ben-num--accent {
-      color: var(--accent-dark);
-    }
-
-    .ben-num--warning {
-      color: #BA7517;
-    }
-
-    .ben-num--purple {
-      color: var(--dept-it-fg);
-    }
-
-    .ben-label {
-      font-size: 11px;
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-
-    /* ══════════════════════════════
-       APPENDIX
-       ══════════════════════════════ */
-    .cp-card {
-      border: var(--border);
-      border-radius: var(--r-md);
-      padding: 12px 14px;
-    }
-
-    .cp-head {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: var(--border);
-    }
-
-    .cp-head--danger {
-      color: var(--danger-fg);
-    }
-
-    .cp-head--success {
-      color: var(--accent-dark);
-    }
-
-    .old-text {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      font-style: italic;
-      background: var(--bg-secondary);
-      padding: 8px 10px;
-      border-radius: var(--r-sm);
-      border-left: 3px solid var(--danger-border);
-    }
-
-    .item-card {
-      border: var(--border);
-      border-radius: var(--r-md);
-      padding: 12px 14px;
-      margin-bottom: 10px;
-    }
-
-    .item-q {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      line-height: 1.5;
-    }
-
-    .sub-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .sub-tag {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: var(--r-pill);
-      border: var(--border);
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      cursor: default;
-    }
-
-    .sub-tag:hover,
-    .sub-tag--active {
-      background: var(--accent-light);
-      border-color: var(--accent);
-      color: var(--accent-dark);
-    }
-
-    .ben {
-      background: var(--bg-secondary);
-      border-radius: var(--r-md);
-      padding: 10px 12px;
-      font-size: 14px;
-      color: var(--text-secondary);
-      border: var(--border);
-    }
-
-    .ben strong {
-      display: block;
-      color: var(--text-primary);
-      font-weight: 500;
-      margin-bottom: 3px;
-      font-size: 13px;
-    }
-
-    /* ══════════════════════════════
-       PRINT
-       ══════════════════════════════ */
-    #cover.section-block {
-      padding-bottom: 0;
-    }
-
-    #s1.section-block {
-      padding-top: 0;
-    }
-
-    #s1 .section-inner {
-      padding-top: 0;
-    }
-
-    /* ══════════════════════════════
-       SECTION 07 — WBS
-       ══════════════════════════════ */
-    .wbs-group {
-      margin-bottom: 20px;
-    }
-
-    .wbs-group-label {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: .06em;
-      padding: 6px 12px;
-      border-radius: var(--r-md) var(--r-md) 0 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .wbs-group-label--accent {
-      background: var(--accent-light);
-      color: var(--accent-dark);
-    }
-
-    .wbs-group-label--info {
-      background: var(--info-bg);
-      color: var(--info-fg);
-    }
-
-    .wbs-group-label--warn {
-      background: var(--warn-bg);
-      color: var(--warn-fg);
-    }
-
-    .wbs-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    .wbs-table th {
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .06em;
-      padding: 6px 10px;
-      border: var(--border);
-      text-align: left;
-    }
-
-    .wbs-table td {
-      padding: 7px 10px;
-      border: var(--border);
-      vertical-align: top;
-    }
-
-    .wbs-table tr:hover td {
-      background: var(--bg-secondary);
-    }
-
-    .wbs-id {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--accent);
-      white-space: nowrap;
-    }
-
-    .wbs-module {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-
-    .wbs-task {
-      color: var(--text-primary);
-      line-height: 1.5;
-    }
-
-    @media (max-width: 640px) {
-      .wbs-table td:nth-child(2) {
-        display: none;
-      }
-    }
-
-    @media print {
-
-      .sidebar,
-      .topbar,
-      .overlay,
-      .menu-btn {
-        display: none !important;
-      }
-
-      .main {
-        margin-left: 0 !important;
-        padding: 20px !important;
-      }
-
-      .section-block {
-        page-break-inside: avoid;
-      }
-    }
-
-    /* ══════════════════════════════
-       RWD — TABLET  ≤ 1024px
-       ══════════════════════════════ */
-    @media (max-width: 1024px) {
-      .sidebar {
-        transform: translateX(-100%);
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .topbar {
-        display: flex;
-      }
-
-      .main {
-        margin-left: 0;
-        padding: 72px 24px 60px;
-        max-width: 100%;
-      }
-
-      .toc-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    /* ══════════════════════════════
-       RWD — MOBILE  ≤ 640px
-       ══════════════════════════════ */
-    @media (max-width: 640px) {
-      .main {
-        padding: 64px 16px 60px;
-      }
-
-      .g-3,
-      .g-4 {
-        grid-template-columns: 1fr;
-      }
-
-      .g-2 {
-        grid-template-columns: 1fr;
-      }
-
-      .toc-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .header-bar {
-        flex-direction: column;
-      }
-
-      .hbar-meta {
-        text-align: left;
-      }
-
-      .proj-compare,
-      .two-col,
-      .feat-grid,
-      .dg,
-      .compare,
-      .benefit-row {
-        grid-template-columns: 1fr !important;
-      }
-
-      .feat-card--wide {
-        grid-column: span 1;
-      }
-
-      .roadmap {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .roadmap .phase:nth-child(2) {
-        border-left: var(--border);
-      }
-
-      .roadmap .phase:nth-child(3) {
-        border-top: none;
-      }
-
-      .roadmap .phase:nth-child(4) {
-        border-top: none;
-        border-left: var(--border);
-      }
-
-      .roadmap .phase:first-child {
-        border-radius: var(--r-md) 0 0 0;
-      }
-
-      .roadmap .phase:nth-child(2) {
-        border-radius: 0 var(--r-md) 0 0;
-      }
-
-      .roadmap .phase:nth-child(3) {
-        border-radius: 0 0 0 var(--r-md);
-      }
-
-      .roadmap .phase:last-child {
-        border-radius: 0 0 var(--r-md) 0;
-      }
-
-      .proj-title {
-        font-size: 18px;
-      }
-
-      .st {
-        font-size: 16px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eCheck 巡檢系統 · 系統架構文件</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:       #0f172a;
+    --ink2:      #334155;
+    --ink3:      #64748b;
+    --surface:   #ffffff;
+    --bg:        #f8fafc;
+    --border:    #e2e8f0;
+    --border2:   #cbd5e1;
+    --blue:      #2563eb;
+    --blue-l:    #eff6ff;
+    --blue-m:    #bfdbfe;
+    --teal:      #0d9488;
+    --teal-l:    #f0fdfa;
+    --amber:     #d97706;
+    --amber-l:   #fffbeb;
+    --red:       #dc2626;
+    --red-l:     #fef2f2;
+    --purple:    #7c3aed;
+    --purple-l:  #f5f3ff;
+    --green:     #16a34a;
+    --green-l:   #f0fdf4;
+    --slate:     #475569;
+    --r4:        4px;
+    --r8:        8px;
+    --r12:       12px;
+    --shadow:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  /* ── Nav ── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex; align-items: center; gap: 0;
+    height: 52px;
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 15px; color: var(--ink);
+    margin-right: 32px; flex-shrink: 0;
+  }
+  .nav-brand svg { width: 28px; height: 28px; }
+  .nav-links {
+    display: flex; gap: 2px; overflow-x: auto;
+    scrollbar-width: none; list-style: none;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: var(--r4);
+    color: var(--ink3); font-size: 12.5px; font-weight: 500;
+    text-decoration: none; white-space: nowrap;
+    transition: all .12s;
+  }
+  .nav-links a:hover { background: var(--bg); color: var(--blue); }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Page layout ── */
+  .page { max-width: 1280px; margin: 0 auto; padding: 32px 24px 64px; }
+  .section { margin-bottom: 48px; }
+  .section-head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-icon {
+    width: 32px; height: 32px; border-radius: var(--r8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .section-head h2 { font-size: 18px; font-weight: 800; }
+  .section-head p { font-size: 12px; color: var(--ink3); margin-top: 1px; }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 45%, #0284c7 100%);
+    border-radius: 16px;
+    padding: 40px 40px 36px;
+    margin-bottom: 36px;
+    color: #fff;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: rgba(255,255,255,.06);
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -60px; right: 120px;
+    width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,.04);
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+    border-radius: 999px; padding: 3px 12px;
+    font-size: 11.5px; font-weight: 600; letter-spacing: .3px;
+    margin-bottom: 14px;
+  }
+  .hero h1 { font-size: 28px; font-weight: 900; letter-spacing: -.5px; line-height: 1.2; }
+  .hero p  { font-size: 14px; opacity: .8; margin-top: 8px; max-width: 560px; }
+  .hero-meta {
+    display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .hero-stat {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: var(--r8);
+    padding: 10px 18px;
+  }
+  .hero-stat-n { font-size: 22px; font-weight: 800; }
+  .hero-stat-l { font-size: 11px; opacity: .75; margin-top: 1px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r12);
+    box-shadow: var(--shadow);
+    padding: 20px 24px;
+  }
+  .card-grid { display: grid; gap: 16px; }
+  .card-grid-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media(max-width:900px) {
+    .card-grid-3, .card-grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* ── Function table ── */
+  .fn-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .fn-table thead th {
+    background: var(--bg); color: var(--ink3);
+    font-size: 11px; font-weight: 700; letter-spacing: .5px;
+    text-transform: uppercase; padding: 9px 14px;
+    border-bottom: 2px solid var(--border2); text-align: left;
+    position: sticky; top: 52px;
+  }
+  .fn-table tbody td {
+    padding: 9px 14px; border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .fn-table tbody tr:last-child td { border-bottom: none; }
+  .fn-table tbody tr:hover td { background: var(--bg); }
+  .fn-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600;
+    color: var(--blue);
+    white-space: nowrap;
+  }
+  .fn-desc { color: var(--ink2); }
+  .fn-sheet {
+    font-size: 11px; color: var(--ink3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Tag pills ── */
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; white-space: nowrap;
+  }
+  .tag-fs    { background: var(--blue-l);   color: var(--blue); }
+  .tag-bd    { background: var(--amber-l);  color: var(--amber); }
+  .tag-ai    { background: var(--purple-l); color: var(--purple); }
+  .tag-sys   { background: var(--bg);       color: var(--ink3); border: 1px solid var(--border2); }
+  .tag-write { background: #fef9c3;         color: #854d0e; }
+  .tag-read  { background: var(--green-l);  color: var(--green); }
+  .tag-ok    { background: var(--green-l);  color: var(--green); }
+  .tag-warn  { background: var(--amber-l);  color: var(--amber); }
+
+  /* ── Architecture diagram ── */
+  .arch-svg { width: 100%; height: auto; display: block; }
+
+  /* ── Flow diagram ── */
+  .flow-wrap { overflow-x: auto; }
+  .flow-svg  { min-width: 860px; width: 100%; height: auto; display: block; }
+
+  /* ── WBS table ── */
+  .wbs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .wbs-table th {
+    background: var(--ink); color: #fff;
+    padding: 9px 14px; text-align: left;
+    font-size: 11px; font-weight: 700; letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .wbs-table td {
+    padding: 9px 14px; border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .wbs-table tr:nth-child(even) td { background: var(--bg); }
+  .wbs-table tr:hover td { background: var(--blue-l); }
+  .wbs-layer-fe { border-left: 3px solid var(--blue); }
+  .wbs-layer-be { border-left: 3px solid var(--teal); }
+  .wbs-layer-inf{ border-left: 3px solid var(--purple); }
+  .wbs-id { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink3); }
+  .wbs-item { font-weight: 600; }
+  .wbs-accept { font-size: 12px; color: var(--ink3); }
+
+  /* ── Component blocks ── */
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media(max-width:800px) { .comp-grid { grid-template-columns: 1fr 1fr; } }
+
+  .comp-card {
+    border-radius: var(--r8);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    position: relative;
+  }
+  .comp-card-title {
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; gap: 7px;
+    margin-bottom: 8px;
+  }
+  .comp-card-icon {
+    width: 26px; height: 26px; border-radius: var(--r4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0;
+  }
+  .comp-card ul {
+    list-style: none; display: flex; flex-direction: column; gap: 4px;
+  }
+  .comp-card ul li {
+    font-size: 12px; color: var(--ink2);
+    padding-left: 14px; position: relative;
+  }
+  .comp-card ul li::before {
+    content: '›'; position: absolute; left: 0;
+    color: var(--ink3);
+  }
+
+  /* ── Sheet reference ── */
+  .sheet-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media(max-width:700px) { .sheet-grid { grid-template-columns: 1fr; } }
+
+  .sheet-card {
+    border-radius: var(--r8);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .sheet-head {
+    padding: 10px 14px;
+    font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sheet-rows { list-style: none; }
+  .sheet-rows li {
+    padding: 6px 14px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--ink2);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 10px;
+  }
+  .sheet-col-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink3); }
+
+  /* ── Flow step ── */
+  .flow-step-list { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex; gap: 0; position: relative;
+  }
+  .flow-step-side {
+    display: flex; flex-direction: column; align-items: center;
+    width: 44px; flex-shrink: 0;
+  }
+  .flow-step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+    z-index: 1;
+  }
+  .flow-step-line {
+    width: 2px; flex: 1; min-height: 20px;
+    background: var(--border2); margin: 3px 0;
+  }
+  .flow-step:last-child .flow-step-line { display: none; }
+  .flow-step-body {
+    padding: 0 0 18px 0; flex: 1;
+  }
+  .flow-step-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+  .flow-step-detail { font-size: 12px; color: var(--ink3); }
+  .flow-step-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+
+  /* ── Data flow path ── */
+  .path-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r8);
+    padding: 16px 20px;
+  }
+  .path-row {
+    display: flex; align-items: center; gap: 0; flex-wrap: nowrap;
+    overflow-x: auto; padding-bottom: 4px;
+  }
+  .path-row::-webkit-scrollbar { height: 3px; }
+  .path-node {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    flex-shrink: 0; min-width: 80px;
+  }
+  .path-box {
+    padding: 7px 12px; border-radius: var(--r8);
+    font-size: 12px; font-weight: 700; text-align: center;
+    white-space: nowrap; min-width: 72px;
+  }
+  .path-label { font-size: 10.5px; color: var(--ink3); text-align: center; }
+  .path-arrow {
+    font-size: 18px; color: var(--border2);
+    padding: 0 4px; flex-shrink: 0; margin-bottom: 18px;
+  }
+</style>
 </head>
-
 <body>
 
-  <!-- ══════════════════════════
-     DATA — Edit this JSON to customise any PRD
-     ══════════════════════════ -->
-  <script id="prd-data" type="application/json">
-{
-  "doc": {
-    "title":   "eCheck巡檢平台 · PRD v1.0",
-    "subtitle":"Product Requirements Document — Kick-off Edition",
-    "version": "PRD v1.0",
-    "name":    "eCheck巡檢平台",
-    "tagline": "Kick-off Edition",
-    "date":    "2026.04.01",
-    "metaLeft":"2026 Kick-off",
-    "metaRight":"300+ 間門店",
-    "badges": [
-      {"label":"食安巡檢","type":"teal"},
-      {"label":"評比巡檢","type":"teal"},
-      {"label":"Google Apps Script","type":"gray"},
-      {"label":"BPM 整合","type":"gray"},
-      {"label":"ETL Pipeline","type":"gray"}
-    ]
-  },
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-brand">
+    <svg viewBox="24 16 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <rect x="24" y="16" width="1024" height="1024" rx="240" fill="#2563eb"/>
+      <path d="M536 786.333C499.403 786.333 465.389 779.767 433.958 766.635C402.528 753.503 375.187 735.312 351.937 712.062C328.687 688.812 310.497 661.472 297.365 630.042C284.233 598.611 277.667 564.597 277.667 528C277.667 491.833 284.233 458.035 297.365 426.604C310.497 395.174 328.687 367.833 351.937 344.583C375.187 321.333 402.528 303.035 433.958 289.687C465.389 276.34 499.403 269.667 536 269.667C561.833 269.667 587.021 273.434 611.562 280.969C636.104 288.503 659.139 299.59 680.667 314.229C685.403 317.243 688.309 321.333 689.385 326.5C690.462 331.667 689.278 336.403 685.833 340.708C682.389 345.014 678.083 347.382 672.917 347.812C667.75 348.243 662.799 346.951 658.062 343.937C639.979 332.312 620.604 323.486 599.937 317.458C579.271 311.431 557.958 308.417 536 308.417C473.569 308.417 421.365 329.406 379.385 371.385C337.406 413.365 316.417 465.569 316.417 528C316.417 590.431 337.406 642.635 379.385 684.615C421.365 726.594 473.569 747.583 536 747.583C598.431 747.583 650.635 726.594 692.615 684.615C734.594 642.635 755.583 590.431 755.583 528C755.583 519.819 755.26 511.854 754.615 504.104C753.969 496.354 752.785 488.819 751.062 481.5C750.201 475.903 751.062 470.736 753.646 466C756.229 461.264 760.104 458.465 765.271 457.604C770.868 456.312 776.035 457.281 780.771 460.51C785.507 463.74 788.305 468.153 789.167 473.75C790.889 482.361 792.181 491.187 793.042 500.229C793.903 509.271 794.333 518.528 794.333 528C794.333 564.597 787.66 598.611 774.312 630.042C760.965 661.472 742.667 688.812 719.417 712.062C696.167 735.312 668.826 753.503 637.396 766.635C605.965 779.767 572.167 786.333 536 786.333ZM497.896 586.771L751.062 333.604C754.937 329.729 759.674 327.792 765.271 327.792C770.868 327.792 775.819 329.729 780.125 333.604C784.43 337.91 786.583 342.861 786.583 348.458C786.583 354.056 784.43 359.007 780.125 363.312L511.458 631.979C507.583 635.854 503.062 637.792 497.896 637.792C492.729 637.792 488.208 635.854 484.333 631.979L405.542 552.542C401.667 548.667 399.837 543.823 400.052 538.01C400.267 532.198 402.312 527.354 406.187 523.479C410.062 519.604 414.906 517.667 420.719 517.667C426.531 517.667 431.375 519.604 435.25 523.479L497.896 586.771Z" fill="white"/>
+    </svg>
+    eCheck
+  </div>
+  <ul class="nav-links">
+    <li><a href="#overview"><span class="nav-dot" style="background:#2563eb"></span>系統總覽</a></li>
+    <li><a href="#arch"><span class="nav-dot" style="background:#7c3aed"></span>架構圖</a></li>
+    <li><a href="#flow-audit"><span class="nav-dot" style="background:#0d9488"></span>巡檢流程</a></li>
+    <li><a href="#flow-version"><span class="nav-dot" style="background:#d97706"></span>版次更新</a></li>
+    <li><a href="#functions"><span class="nav-dot" style="background:#2563eb"></span>功能清單</a></li>
+    <li><a href="#sheets"><span class="nav-dot" style="background:#16a34a"></span>資料表結構</a></li>
+    <li><a href="#wbs"><span class="nav-dot" style="background:#dc2626"></span>WBS</a></li>
+  </ul>
+</nav>
 
-  "nav": [
-    {"id":"s1","num":"01","label":"專案背景與目標"},
-    {"id":"s2","num":"02","label":"系統架構圖"},
-    {"id":"s3","num":"03","label":"RACI 權責矩陣"},
-    {"id":"s4","num":"04","label":"核心功能"},
-    {"id":"s5","num":"05","label":"確認事項"},
-    {"id":"s6","num":"06","label":"階段目標"},
-    {"id":"s7","num":"07","label":"WBS 工作分解"},
-    {"id":"sd","num":"附","label":"說明"}
-  ],
+<div class="page">
 
-  "sections": [
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">📋 系統架構文件 v4 · 2026</div>
+    <h1>爭鮮 eCheck 巡檢系統</h1>
+    <p>以 Google Apps Script 為後端核心，BPM Agentflow 作為身份管理與入口，Google Sheets 作為資料庫，並整合 Gemini AI 進行缺失智能分析的 SaaS 巡檢平台。</p>
+    <div class="hero-meta">
+      <div class="hero-stat"><div class="hero-stat-n">17</div><div class="hero-stat-l">GAS API Actions</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">2</div><div class="hero-stat-l">業務流程 FS / BD</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">6</div><div class="hero-stat-l">系統元件</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">8</div><div class="hero-stat-l">AI 分析維度</div></div>
+    </div>
+  </div>
 
-    {
-      "id":"s1","num":"Section 01","title":"專案背景與目標",
-      "blocks":[
-        {
-          "type":"stat-cards",
-          "items":[
-            {"label":"涵蓋門市","val":"300+","sub":"間連鎖門市（持續增加）"},
-            {"label":"年度效益目標","val":"100萬+","sub":"成本節省（估算）"},
-            {"label":"每月資料量","val":"330–340筆","sub":"食安 30–40間/月｜評比 300+間/月"}
-          ]
-        },
-        {
-          "type":"compare-cards",
-          "items":[
-            {
-              "variant":"food","title":"食安巡檢（抽驗制）",
-              "items":["每月抽驗 30–40 間門市","巡檢項目：低頻調整（缺失細項優化）","流程：巡檢 → 店經理簽名 → 產出報告","不需功能：簽核流程 / 返分機制 / 原始照片留存"]
-            },
-            {
-              "variant":"eval","title":"評比巡檢（全檢制）",
-              "items":["每月涵蓋 300+ 間門市","巡檢項目：調整頻率（待確認）","流程：待確認"]
-            }
-          ]
-        },
-        {
-          "type":"two-col-panels",
-          "items":[
-            {
-              "title":"專案現況",
-              "rows":[
-                {"dot":"warn","text":"紙本巡檢作業，統計耗時且易出錯"},
-                {"dot":"warn","text":"資料分散，無法即時同步與整合"},
-                {"dot":"warn","text":"缺失以文字紀錄，難以量化與分析"},
-                {"dot":"warn","text":"缺乏 KPI Dashboard，決策依據不足"},
-                {"dot":"warn","text":"使用 Google 工具，受限於配額與效能"}
-              ]
-            },
-            {
-              "title":"專案目標",
-              "rows":[
-                {"dot":"accent","text":"流程自動化：確認簽署後，即時生成巡檢報告"},
-                {"dot":"accent","text":"資料標準化：定義缺失細項，實踐維度分類與量化統計"},
-                {"dot":"accent","text":"系統整合：建置自動化 ETL 排程，資料同步至BPM"},
-                {"dot":"accent","text":"數據驅動決策：Dashboard 監控核心 KPI"},
-                {"dot":"accent","text":"分析與持續改善：落實PDCA持續改善機制"}
-              ]
-            }
-          ]
-        },
-        {
-          "type":"tag-list",
-          "items":[
-            {"text":"食安：每月 30–40 間門市(抽驗)"},
-            {"text":"評比：每月 300+ 間門市(全門市)"},
-            {"text":"缺失細項"},
-            {"text":"店經理簽名即產生報告"},
-            {"text":"專案 Google 帳號限額"},
-            {"text":"開發方式：敏捷 Sprint"},
-            {"text":"主要技術：GAS · SQL · Python ETL · BPM"}
-          ]
-        }
-      ]
-    },
+  <!-- ═══ 1. 系統總覽 ═══ -->
+  <div class="section" id="overview">
+    <div class="section-head">
+      <div class="section-icon" style="background:var(--blue-l)">🗂️</div>
+      <div>
+        <h2>系統總覽</h2>
+        <p>六大元件 · 雙業務流程共用同一基礎設施</p>
+      </div>
+    </div>
+    <div class="comp-grid">
 
-    {
-      "id":"s2","num":"Section 02","title":"系統架構圖",
-      "blocks":[
-        {
-          "type":"svg-diagram",
-          "svg":"<svg width=\"100%\" viewBox=\"0 0 680 520\" xmlns=\"http://www.w3.org/2000/svg\"><defs><marker id=\"arrow-s2\" viewBox=\"0 0 10 10\" refX=\"8\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M2 1L8 5L2 9\" fill=\"none\" stroke=\"context-stroke\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></marker><marker id=\"arrow-del\" viewBox=\"0 0 10 10\" refX=\"8\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M2 1L8 5L2 9\" fill=\"none\" stroke=\"context-stroke\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></marker></defs><rect x=\"40\" y=\"40\" width=\"200\" height=\"76\" rx=\"8\" fill=\"#085041\" stroke=\"#5DCAA5\" stroke-width=\"0.5\"/><text x=\"140\" y=\"65\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#9FE1CB\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"14\" font-weight=\"500\">Google Apps Script</text><text x=\"140\" y=\"85\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#5DCAA5\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"12\">巡檢前端（資料收集）</text><rect x=\"280\" y=\"40\" width=\"180\" height=\"76\" rx=\"8\" fill=\"#085041\" stroke=\"#5DCAA5\" stroke-width=\"0.5\"/><text x=\"370\" y=\"62\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#9FE1CB\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"14\" font-weight=\"500\">Google Sheets/Drive</text><text x=\"370\" y=\"82\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#5DCAA5\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"11\">● 巡檢資料 (Sheet)</text><text x=\"370\" y=\"98\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#E57373\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"11\">● 原始照片（暫存）</text><rect x=\"500\" y=\"40\" width=\"140\" height=\"76\" rx=\"8\" fill=\"#0C447C\" stroke=\"#85B7EB\" stroke-width=\"0.5\"/><text x=\"570\" y=\"60\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#B5D4F4\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"14\" font-weight=\"500\">PDF 產出</text><text x=\"570\" y=\"79\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#85B7EB\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"11\">GAS 直接產出</text><text x=\"570\" y=\"97\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#85B7EB\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"11\">交付店經理</text><rect x=\"370\" y=\"160\" width=\"270\" height=\"65\" rx=\"8\" fill=\"#0C447C\" stroke=\"#85B7EB\" stroke-width=\"0.5\"/><text x=\"505\" y=\"182\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#B5D4F4\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"14\" font-weight=\"500\">Python ETL（04:00 排程）</text><text x=\"505\" y=\"202\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#85B7EB\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"11\">1. 資料同步  2. 確認入庫成功  3. 刪除雲端照片</text><rect x=\"60\" y=\"160\" width=\"270\" height=\"65\" rx=\"8\" fill=\"#085041\" stroke=\"#5DCAA5\" stroke-width=\"0.5\"/><text x=\"195\" y=\"192\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#9FE1CB\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"14\" font-weight=\"500\">BPM 資料庫</text><rect x=\"60\" y=\"260\" width=\"580\" height=\"74\" rx=\"8\" fill=\"rgba(24,95,165,0.12)\" stroke=\"#185FA5\" stroke-width=\"0.5\"/><text x=\"350\" y=\"282\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#9FBEDF\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"14\" font-weight=\"500\">資料治理層</text><text x=\"350\" y=\"305\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#6FA8D0\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"12\">圖片：雲端暫存 ETL 後刪除；結構資料：BPM 資料庫保存；PDF：保存＋路徑索引</text><rect x=\"60\" y=\"380\" width=\"110\" height=\"54\" rx=\"8\" fill=\"#711B13\" stroke=\"#F0997B\" stroke-width=\"0.5\"/><text x=\"115\" y=\"407\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#F5C4B3\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"13\" font-weight=\"500\">BPM</text><rect x=\"190\" y=\"380\" width=\"300\" height=\"54\" rx=\"8\" fill=\"#27500A\" stroke=\"#97C459\" stroke-width=\"0.5\"/><text x=\"340\" y=\"407\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#C0DD97\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"13\" font-weight=\"500\">Dashboard（KPI 每日更新）</text><rect x=\"510\" y=\"380\" width=\"130\" height=\"54\" rx=\"8\" fill=\"#0C447C\" stroke=\"#85B7EB\" stroke-width=\"0.5\"/><text x=\"575\" y=\"407\" text-anchor=\"middle\" dominant-baseline=\"central\" fill=\"#B5D4F4\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"13\" font-weight=\"500\">EIP 平台</text><line x1=\"240\" y1=\"78\" x2=\"280\" y2=\"78\" stroke=\"#9CA09A\" stroke-width=\"1.5\" marker-end=\"url(#arrow-s2)\"/><path d=\"M218 40 L218 22 L570 22 L570 40\" fill=\"none\" stroke=\"#5DCAA5\" stroke-width=\"1.5\" stroke-dasharray=\"5,3\" marker-end=\"url(#arrow-s2)\"/><text x=\"394\" y=\"17\" text-anchor=\"middle\" fill=\"#5DCAA5\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"11\">直接產出（不經 ETL）</text><path d=\"M370 116 L370 145 L505 145 L505 160\" fill=\"none\" stroke=\"#9CA09A\" stroke-width=\"1.5\" marker-end=\"url(#arrow-s2)\"/><line x1=\"370\" y1=\"192\" x2=\"330\" y2=\"192\" stroke=\"#9CA09A\" stroke-width=\"1.5\" marker-end=\"url(#arrow-s2)\"/><path d=\"M530 160 L530 135 L400 135 L400 116\" fill=\"none\" stroke=\"#E57373\" stroke-width=\"1.5\" stroke-dasharray=\"4\" marker-end=\"url(#arrow-del)\"/><text x=\"465\" y=\"130\" text-anchor=\"middle\" fill=\"#E57373\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"11\">確認入庫後刪除原始照片</text><line x1=\"195\" y1=\"225\" x2=\"195\" y2=\"260\" stroke=\"#9CA09A\" stroke-width=\"1.5\" marker-end=\"url(#arrow-s2)\"/><line x1=\"200\" y1=\"334\" x2=\"115\" y2=\"380\" stroke=\"#9CA09A\" stroke-width=\"1.5\" marker-end=\"url(#arrow-s2)\"/><line x1=\"340\" y1=\"334\" x2=\"340\" y2=\"380\" stroke=\"#9CA09A\" stroke-width=\"1.5\" marker-end=\"url(#arrow-s2)\"/><line x1=\"480\" y1=\"334\" x2=\"575\" y2=\"380\" stroke=\"#9CA09A\" stroke-width=\"1.5\" marker-end=\"url(#arrow-s2)\"/><rect x=\"40\" y=\"474\" width=\"10\" height=\"10\" rx=\"2\" fill=\"#1D9E75\" opacity=\".8\"/><text x=\"55\" y=\"483\" fill=\"#C2C0B6\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"12\">前端 / GAS</text><rect x=\"140\" y=\"474\" width=\"10\" height=\"10\" rx=\"2\" fill=\"#185FA5\" opacity=\".8\"/><text x=\"155\" y=\"483\" fill=\"#C2C0B6\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"12\">資料層</text><rect x=\"230\" y=\"474\" width=\"10\" height=\"10\" rx=\"2\" fill=\"#EF9F27\" opacity=\".8\"/><text x=\"245\" y=\"483\" fill=\"#C2C0B6\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"12\">排程 / 通知</text><rect x=\"340\" y=\"474\" width=\"10\" height=\"10\" rx=\"2\" fill=\"#D85A30\" opacity=\".8\"/><text x=\"355\" y=\"483\" fill=\"#C2C0B6\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"12\">BPM / EIP</text><rect x=\"440\" y=\"474\" width=\"10\" height=\"10\" rx=\"2\" fill=\"#639922\" opacity=\".8\"/><text x=\"455\" y=\"483\" fill=\"#C2C0B6\" font-family=\"'Noto Sans TC', sans-serif\" font-size=\"12\">Dashboard</text></svg>"
-        }
-      ]
-    },
-
-    {
-      "id":"s3","num":"Section 03","title":"RACI 權責矩陣",
-      "blocks":[
-        {
-          "type":"raci-table",
-          "columns":["流程 / 任務","店經理","食安部","評比部","資訊部"],
-          "rows":[
-            {"task":"巡檢執行",             "cells":["R","A","C",""]},
-            {"task":"生成巡檢報告PDF",       "cells":["R","I","I","C"]},
-            {"task":"每月缺失評比報告",       "cells":["","C","R","A"]},
-            {"task":"巡檢版本管理",           "cells":["","R","A","I"]},
-            {"task":"資料推送 ETL（每日排程）","cells":["","I","I","R"]},
-            {"task":"KPI / Dashboard 更新",  "cells":["","C","R","A"]},
-            {"task":"異常 / 未改善通知",       "cells":["I","A","R","C"]},
-            {"task":"Google 帳號管理",        "cells":["","","","R"]},
-            {"task":"BPM / EIP 路徑整合",    "cells":["","C","C","R"]},
-            {"task":"GAS PDF路徑權限",        "cells":["","","","R"]},
-            {"task":"定位打卡：門市經緯度",    "cells":["","","","R"]}
-          ]
-        }
-      ]
-    },
-
-    {
-      "id":"s4","num":"Section 04","title":"核心功能",
-      "blocks":[
-        {
-          "type":"feat-grid",
-          "items":[
-            {
-              "dot":"accent","title":"巡檢功能",
-              "items":["GPS定位打卡","手繪電子簽名","現場照片上傳","自訂評分機制","產出巡檢報告PDF"]
-            },
-            {
-              "dot":"warn","title":"KPI管理",
-              "items":["分類: 缺失細項指標","巡檢執行率","缺失發生率：★重大/▲主要/一般","改善追蹤/效率","門店總分排行"]
-            },
-            {
-              "dot":"info","title":"ETL & 資料治理",
-              "items":["自動排程：每日 04:00 GAS 同步至BPM資料庫","食安：ETL 後刪除原始照片","ETL成功，註記已匯入，差異處理","Google Sheet 僅做讀取"]
-            },
-            {
-              "dot":"dark","title":"Dashboard",
-              "items":["門店分數統計 + 趨勢圖","缺失項目統計","可匯出 CSV / PDF"]
-            }
-          ]
-        }
-      ]
-    },
-
-    {
-      "id":"s5","num":"Section 05","title":"確認事項",
-      "blocks":[
-        {
-          "type":"dept-grid",
-          "items":[
-            {
-              "dept":"food","name":"食安部",
-              "items":["巡檢標準、分數算法","定義缺失細項指標","異常定義與風險分級（高/中/低）","不需簽核、不需返分機制確認、不需原始照片","巡檢報告PDF給店經理"]
-            },
-            {
-              "dept":"eval","name":"評比部",
-              "items":["定義評核項目版次","KPI 指標與排名規則","獎懲制度連結方式","每月資料量約300+ 筆"]
-            },
-            {
-              "dept":"store","name":"門店",
-              "items":["巡檢流負責人確認","操作習慣與痛點（UX 優化依據）","設備環境（手機/平板型號）"]
-            },
-            {
-              "dept":"it","name":"IT / 資訊部",
-              "items":["EIP 討論區 / 資料庫路徑確認","API 整合方式","資料安全控管（Token 驗證）","Google帳號限額分流策略"]
-            }
-          ]
-        }
-      ]
-    },
-
-    {
-      "id":"s6","num":"Section 06","title":"階段目標",
-      "blocks":[
-        {
-          "type":"roadmap",
-          "phases":[
-            {
-              "badge":"mvp","label":"Phase 1 — MVP","title":"核心交付",
-              "items":["GPS定位打卡","現場照片上傳","自訂評分機制","手繪電子簽名","產出巡檢報告PDF"]
-            },
-            {
-              "badge":"integration","label":"Phase 2 — 整合","title":"BPM 串接",
-              "items":["建立API","巡檢版本管理：簽核完成->更新GAS","Dashboard KPI","每日 ETL 排程","EIP 路徑整合"]
-            },
-            {
-              "badge":"notify","label":"Phase 3 — 通知","title":"自動通知系統",
-              "items":["Email","未改善自動推送","排名系統建立","績效連動缺失"]
-            },
-            {
-              "badge":"ai","label":"Phase 4 — 趨勢分析","title":"智能分析",
-              "items":["正式 DB 取代 Sheet","改善建議自動化","預測性維護"]
-            }
-          ]
-        },
-        {
-          "type":"benefit-row",
-          "items":[
-            {"variant":"accent","num":"100萬+","label":"300 間+門店年度估算<br>成本節省"},
-            {"variant":"warning","num":"改善率","label":"提升門店問題<br>改善追蹤效率"},
-            {"variant":"purple","num":"可擴展","label":"建立可擴展的<br>數據治理架構"}
-          ]
-        }
-      ]
-    },
-
-    {
-      "id":"s7","num":"Section 07","title":"WBS 工作分解結構",
-      "desc":"依前端、後端、基礎設施三層拆解可交付項目，各項含負責模組與驗收條件。",
-      "blocks":[
-        {
-          "type":"wbs-group",
-          "groups":[
-            {
-              "label":"前端 — GAS Frontend","color":"accent",
-              "rows":[
-                {"id":"F1.1","module":"身份驗證","task":"Google 帳號登入、未登入管控表單存取"},
-                {"id":"F1.2","module":"身份驗證","task":"GAS 帳號額度分流、使用量警示"},
-                {"id":"F2.1","module":"巡檢表單","task":"動態版次載入（從 BPM API 同步）"},
-                {"id":"F2.2","module":"巡檢表單","task":"GPS 打卡（與 BPM 門市座標比對）"},
-                {"id":"F2.3","module":"巡檢表單","task":"評分項目 + 缺失細項勾選"},
-                {"id":"F2.4","module":"巡檢表單","task":"現場照片上傳（壓縮 + 分批）"},
-                {"id":"F2.5","module":"巡檢表單","task":"手繪電子簽名"},
-                {"id":"F3.1","module":"PDF 產出","task":"命名規則：{brand}_{region}_{store_id}_{YYYYMMDD}_{type}_{ver}.pdf"},
-                {"id":"F3.2","module":"PDF 產出","task":"資料夾路徑結構設計（預留本機遷移，relative_path 獨立）"},
-                {"id":"F3.3","module":"PDF 產出","task":"GAS 直接產出並交付店經理"},
-                {"id":"F4.1","module":"緩存 / 離線","task":"3s debounce 自動存草稿至 localStorage（含 userId key 隔離）"},
-                {"id":"F4.2","module":"緩存 / 離線","task":"離線偵測 banner + 送出佇列，失敗放回 queue 首位"},
-                {"id":"F4.3","module":"緩存 / 離線","task":"版次 / 門市座標啟動快取，TTL 24h，離線可用舊版"},
-                {"id":"F4.4","module":"緩存 / 離線","task":"送出前重複提交防護（storeName + inspectDate 比對）"}
-              ]
-            },
-            {
-              "label":"後端 — BPM Backend","color":"info",
-              "rows":[
-                {"id":"B1.1","module":"資料庫","task":"巡檢主表 + 缺失細項子表 schema"},
-                {"id":"B1.2","module":"資料庫","task":"門市座標表、巡檢版次表"},
-                {"id":"B1.3","module":"資料庫","task":"PDF 路徑索引表（relative_path + storage_config 分離）"},
-                {"id":"B2.1","module":"API","task":"BPM → GAS：版次推送 API（帶 version_hash 防重複）"},
-                {"id":"B2.2","module":"API","task":"BPM → GAS：門市座標 API"},
-                {"id":"B2.3","module":"API","task":"PDF 查詢代理 API（後端驗權限再 stream，前端不拿真實路徑）"},
-                {"id":"B2.4","module":"API","task":"Token 驗證 + SQL Injection 防護"},
-                {"id":"B3.1","module":"ETL","task":"每日 04:00 排程：GAS → BPM（缺失統計、巡檢回應表）"},
-                {"id":"B3.2","module":"ETL","task":"ETL 成功 → 寫入 status flag，供差異更新基準"},
-                {"id":"B3.3","module":"ETL","task":"ETL 確認入庫後 → 刪除 GAS 圖片資料夾"},
-                {"id":"B3.4","module":"ETL","task":"失敗重試 queue + 異常通知機制"},
-                {"id":"B4.1","module":"版本簽核","task":"食安 / 評比版次管理，GAS 端加 locked flag（簽核前唯讀）"},
-                {"id":"B4.2","module":"版本簽核","task":"簽核完成 → call API → 寫入 GAS（version_hash 比對後執行）"},
-                {"id":"B5.1","module":"權限系統","task":"角色定義：全部 / 品牌 / 區 / 門店 四層"},
-                {"id":"B5.2","module":"權限系統","task":"階層式資料能見度：上層角色自動繼承下層所有資料；下層角色資料隔離，僅限本單位"},
-                {"id":"B5.3","module":"權限系統","task":"PDF 查詢權限與角色層級整合"},
-                {"id":"B6.1","module":"Dashboard","task":"缺失統計、巡檢回應表 KPI API"},
-                {"id":"B6.2","module":"Dashboard","task":"CSV / PDF 匯出"}
-              ]
-            },
-            {
-              "label":"基礎設施 — Infrastructure","color":"warn",
-              "rows":[
-                {"id":"I1.1","module":"PDF 儲存","task":"storage_config 表設計（base_path + storage 類型），支援 Google Drive ↔ 本機切換"},
-                {"id":"I1.2","module":"PDF 儲存","task":"遷移執行清單：檔案實體搬移、存取方式切換（Drive API → fs / Nginx）、備份策略"},
-                {"id":"I1.3","module":"PDF 儲存","task":"本機模式：後端產生 signed URL 或 stream，禁止前端直接暴露真實路徑"},
-                {"id":"I2.1","module":"監控","task":"GAS 額度使用量告警"},
-                {"id":"I2.2","module":"監控","task":"ETL 排程執行狀態監控"}
-              ]
-            }
-          ]
-        }
-      ]
-    },
-
-    {"title":"缺失細項指標",
-      "desc":"原本用文字欄位自由填寫的缺失說明，改為預設子項。統一分類讓後續統計、趨勢分析與報表產出更精確。",
-      "blocks":[
-        {
-          "type":"old-vs-new",
-          "old":{
-            "head":"舊做法：文字說明（難以統計）",
-            "text":"「食品標示有誤，現場張貼之原產地說明與實際不符，且宣稱有問題…」",
-            "note":"每筆說明格式不一，無法彙總統計"
-          },
-          "new":{
-            "head":"新做法：缺失細項",
-            "tags":["原產地","重組肉","宣稱錯誤","自治條例項目","文宣品錯誤","其他"],
-            "active":true,
-            "note":"勾選即記錄，可直接統計各子項發生頻率"
-          }
-        },
-        {
-          "type":"item-card",
-          "accent":"範例巡檢項目結構",
-          "question":"總公司佈達張貼之食品相關標示正確，或販售食品標示無異常。（如：牛、豬原產地標示、宣稱日本食材等）",
-          "subNote":"發現缺失時，勾選對應子項：",
-          "tags":["原產地","重組肉","宣稱錯誤","自治條例項目","文宣品錯誤","其他"]
-        },
-        {
-          "type":"ben-list",
-          "items":[
-            {"title":"統計精確","text":"每個子項可獨立計次，追蹤各類缺失發生率"},
-            {"title":"版次低頻更動","text":"子項清單由食安部維護，不頻繁變動"},
-            {"title":"報表自動化","text":"ETL 直接展開 subDefects，無需人工整理"}
-          ]
-        }
-      ]
-    }
-
-  ]
-}
-</script>
-
-  <!-- ══════════════════════════
-     TEMPLATE — Do not edit below unless customising layout
-     ══════════════════════════ -->
-
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo" id="sidebar-logo"></div>
-    <nav class="nav-section" id="sidebar-nav">
-      <div class="nav-label">文件目錄</div>
-    </nav>
-    <div class="sidebar-footer" id="sidebar-footer"></div>
-  </aside>
-
-  <!-- Mobile Overlay -->
-  <div class="overlay" id="overlay"></div>
-
-  <!-- Mobile Top Bar -->
-  <header class="topbar" id="topbar">
-    <button class="menu-btn" id="menu-btn" aria-label="選單">
-      <span></span><span></span><span></span>
-    </button>
-    <span class="topbar-title" id="topbar-title"></span>
-    <span class="topbar-badge" id="topbar-badge"></span>
-  </header>
-
-  <!-- Main Content -->
-  <main class="main" id="main"></main>
-
-
-  <!-- ══════════════════════════
-     TEMPLATE ENGINE
-     ══════════════════════════ -->
-  <script>
-    (function () {
-      const DATA = JSON.parse(document.getElementById('prd-data').textContent);
-      const { doc, nav, sections } = DATA;
-
-      /* ── helpers ── */
-      const el = (tag, cls, html) => {
-        const e = document.createElement(tag);
-        if (cls) e.className = cls;
-        if (html !== undefined) e.innerHTML = html;
-        return e;
-      };
-      const div = (cls, html) => el('div', cls, html);
-
-      /* ════════════════════════════
-         SIDEBAR
-         ════════════════════════════ */
-      const sidebarLogo = document.getElementById('sidebar-logo');
-      sidebarLogo.innerHTML = `
-    <span class="logo-badge">${doc.version}</span>
-    <h1>${doc.name}</h1>
-    <p>${doc.tagline}</p>`;
-
-      const sidebarNav = document.getElementById('sidebar-nav');
-      nav.forEach(n => {
-        const a = el('a', 'nav-item', `<span class="nav-num">${n.num}</span>${n.label}`);
-        a.href = `#${n.id}`;
-        sidebarNav.appendChild(a);
-      });
-
-      document.getElementById('sidebar-footer').innerHTML =
-        `<div>製表日期：${doc.date}</div><div style="margin-top:4px">版本：${doc.version}</div>`;
-
-      /* ════════════════════════════
-         TOP BAR (mobile)
-         ════════════════════════════ */
-      document.getElementById('topbar-title').textContent = doc.name;
-      document.getElementById('topbar-badge').textContent = doc.version;
-      document.title = doc.title;
-
-      /* ── mobile menu toggle ── */
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('overlay');
-      const menuBtn = document.getElementById('menu-btn');
-      menuBtn.addEventListener('click', toggle);
-      overlay.addEventListener('click', close);
-      function toggle() { sidebar.classList.toggle('open'); overlay.classList.toggle('show'); menuBtn.classList.toggle('open'); }
-      function close() { sidebar.classList.remove('open'); overlay.classList.remove('show'); menuBtn.classList.remove('open'); }
-      /* close on nav click (mobile) */
-      document.querySelectorAll('.nav-item').forEach(a => a.addEventListener('click', close));
-
-
-      /* ════════════════════════════
-         BLOCK RENDERERS
-         ════════════════════════════ */
-
-      function renderStatCards(block) {
-        const wrap = div('grid g-3');
-        block.items.forEach(item => {
-          wrap.appendChild(div('card', `
-        <div class="card-label">${item.label}</div>
-        <div class="card-val">${item.val}</div>
-        <div class="card-sub">${item.sub}</div>`));
-        });
-        return wrap;
-      }
-
-      function renderCompareCards(block) {
-        const wrap = div('proj-compare grid g-2');
-        block.items.forEach(item => {
-          const rows = item.items.map(t => `<div class="proj-item">${t}</div>`).join('');
-          wrap.appendChild(div(`proj-card proj-card--${item.variant}`, `
-        <div class="proj-head proj-head--${item.variant}">${item.title}</div>${rows}`));
-        });
-        return wrap;
-      }
-
-      function renderTwoColPanels(block) {
-        const wrap = div('two-col grid g-2');
-        block.items.forEach(item => {
-          const rows = item.rows.map(r =>
-            `<div class="pr"><span class="dot dot--${r.dot}"></span>${r.text}</div>`).join('');
-          wrap.appendChild(div('panel', `<div class="panel-title">${item.title}</div>${rows}`));
-        });
-        return wrap;
-      }
-
-      function renderTagList(block) {
-        const wrap = div('tag-list');
-        block.items.forEach(item => {
-          wrap.appendChild(el('span', `tag${item.warn ? ' tag-warn' : ''}`, item.text));
-        });
-        return wrap;
-      }
-
-      function renderSvgDiagram(block) {
-        const wrap = div('svg-wrap');
-        wrap.innerHTML = block.svg;
-        return wrap;
-      }
-
-      function renderRaciTable(block) {
-        const scroll = div('raci-scroll');
-        const table = el('table', 'raci-table');
-        const thead = el('thead');
-        const hrow = el('tr');
-        block.columns.forEach((col, i) => {
-          const th = el('th', '', col);
-          if (i === 0) th.style.textAlign = 'left';
-          hrow.appendChild(th);
-        });
-        thead.appendChild(hrow);
-        table.appendChild(thead);
-
-        const tbody = el('tbody');
-        block.rows.forEach(row => {
-          const tr = el('tr');
-          tr.appendChild(el('td', '', row.task));
-          row.cells.forEach(c => {
-            const td = el('td');
-            if (c) td.innerHTML = `<span class="rb rb-${c}">${c}</span>`;
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
-        table.appendChild(tbody);
-        scroll.appendChild(table);
-
-        const legend = div('raci-legend', `
-      <span><span class="rb rb-R">R</span> Responsible 執行者</span>
-      <span><span class="rb rb-A">A</span> Accountable 當責者</span>
-      <span><span class="rb rb-C">C</span> Consulted 諮詢</span>
-      <span><span class="rb rb-I">I</span> Informed 知會</span>`);
-
-        const wrap = div('');
-        wrap.appendChild(scroll);
-        wrap.appendChild(legend);
-        return wrap;
-      }
-
-      function renderFeatGrid(block) {
-        const wrap = div('feat-grid grid g-2');
-        block.items.forEach(item => {
-          const items = item.items.map(t => `<div class="feat-item">${t}</div>`).join('');
-          const card = div('feat-card', `
-        <div class="feat-head"><span class="feat-dot feat-dot--${item.dot}"></span>${item.title}</div>
-        ${items}`);
-          if (item.wide) card.classList.add('feat-card--wide');
-          wrap.appendChild(card);
-        });
-        return wrap;
-      }
-
-      function renderDeptGrid(block) {
-        const wrap = div('dg grid g-2');
-        block.items.forEach(item => {
-          const rows = item.items.map(t =>
-            `<div class="ci"><div class="cic cic--${item.dept}">!</div><div class="ct">${t}</div></div>`).join('');
-          wrap.appendChild(div('dc', `<div class="dn dn--${item.dept}">${item.name}</div>${rows}`));
-        });
-        return wrap;
-      }
-
-      function renderRoadmap(block) {
-        const wrap = div('roadmap');
-        block.phases.forEach(p => {
-          const items = p.items.map(t => `<div class="ph-item">${t}</div>`).join('');
-          wrap.appendChild(div('phase', `
-        <span class="ph-badge ph-badge--${p.badge}">${p.label}</span>
-        <div class="ph-title">${p.title}</div>${items}`));
-        });
-        return wrap;
-      }
-
-      function renderBenefitRow(block) {
-        const wrap = div('benefit-row grid g-3');
-        block.items.forEach(item => {
-          wrap.appendChild(div(`ben-card ben-card--${item.variant}`, `
-        <div class="ben-num ben-num--${item.variant}">${item.num}</div>
-        <div class="ben-label">${item.label}</div>`));
-        });
-        return wrap;
-      }
-
-      function renderOldVsNew(block) {
-        const wrap = div('compare grid g-2');
-
-        // old
-        const o = block.old;
-        wrap.appendChild(div('cp-card', `
-      <div class="cp-head cp-head--danger">${o.head}</div>
-      <div class="old-text">${o.text}</div>
-      <div style="font-size:11px;color:var(--text-secondary);margin-top:8px">${o.note}</div>`));
-
-        // new
-        const n = block.new;
-        const tags = n.tags.map(t =>
-          `<span class="sub-tag${n.active ? ' sub-tag--active' : ''}">${t}</span>`).join('');
-        wrap.appendChild(div('cp-card', `
-      <div class="cp-head cp-head--success">${n.head}</div>
-      <div class="sub-grid" style="margin-top:4px">${tags}</div>
-      <div style="font-size:11px;color:var(--text-secondary);margin-top:8px">${n.note}</div>`));
-
-        return wrap;
-      }
-
-      function renderItemCard(block) {
-        const tags = block.tags.map(t => `<span class="sub-tag">${t}</span>`).join('');
-        return div('item-card', `
-      <div style="font-size:11px;font-weight:500;color:var(--accent);margin-bottom:6px">${block.accent}</div>
-      <div class="item-q">${block.question}</div>
-      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">${block.subNote}</div>
-      <div class="sub-grid">${tags}</div>`);
-      }
-
-      function renderWbsGroup(block) {
-        const wrap = div('');
-        block.groups.forEach(group => {
-          const g = div('wbs-group');
-          g.innerHTML = `<div class="wbs-group-label wbs-group-label--${group.color}">${group.label}</div>`;
-          const scroll = div('raci-scroll');
-          const table = el('table', 'wbs-table');
-          table.innerHTML = `<thead><tr><th style="width:56px">ID</th><th style="width:100px">模組</th><th>可交付項目 / 任務</th></tr></thead>`;
-          const tbody = el('tbody');
-          group.rows.forEach(row => {
-            tbody.innerHTML += `<tr>
-          <td><span class="wbs-id">${row.id}</span></td>
-          <td><span class="wbs-module">${row.module}</span></td>
-          <td class="wbs-task">${row.task}</td>
-        </tr>`;
-          });
-          table.appendChild(tbody);
-          scroll.appendChild(table);
-          g.appendChild(scroll);
-          wrap.appendChild(g);
-        });
-        return wrap;
-      }
-
-      function renderBenList(block) {
-        const wrap = div('benefit-row grid g-3');
-        block.items.forEach(item => {
-          wrap.appendChild(div('ben', `<strong>${item.title}</strong>${item.text}`));
-        });
-        return wrap;
-      }
-
-      function renderBlock(block) {
-        switch (block.type) {
-          case 'stat-cards': return renderStatCards(block);
-          case 'compare-cards': return renderCompareCards(block);
-          case 'two-col-panels': return renderTwoColPanels(block);
-          case 'tag-list': return renderTagList(block);
-          case 'svg-diagram': return renderSvgDiagram(block);
-          case 'raci-table': return renderRaciTable(block);
-          case 'feat-grid': return renderFeatGrid(block);
-          case 'dept-grid': return renderDeptGrid(block);
-          case 'roadmap': return renderRoadmap(block);
-          case 'benefit-row': return renderBenefitRow(block);
-          case 'old-vs-new': return renderOldVsNew(block);
-          case 'item-card': return renderItemCard(block);
-          case 'wbs-group': return renderWbsGroup(block);
-          case 'ben-list': return renderBenList(block);
-          default: return div('', `<!-- unknown block type: ${block.type} -->`);
-        }
-      }
-
-      /* ════════════════════════════
-         MAIN RENDER
-         ════════════════════════════ */
-      const main = document.getElementById('main');
-
-      /* Cover */
-      const coverSection = el('section', 'section-block', '');
-      coverSection.id = 'cover';
-      const badges = doc.badges.map(b =>
-        `<span class="badge badge-${b.type}">${b.label}</span>`).join('');
-      coverSection.innerHTML = `
-    <div class="prd-wrap">
-      <div class="header-bar">
-        <div>
-          <p class="proj-title">${doc.title}</p>
-          <p class="proj-sub">${doc.subtitle}</p>
-          <div class="badge-row">${badges}</div>
+      <div class="comp-card" style="border-color:#bfdbfe;background:#f0f7ff">
+        <div class="comp-card-title">
+          <div class="comp-card-icon" style="background:#2563eb;color:#fff">👤</div>
+          門市稽核員端
         </div>
-        <div class="hbar-meta">
-          <div>${doc.metaLeft}</div>
-          <strong>${doc.metaRight}</strong>
+        <ul>
+          <li>開啟 BPM → 點選「eCheck 巡檢」</li>
+          <li>以 BPM 帳號自動完成身份驗證</li>
+          <li>選擇門市、版次，填寫巡檢表單</li>
+          <li>拍照上傳（Base64 壓縮，最大 1600px）</li>
+          <li>簽名後送出，自動產生 PDF 報告</li>
+          <li>支援斷網草稿自動儲存</li>
+        </ul>
+      </div>
+
+      <div class="comp-card" style="border-color:#a7f3d0;background:#f0fdf6">
+        <div class="comp-card-title">
+          <div class="comp-card-icon" style="background:#059669;color:#fff">🏢</div>
+          BPM Agentflow
+        </div>
+        <ul>
+          <li>統一身份驗證（Tomcat Session）</li>
+          <li>proxyToGAS.jsp：代理所有 GAS 呼叫</li>
+          <li>保管 HMAC 金鑰，前端不接觸機密</li>
+          <li>BPM Script Task 觸發版次匯入</li>
+          <li>提供 /ext-2.0.2/userinfo 取得部門資訊</li>
+        </ul>
+      </div>
+
+      <div class="comp-card" style="border-color:#c4b5fd;background:#faf5ff">
+        <div class="comp-card-title">
+          <div class="comp-card-icon" style="background:#7c3aed;color:#fff">⚙️</div>
+          Google Apps Script
+        </div>
+        <ul>
+          <li>唯一 HTTP 入口：doPost（API）+ doGet（UI）</li>
+          <li>HMAC-SHA256 Token 驗證（時間窗 120s）</li>
+          <li>17 個 Action 處理業務邏輯</li>
+          <li>雙路徑分流：fs（食安）/ bd（品牌評比）</li>
+          <li>LockService 防止並發寫入衝突</li>
+        </ul>
+      </div>
+
+      <div class="comp-card" style="border-color:#fde68a;background:#fffdf0">
+        <div class="comp-card-title">
+          <div class="comp-card-icon" style="background:#d97706;color:#fff">🤖</div>
+          Gemini AI 整合
+        </div>
+        <ul>
+          <li>缺失文字分類（規則優先 → AI 補充）</li>
+          <li>缺失嚴重度分析與改善建議</li>
+          <li>月度關鍵字萃取（Top 25）</li>
+          <li>照片異常辨識（aiAnalyzeImage）</li>
+          <li>每日配額控制（預設 18 次 / 天）</li>
+          <li>1 小時 Cache 避免重複呼叫</li>
+        </ul>
+      </div>
+
+      <div class="comp-card" style="border-color:#bbf7d0;background:#f0fdf4">
+        <div class="comp-card-title">
+          <div class="comp-card-icon" style="background:#16a34a;color:#fff">📊</div>
+          Google Sheets（資料庫）
+        </div>
+        <ul>
+          <li>食安表（FS）：巡檢版次 / 巡檢回應 / 缺失明細</li>
+          <li>評比表（BD）：版次 / 回應 / 缺失 / 統計</li>
+          <li>共用：門市座標 / AI缺失分析 / 月度關鍵字</li>
+          <li>ScriptProperties 保管敏感設定</li>
+        </ul>
+      </div>
+
+      <div class="comp-card" style="border-color:#fca5a5;background:#fff5f5">
+        <div class="comp-card-title">
+          <div class="comp-card-icon" style="background:#dc2626;color:#fff">📈</div>
+          BI 儀表板
+        </div>
+        <ul>
+          <li>嵌入 BPM 流程作業（iframe）</li>
+          <li>全台門市地圖視覺化</li>
+          <li>雷達圖八維度門市評分</li>
+          <li>缺失佔比 / 風險排行 / 趨勢分析</li>
+          <li>支援 FS + BD 雙模式切換</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ 2. 系統架構圖（高階視角）═══ -->
+  <div class="section" id="arch">
+    <div class="section-head">
+      <div class="section-icon" style="background:var(--purple-l)">🗺️</div>
+      <div>
+        <h2>系統元件關係（高階視角）</h2>
+        <p>六大區塊 · 兩條業務流程共用同一組基礎設施</p>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <svg class="arch-svg" viewBox="0 0 1100 640" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans TC, sans-serif">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+          </marker>
+          <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/>
+          </marker>
+          <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#0d9488"/>
+          </marker>
+          <marker id="arr-amber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#d97706"/>
+          </marker>
+          <filter id="dropshadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity=".07"/>
+          </filter>
+        </defs>
+
+        <!-- Background zones -->
+        <rect x="8" y="8" width="1084" height="624" rx="16" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+        <!-- BPM Zone -->
+        <rect x="340" y="24" width="420" height="290" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="355" y="46" font-size="11" fill="#2563eb" font-weight="700">BPM Agentflow（Tomcat 中介層）</text>
+        <!-- GAS Zone -->
+        <rect x="680" y="24" width="400" height="290" rx="12" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="695" y="46" font-size="11" fill="#7c3aed" font-weight="700">Google Apps Script（GAS）</text>
+
+        <!-- ── 門市稽核員 ── -->
+        <rect x="24" y="80" width="300" height="110" rx="10" fill="#fff" stroke="#bfdbfe" stroke-width="1.5" filter="url(#dropshadow)"/>
+        <rect x="24" y="80" width="300" height="32" rx="10" fill="#2563eb"/>
+        <rect x="24" y="100" width="300" height="12" fill="#2563eb"/>
+        <text x="40" y="101" font-size="13" fill="#fff" font-weight="800">👤 門市稽核員</text>
+        <text x="40" y="124" font-size="12" fill="#334155">• 開啟 BPM 瀏覽器</text>
+        <text x="40" y="141" font-size="12" fill="#334155">• 填寫巡檢 / 評比表單</text>
+        <text x="40" y="158" font-size="12" fill="#334155">• 拍照、簽名、送出</text>
+        <text x="40" y="175" font-size="12" fill="#334155">• 草稿自動儲存（localStorage）</text>
+
+        <!-- ── 管理員 ── -->
+        <rect x="24" y="220" width="300" height="90" rx="10" fill="#fff" stroke="#fde68a" stroke-width="1.5" filter="url(#dropshadow)"/>
+        <rect x="24" y="220" width="300" height="32" rx="10" fill="#d97706"/>
+        <rect x="24" y="240" width="300" height="12" fill="#d97706"/>
+        <text x="40" y="241" font-size="13" fill="#fff" font-weight="800">⚙️ 評比部 / 食安部（管理員）</text>
+        <text x="40" y="264" font-size="12" fill="#334155">• Excel 匯入巡檢版次</text>
+        <text x="40" y="281" font-size="12" fill="#334155">• 由 BPM Script Task 自動上傳</text>
+        <text x="40" y="298" font-size="12" fill="#334155">• 管理門市座標 / 版次狀態</text>
+
+        <!-- ── BPM 元件 ── -->
+        <!-- index.html -->
+        <rect x="360" y="60" width="180" height="80" rx="8" fill="#fff" stroke="#bfdbfe" stroke-width="1.5" filter="url(#dropshadow)"/>
+        <text x="378" y="83" font-size="12" fill="#1d4ed8" font-weight="700">📄 index.html</text>
+        <text x="378" y="101" font-size="11" fill="#64748b">Vue 3 SPA 巡檢介面</text>
+        <text x="378" y="117" font-size="11" fill="#64748b">HMAC token 由後端產生</text>
+        <text x="378" y="133" font-size="11" fill="#64748b">BPM session 驗證身份</text>
+
+        <!-- proxyToGAS -->
+        <rect x="360" y="165" width="180" height="70" rx="8" fill="#fff" stroke="#bfdbfe" stroke-width="1.5" filter="url(#dropshadow)"/>
+        <text x="378" y="187" font-size="12" fill="#1d4ed8" font-weight="700">🔀 proxyToGAS.jsp</text>
+        <text x="378" y="204" font-size="11" fill="#64748b">代理請求 + 注入 HMAC</text>
+        <text x="378" y="221" font-size="11" fill="#64748b">前端不接觸金鑰</text>
+
+        <!-- BI Dashboard -->
+        <rect x="560" y="60" width="170" height="80" rx="8" fill="#fff" stroke="#bfdbfe" stroke-width="1.5" filter="url(#dropshadow)"/>
+        <text x="578" y="83" font-size="12" fill="#1d4ed8" font-weight="700">📊 BI 儀表板</text>
+        <text x="578" y="100" font-size="11" fill="#64748b">地圖 / 雷達 / 泡泡圖</text>
+        <text x="578" y="116" font-size="11" fill="#64748b">Leaflet + Chart.js</text>
+        <text x="578" y="132" font-size="11" fill="#64748b">嵌入 BPM iframe</text>
+
+        <!-- ── GAS 元件 ── -->
+        <!-- Code.js -->
+        <rect x="700" y="60" width="175" height="115" rx="8" fill="#fff" stroke="#c4b5fd" stroke-width="1.5" filter="url(#dropshadow)"/>
+        <text x="718" y="83" font-size="12" fill="#7c3aed" font-weight="700">⚙️ Code.js</text>
+        <text x="718" y="101" font-size="11" fill="#64748b">doPost / doGet 入口</text>
+        <text x="718" y="117" font-size="11" fill="#64748b">17 Actions 路由派遣</text>
+        <text x="718" y="133" font-size="11" fill="#64748b">HMAC Token 驗證</text>
+        <text x="718" y="149" font-size="11" fill="#64748b">LockService 防並發</text>
+        <text x="718" y="165" font-size="11" fill="#64748b">FS / BD 雙路徑分流</text>
+
+        <!-- importVersionFromExcel.js -->
+        <rect x="895" y="60" width="170" height="95" rx="8" fill="#fff" stroke="#c4b5fd" stroke-width="1.5" filter="url(#dropshadow)"/>
+        <text x="912" y="83" font-size="12" fill="#7c3aed" font-weight="700">📥 importVersion.js</text>
+        <text x="912" y="100" font-size="11" fill="#64748b">Excel XLSX 解析</text>
+        <text x="912" y="116" font-size="11" fill="#64748b">FS / BD 分別解析</text>
+        <text x="912" y="132" font-size="11" fill="#64748b">寫入「巡檢版次」分頁</text>
+        <text x="912" y="148" font-size="11" fill="#64748b">稽核 log 寫入</text>
+
+        <!-- gemini_helper.js -->
+        <rect x="895" y="175" width="170" height="115" rx="8" fill="#fff" stroke="#fde68a" stroke-width="1.5" filter="url(#dropshadow)"/>
+        <text x="912" y="197" font-size="12" fill="#d97706" font-weight="700">🤖 gemini_helper.js</text>
+        <text x="912" y="214" font-size="11" fill="#64748b">callGemini + 重試機制</text>
+        <text x="912" y="230" font-size="11" fill="#64748b">缺失分類 / 嚴重度</text>
+        <text x="912" y="246" font-size="11" fill="#64748b">月度關鍵字萃取</text>
+        <text x="912" y="262" font-size="11" fill="#64748b">照片 AI 辨識</text>
+        <text x="912" y="278" font-size="11" fill="#64748b">每日配額 18次 + 1hr Cache</text>
+
+        <!-- ── Google Sheets ── -->
+        <rect x="24" y="360" width="490" height="220" rx="12" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+        <text x="40" y="386" font-size="11" fill="#16a34a" font-weight="700">📊 Google Sheets — 食安表（FS）</text>
+        <rect x="40" y="398" width="110" height="28" rx="6" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+        <text x="52" y="416" font-size="11" fill="#15803d" font-weight="600">巡檢版次</text>
+        <rect x="160" y="398" width="110" height="28" rx="6" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+        <text x="172" y="416" font-size="11" fill="#15803d" font-weight="600">巡檢回應</text>
+        <rect x="280" y="398" width="110" height="28" rx="6" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+        <text x="292" y="416" font-size="11" fill="#15803d" font-weight="600">缺失明細</text>
+        <rect x="40" y="440" width="110" height="28" rx="6" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+        <text x="52" y="458" font-size="11" fill="#15803d" font-weight="600">門市座標</text>
+        <rect x="160" y="440" width="110" height="28" rx="6" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+        <text x="172" y="458" font-size="11" fill="#15803d" font-weight="600">AI缺失分析</text>
+        <rect x="280" y="440" width="110" height="28" rx="6" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+        <text x="292" y="458" font-size="11" fill="#15803d" font-weight="600">月度關鍵字</text>
+
+        <rect x="560" y="360" width="490" height="220" rx="12" fill="#fffbeb" stroke="#fde68a" stroke-width="1.5"/>
+        <text x="576" y="386" font-size="11" fill="#d97706" font-weight="700">📊 Google Sheets — 評比表（BD）</text>
+        <rect x="576" y="398" width="110" height="28" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+        <text x="588" y="416" font-size="11" fill="#92400e" font-weight="600">巡檢版次</text>
+        <rect x="696" y="398" width="110" height="28" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+        <text x="708" y="416" font-size="11" fill="#92400e" font-weight="600">巡檢回應</text>
+        <rect x="816" y="398" width="110" height="28" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+        <text x="828" y="416" font-size="11" fill="#92400e" font-weight="600">缺失明細</text>
+        <rect x="576" y="440" width="110" height="28" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+        <text x="588" y="458" font-size="11" fill="#92400e" font-weight="600">BD缺失統計</text>
+        <rect x="696" y="440" width="110" height="28" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+        <text x="708" y="458" font-size="11" fill="#92400e" font-weight="600">AI缺失分析</text>
+        <rect x="816" y="440" width="110" height="28" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+        <text x="828" y="458" font-size="11" fill="#92400e" font-weight="600">月度關鍵字</text>
+
+        <!-- ScriptProperties -->
+        <rect x="40" y="490" width="430" height="72" rx="8" fill="#fff" stroke="#d1fae5" stroke-width="1"/>
+        <text x="56" y="510" font-size="11" fill="#15803d" font-weight="700">🔒 ScriptProperties（機密設定）</text>
+        <text x="56" y="528" font-size="11" fill="#64748b">SPREADSHEET_ID · SPREADSHEET_ID_BD · ACCESS_TOKEN_SECRET</text>
+        <text x="56" y="544" font-size="11" fill="#64748b">GEMINI_API_KEY · NOTIFY_MANAGER_EMAIL · AI_DAILY_LIMIT</text>
+
+        <rect x="576" y="490" width="430" height="72" rx="8" fill="#fff" stroke="#fde68a" stroke-width="1"/>
+        <text x="592" y="510" font-size="11" fill="#92400e" font-weight="700">📁 Google Drive — 報告與照片</text>
+        <text x="592" y="528" font-size="11" fill="#64748b">報告資料夾：依年月自動建立分層目錄</text>
+        <text x="592" y="544" font-size="11" fill="#64748b">PDF 報告 · 巡檢照片（Base64 → Drive 圖片）</text>
+
+        <!-- Legend -->
+        <rect x="24" y="588" width="1052" height="36" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+        <line x1="120" y1="598" x2="160" y2="598" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+        <text x="168" y="602" font-size="11" fill="#2563eb">前端→BPM→GAS 請求流</text>
+        <line x1="320" y1="598" x2="360" y2="598" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <text x="368" y="602" font-size="11" fill="#0d9488">GAS 讀寫 Sheets</text>
+        <line x1="500" y1="598" x2="540" y2="598" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-amber)"/>
+        <text x="548" y="602" font-size="11" fill="#d97706">版次匯入（管理員路徑）</text>
+        <line x1="700" y1="598" x2="740" y2="598" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <text x="748" y="602" font-size="11" fill="#64748b">FS / BD 共用基礎設施</text>
+
+        <!-- ── Arrows ── -->
+        <!-- 稽核員 → index.html -->
+        <line x1="324" y1="128" x2="354" y2="110" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+        <!-- 管理員 → proxyToGAS -->
+        <line x1="324" y1="250" x2="354" y2="210" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-amber)"/>
+        <!-- index.html → proxyToGAS -->
+        <line x1="450" y1="140" x2="450" y2="162" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+        <!-- proxyToGAS → Code.js -->
+        <line x1="542" y1="200" x2="694" y2="120" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+        <!-- BI → Code.js -->
+        <line x1="644" y1="100" x2="694" y2="100" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+        <!-- Code.js → importVersion -->
+        <line x1="875" y1="100" x2="890" y2="100" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- Code.js → gemini_helper -->
+        <line x1="788" y1="175" x2="890" y2="210" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-amber)"/>
+        <!-- Code.js → FS Sheets -->
+        <line x1="788" y1="175" x2="400" y2="355" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <!-- Code.js → BD Sheets -->
+        <line x1="788" y1="175" x2="850" y2="355" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ═══ 3. 巡檢執行流程 ═══ -->
+  <div class="section" id="flow-audit">
+    <div class="section-head">
+      <div class="section-icon" style="background:var(--teal-l)">🔍</div>
+      <div>
+        <h2>巡檢執行流程（門市稽核員）</h2>
+        <p>食安 FS / 品牌評比 BD · 共用同一前端，後端依 type 分流</p>
+      </div>
+    </div>
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <p style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:14px;letter-spacing:.3px">🔵 食安巡檢（FS）流程</p>
+        <div class="flow-step-list">
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#eff6ff;color:#2563eb">1</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">BPM 登入 · 身份驗證</div>
+              <div class="flow-step-detail">initAuth() → /ext-2.0.2/userinfo 取得部門 → resolveInspectionType() 判斷類型為 fs</div>
+              <div class="flow-step-tags"><span class="tag tag-sys">BPM Session</span><span class="tag tag-fs">FS</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#eff6ff;color:#2563eb">2</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">載入版次與門市清單</div>
+              <div class="flow-step-detail">getVersionList(type=fs) + getStoreList() → 快取 TTL 5分鐘</div>
+              <div class="flow-step-tags"><span class="tag tag-read">GAS Read</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#eff6ff;color:#2563eb">3</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">選擇門市 → 載入題目</div>
+              <div class="flow-step-detail">getChecklistByVersion() → 八大維度題目 + 配分 JSON</div>
+              <div class="flow-step-tags"><span class="tag tag-read">GAS Read</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#eff6ff;color:#2563eb">4</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">逐項評核 · 拍照 · 簽名</div>
+              <div class="flow-step-detail">通過 / 缺失 / 警告 · Base64 壓縮照片 · Canvas 簽名</div>
+              <div class="flow-step-tags"><span class="tag tag-sys">前端</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#eff6ff;color:#2563eb">5</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">儲存回應 · 上傳照片</div>
+              <div class="flow-step-detail">saveResponse() → 巡檢回應分頁寫入 · uploadPhoto() → Drive 存圖</div>
+              <div class="flow-step-tags"><span class="tag tag-write">GAS Write</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#eff6ff;color:#2563eb">6</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">產生 PDF 報告 · 發送 Email</div>
+              <div class="flow-step-detail">generateReport() → Google Docs 套版 → 轉 PDF → Drive 儲存 → sendEmail</div>
+              <div class="flow-step-tags"><span class="tag tag-write">GAS Write</span><span class="tag tag-sys">Email</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#dcfce7;color:#16a34a">7</div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">AI 缺失分析（非同步）</div>
+              <div class="flow-step-detail">aiProcessResponse() → Gemini 分類 + 建議 → AI缺失分析分頁</div>
+              <div class="flow-step-tags"><span class="tag tag-ai">Gemini AI</span></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>`;
-      main.appendChild(coverSection);
 
-      /* Sections */
-      sections.forEach(sec => {
-        const section = el('section', 'section-block', '');
-        section.id = sec.id;
+      <div class="card">
+        <p style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:14px;letter-spacing:.3px">🟠 品牌評比（BD）流程 — 差異說明</p>
+        <div class="flow-step-list">
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#fffbeb;color:#d97706">1</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">身份驗證 → 類型為 bd</div>
+              <div class="flow-step-detail">同樣走 BPM Session，resolveInspectionType() 回傳 bd（評比部）</div>
+              <div class="flow-step-tags"><span class="tag tag-bd">BD</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#fffbeb;color:#d97706">2</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">版次載入 → 評比試算表</div>
+              <div class="flow-step-detail">getVersionList(type=bd) → 讀 SPREADSHEET_ID_BD</div>
+              <div class="flow-step-tags"><span class="tag tag-read">BD Sheets</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#fffbeb;color:#d97706">3</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">評比題目：清潔/共通/食安/品質…8維度</div>
+              <div class="flow-step-detail">RADAR_LABELS_BD：清潔、共通、食安、品質、管理、服務、工程、特殊</div>
+              <div class="flow-step-tags"><span class="tag tag-bd">BD 8 維度</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#fffbeb;color:#d97706">4</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">儲存 → BD缺失統計分頁</div>
+              <div class="flow-step-detail">saveResponse() 分流：type=bd 寫入評比試算表 + _appendSubDefectStats()</div>
+              <div class="flow-step-tags"><span class="tag tag-write">BD Write</span></div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-side">
+              <div class="flow-step-num" style="background:#fffbeb;color:#d97706">5</div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">PDF + Webhook（BD 專屬）</div>
+              <div class="flow-step-detail">generateReport(type=bd) → BD 專屬模板 · _callWebhook() 觸發外部整合</div>
+              <div class="flow-step-tags"><span class="tag tag-write">PDF</span><span class="tag tag-sys">Webhook</span></div>
+            </div>
+          </div>
+        </div>
 
-        const inner = div('section-inner');
-        inner.appendChild(div('sh', sec.num));
-        inner.appendChild(div('st', sec.title));
-        if (sec.desc) inner.appendChild(div('desc', sec.desc));
+        <div style="margin-top:20px;padding:12px 14px;background:var(--bg);border-radius:var(--r8);border:1px solid var(--border)">
+          <p style="font-size:12px;font-weight:700;margin-bottom:8px">🔑 FS / BD 共用基礎設施</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:var(--ink2)">
+            <div>✓ 同一 GAS 部署</div>
+            <div>✓ 同一 BPM Proxy</div>
+            <div>✓ 同一 HMAC 驗證</div>
+            <div>✓ 同一前端程式碼</div>
+            <div>✓ 各自獨立試算表</div>
+            <div>✓ 各自獨立 Drive 目錄</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        sec.blocks.forEach(block => inner.appendChild(renderBlock(block)));
+  <!-- ═══ 4. 版次更新流程 ═══ -->
+  <div class="section" id="flow-version">
+    <div class="section-head">
+      <div class="section-icon" style="background:var(--amber-l)">📥</div>
+      <div>
+        <h2>版次更新流程（評比部 / 食安部 上版）</h2>
+        <p>管理員透過 BPM 流程匯入 Excel，由 GAS 解析並寫入版次分頁</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="path-card" style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--ink3);margin-bottom:10px">資料流向</div>
+        <div class="path-row">
+          <div class="path-node">
+            <div class="path-box" style="background:#fffbeb;color:#d97706;border:1.5px solid #fde68a">管理員</div>
+            <div class="path-label">食安部 / 評比部</div>
+          </div>
+          <div class="path-arrow">→</div>
+          <div class="path-node">
+            <div class="path-box" style="background:#eff6ff;color:#2563eb;border:1.5px solid #bfdbfe">BPM 流程</div>
+            <div class="path-label">上傳 XLSX</div>
+          </div>
+          <div class="path-arrow">→</div>
+          <div class="path-node">
+            <div class="path-box" style="background:#eff6ff;color:#2563eb;border:1.5px solid #bfdbfe">Script Task</div>
+            <div class="path-label">呼叫 Proxy</div>
+          </div>
+          <div class="path-arrow">→</div>
+          <div class="path-node">
+            <div class="path-box" style="background:#f5f3ff;color:#7c3aed;border:1.5px solid #c4b5fd">doPost</div>
+            <div class="path-label">importVersion</div>
+          </div>
+          <div class="path-arrow">→</div>
+          <div class="path-node">
+            <div class="path-box" style="background:#f5f3ff;color:#7c3aed;border:1.5px solid #c4b5fd">解析 XLSX</div>
+            <div class="path-label">Base64 → bytes</div>
+          </div>
+          <div class="path-arrow">→</div>
+          <div class="path-node">
+            <div class="path-box" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0">巡檢版次</div>
+            <div class="path-label">Sheets 寫入</div>
+          </div>
+          <div class="path-arrow">→</div>
+          <div class="path-node">
+            <div class="path-box" style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0">稽核 Log</div>
+            <div class="path-label">版次異動記錄</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-grid card-grid-2" style="gap:12px">
+        <div style="padding:12px 14px;background:var(--blue-l);border-radius:var(--r8);border:1px solid var(--blue-m)">
+          <p style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px">FS 食安版次 Excel 欄位</p>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.9">
+            版次代號 · 版次名稱 · 發佈日期 · 狀態<br>
+            題目 No · 類別（一、食品存放與容器…）<br>
+            題目說明 · 配分 · 重大/主要/一般旗標<br>
+            必填項目 · 備註
+          </div>
+        </div>
+        <div style="padding:12px 14px;background:var(--amber-l);border-radius:var(--r8);border:1px solid #fde68a">
+          <p style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:8px">BD 品牌評比版次 Excel 欄位</p>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.9">
+            版次代號 · 版次名稱 · 品牌 · 發佈日期<br>
+            大類（清潔/共通/食安/品質…）<br>
+            項目編號 · 項目說明 · 細項 · 扣分值<br>
+            重大/主要/一般旗標 · 適用門市類型
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        section.appendChild(inner);
-        main.appendChild(section);
+  <!-- ═══ 5. GAS Function 功能清單 ═══ -->
+  <div class="section" id="functions">
+    <div class="section-head">
+      <div class="section-icon" style="background:var(--blue-l)">📋</div>
+      <div>
+        <h2>GAS API 功能清單</h2>
+        <p>17 個 Action · Code.js doPost 路由派遣</p>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="fn-table">
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>功能說明</th>
+            <th>讀/寫</th>
+            <th>資料表</th>
+            <th>類型</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="fn-name">getSystemStatus</td><td class="fn-desc">取得試算表基本狀態（最後更新時間、版本數量等）</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">巡檢版次 / 巡檢回應</td><td><span class="tag tag-fs">FS</span><span class="tag tag-bd">BD</span></td></tr>
+          <tr><td class="fn-name">getQuotaStatus</td><td class="fn-desc">查詢 Gemini AI 今日剩餘配額</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">ScriptProperties</td><td><span class="tag tag-ai">AI</span></td></tr>
+          <tr><td class="fn-name">getVersionList</td><td class="fn-desc">取得可用版次清單（含狀態、發佈日期）</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">巡檢版次</td><td><span class="tag tag-fs">FS</span><span class="tag tag-bd">BD</span></td></tr>
+          <tr><td class="fn-name">getChecklistByVersion</td><td class="fn-desc">依版次 ID 取得完整題目 JSON</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">巡檢版次</td><td><span class="tag tag-fs">FS</span><span class="tag tag-bd">BD</span></td></tr>
+          <tr><td class="fn-name">createVersion</td><td class="fn-desc">手動建立新版次（管理員操作）</td><td><span class="tag tag-write">Write</span></td><td class="fn-sheet">巡檢版次</td><td><span class="tag tag-fs">FS</span><span class="tag tag-bd">BD</span></td></tr>
+          <tr><td class="fn-name">importVersionFromExcel</td><td class="fn-desc">解析 Base64 XLSX，批次寫入版次與題目</td><td><span class="tag tag-write">Write</span></td><td class="fn-sheet">巡檢版次 / 稽核Log</td><td><span class="tag tag-fs">FS</span><span class="tag tag-bd">BD</span></td></tr>
+          <tr><td class="fn-name">getStoreList</td><td class="fn-desc">取得所有門市清單含 GPS 座標</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">門市座標</td><td><span class="tag tag-sys">共用</span></td></tr>
+          <tr><td class="fn-name">saveResponse</td><td class="fn-desc">儲存一份巡檢回應，含缺失明細與 GPS 定位</td><td><span class="tag tag-write">Write</span></td><td class="fn-sheet">巡檢回應 / 缺失明細</td><td><span class="tag tag-fs">FS</span><span class="tag tag-bd">BD</span></td></tr>
+          <tr><td class="fn-name">uploadPhoto</td><td class="fn-desc">Base64 圖片上傳至 Google Drive，回傳 fileId</td><td><span class="tag tag-write">Write</span></td><td class="fn-sheet">Google Drive</td><td><span class="tag tag-sys">共用</span></td></tr>
+          <tr><td class="fn-name">generateReport</td><td class="fn-desc">Google Docs 套版 → 轉 PDF → Drive 儲存 → Email 通知</td><td><span class="tag tag-write">Write</span></td><td class="fn-sheet">Drive / 巡檢回應</td><td><span class="tag tag-fs">FS</span><span class="tag tag-bd">BD</span></td></tr>
+          <tr><td class="fn-name">getResponsesAll</td><td class="fn-desc">取得所有巡檢回應（BI 儀表板用）</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">巡檢回應</td><td><span class="tag tag-fs">FS</span><span class="tag tag-bd">BD</span></td></tr>
+          <tr><td class="fn-name">getDefectsAll</td><td class="fn-desc">取得所有缺失明細（BI 雷達圖 / 缺失佔比）</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">缺失明細</td><td><span class="tag tag-fs">FS</span><span class="tag tag-bd">BD</span></td></tr>
+          <tr><td class="fn-name">getMonthlyKeywords</td><td class="fn-desc">取得月度缺失關鍵字 Top 25</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">月度關鍵字</td><td><span class="tag tag-ai">AI</span></td></tr>
+          <tr><td class="fn-name">getAIRadarData</td><td class="fn-desc">取得 AI 分析後的雷達圖各維度得分</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">AI缺失分析</td><td><span class="tag tag-ai">AI</span></td></tr>
+          <tr><td class="fn-name">getAIDefectAnalysis</td><td class="fn-desc">取得指定門市/版次的 AI 缺失分析詳情</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">AI缺失分析</td><td><span class="tag tag-ai">AI</span></td></tr>
+          <tr><td class="fn-name">warmUpAuth</td><td class="fn-desc">預熱 GAS 授權（解決冷啟動延遲）</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">試算表 ID 驗證</td><td><span class="tag tag-sys">系統</span></td></tr>
+          <tr><td class="fn-name">doGet（獨立）</td><td class="fn-desc">瀏覽器直接訪問時回傳說明頁或 403 拒絕頁</td><td><span class="tag tag-read">Read</span></td><td class="fn-sheet">—</td><td><span class="tag tag-sys">系統</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:16px" class="card-grid card-grid-2">
+      <div class="card">
+        <p style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:10px">🤖 Gemini AI 內部函式</p>
+        <table class="fn-table" style="font-size:12px">
+          <tbody>
+            <tr><td class="fn-name" style="font-size:11px">callGemini</td><td>呼叫 Gemini API，支援重試 / throttle</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">aiAnalyzeDefect</td><td>分析單筆缺失：分類 + 嚴重度 + 建議</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">ruleClassify</td><td>規則優先分類（信心 < 3 才呼叫 AI）</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">aiExtractMonthlyKeywords</td><td>月度缺失關鍵字萃取 Top 25</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">aiMonthlySummary</td><td>彙整月度統計，產生摘要文字</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">aiAnalyzeImage</td><td>照片異常 AI 辨識（Base64 輸入）</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">aiProcessResponse</td><td>回應儲存後的 AI 全流程處理入口</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <p style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:10px">🔒 安全與輔助函式</p>
+        <table class="fn-table" style="font-size:12px">
+          <tbody>
+            <tr><td class="fn-name" style="font-size:11px">_validateToken</td><td>Production HMAC-SHA256 驗證（doGet）</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">_validateTokenWithDebug</td><td>Debug 版驗證，回傳詳細失敗原因</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">_getSSIDByType</td><td>依 type 回傳正確試算表 ID</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">_newVersionId</td><td>產生版次 ID：V+yyyyMMddHHmmss</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">_newResponseId</td><td>產生回應 UUID</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">initSpreadsheetByType</td><td>初次部署時建立所有分頁與標題列</td></tr>
+            <tr><td class="fn-name" style="font-size:11px">_repairNoFields</td><td>修復缺少「No」欄位的舊版資料</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 6. 資料表結構 ═══ -->
+  <div class="section" id="sheets">
+    <div class="section-head">
+      <div class="section-icon" style="background:var(--green-l)">📊</div>
+      <div>
+        <h2>Google Sheets 資料表結構</h2>
+        <p>FS 食安 / BD 評比各一份試算表，結構對稱</p>
+      </div>
+    </div>
+    <div class="sheet-grid">
+      <div class="sheet-card">
+        <div class="sheet-head" style="background:#f0fdf4;color:#15803d">📄 巡檢版次</div>
+        <ul class="sheet-rows">
+          <li>版次代號<span class="sheet-col-name">V20260101120000</span></li>
+          <li>版次名稱<span class="sheet-col-name">2026Q1 食安標準版</span></li>
+          <li>發佈日期<span class="sheet-col-name">yyyy-MM-dd</span></li>
+          <li>狀態<span class="sheet-col-name">active / draft / archived</span></li>
+          <li>題目 JSON<span class="sheet-col-name">checklist[]</span></li>
+          <li>建立時間 / 建立者<span class="sheet-col-name">timestamp</span></li>
+        </ul>
+      </div>
+      <div class="sheet-card">
+        <div class="sheet-head" style="background:#eff6ff;color:#1d4ed8">📄 巡檢回應</div>
+        <ul class="sheet-rows">
+          <li>回應ID<span class="sheet-col-name">UUID</span></li>
+          <li>巡檢日期<span class="sheet-col-name">yyyy-MM-dd HH:mm</span></li>
+          <li>門市 / 品牌 / 地區<span class="sheet-col-name">text</span></li>
+          <li>稽核員 / 版次代號<span class="sheet-col-name">text</span></li>
+          <li>總分 / 等級<span class="sheet-col-name">number / 優/普/需改善</span></li>
+          <li>GPS 緯度 / 經度<span class="sheet-col-name">decimal</span></li>
+          <li>定位驗證<span class="sheet-col-name">通過/警告/未確認</span></li>
+          <li>PDF連結<span class="sheet-col-name">Drive URL</span></li>
+          <li>AI主要分類 / AI建議<span class="sheet-col-name">AI欄</span></li>
+        </ul>
+      </div>
+      <div class="sheet-card">
+        <div class="sheet-head" style="background:#fef2f2;color:#dc2626">📄 缺失明細</div>
+        <ul class="sheet-rows">
+          <li>回應ID<span class="sheet-col-name">FK → 巡檢回應</span></li>
+          <li>項目 No / 類別<span class="sheet-col-name">題目識別</span></li>
+          <li>項目說明<span class="sheet-col-name">缺失描述</span></li>
+          <li>狀態<span class="sheet-col-name">fail / warn / pass</span></li>
+          <li>等級<span class="sheet-col-name">重大★ / 主要▲ / 一般</span></li>
+          <li>備註 / 照片 Drive ID<span class="sheet-col-name">text / fileId[]</span></li>
+          <li>細項（BD）<span class="sheet-col-name">BD sub-item</span></li>
+        </ul>
+      </div>
+      <div class="sheet-card">
+        <div class="sheet-head" style="background:#f5f3ff;color:#7c3aed">📄 AI缺失分析</div>
+        <ul class="sheet-rows">
+          <li>回應ID<span class="sheet-col-name">FK</span></li>
+          <li>缺失文字<span class="sheet-col-name">原始描述</span></li>
+          <li>AI分類<span class="sheet-col-name">八大維度</span></li>
+          <li>AI信心<span class="sheet-col-name">0.0–1.0</span></li>
+          <li>AI嚴重度<span class="sheet-col-name">高/中/低</span></li>
+          <li>AI建議<span class="sheet-col-name">改善方向</span></li>
+          <li>人工修正<span class="sheet-col-name">覆核欄位</span></li>
+          <li>處理時間<span class="sheet-col-name">timestamp</span></li>
+        </ul>
+      </div>
+      <div class="sheet-card">
+        <div class="sheet-head" style="background:#f0fdf4;color:#15803d">📄 門市座標</div>
+        <ul class="sheet-rows">
+          <li>門市代號 / 門市名稱<span class="sheet-col-name">text</span></li>
+          <li>品牌<span class="sheet-col-name">迴轉/MagicTouch/PLUS…</span></li>
+          <li>地區<span class="sheet-col-name">北部/中部/南部/東部/離島</span></li>
+          <li>GPS 緯度 / 經度<span class="sheet-col-name">decimal</span></li>
+          <li>地址<span class="sheet-col-name">text</span></li>
+          <li>是否啟用<span class="sheet-col-name">TRUE/FALSE</span></li>
+        </ul>
+      </div>
+      <div class="sheet-card">
+        <div class="sheet-head" style="background:#fffbeb;color:#d97706">📄 月度關鍵字</div>
+        <ul class="sheet-rows">
+          <li>年月<span class="sheet-col-name">yyyy-MM</span></li>
+          <li>關鍵字<span class="sheet-col-name">text</span></li>
+          <li>出現次數<span class="sheet-col-name">number</span></li>
+          <li>類型<span class="sheet-col-name">fs / bd</span></li>
+          <li>AI彙整日期<span class="sheet-col-name">timestamp</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 7. WBS ═══ -->
+  <div class="section" id="wbs">
+    <div class="section-head">
+      <div class="section-icon" style="background:var(--red-l)">📝</div>
+      <div>
+        <h2>WBS 工作清單</h2>
+        <p>前端 / 後端 / 基礎設施三層拆解 · 含負責模組與驗收條件</p>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="wbs-table">
+        <thead>
+          <tr>
+            <th style="width:60px">WBS ID</th>
+            <th style="width:100px">層</th>
+            <th style="width:200px">可交付項目</th>
+            <th style="width:140px">負責模組</th>
+            <th>驗收條件</th>
+            <th style="width:80px">狀態</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 前端 -->
+          <tr class="wbs-layer-fe"><td class="wbs-id">FE-01</td><td><span class="tag tag-fs">前端</span></td><td class="wbs-item">BPM 身份驗證流程</td><td class="fn-sheet">index.html · initAuth()</td><td class="wbs-accept">BPM 未登入自動導向登入頁；登入後正確解析部門並設定 inspectionType</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-fe"><td class="wbs-id">FE-02</td><td><span class="tag tag-fs">前端</span></td><td class="wbs-item">巡檢表單（FS）</td><td class="fn-sheet">index.html</td><td class="wbs-accept">八大類別正確渲染；通過/缺失/警告三狀態切換；加權分即時計算</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-fe"><td class="wbs-id">FE-03</td><td><span class="tag tag-fs">前端</span></td><td class="wbs-item">巡檢表單（BD）</td><td class="fn-sheet">index.html</td><td class="wbs-accept">品牌評比八維度正確渲染；BD 缺失細項可展開填寫</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-fe"><td class="wbs-id">FE-04</td><td><span class="tag tag-fs">前端</span></td><td class="wbs-item">照片拍攝與上傳</td><td class="fn-sheet">_compressImage() / uploadPhoto</td><td class="wbs-accept">相機開啟正常；Base64 壓縮至 ≤300KB；Drive 回傳 fileId 可預覽</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-fe"><td class="wbs-id">FE-05</td><td><span class="tag tag-fs">前端</span></td><td class="wbs-item">Canvas 簽名</td><td class="fn-sheet">sigCanvas</td><td class="wbs-accept">觸控與滑鼠皆可簽名；清除 / 重簽功能正常；簽名嵌入 PDF</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-fe"><td class="wbs-id">FE-06</td><td><span class="tag tag-fs">前端</span></td><td class="wbs-item">草稿自動儲存</td><td class="fn-sheet">_storageSet / _cacheSet</td><td class="wbs-accept">關閉後重開可恢復草稿；草稿 Toast 提示；多門市草稿不互相覆蓋</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-fe"><td class="wbs-id">FE-07</td><td><span class="tag tag-fs">前端</span></td><td class="wbs-item">BI 儀表板</td><td class="fn-sheet">BI_dashboard_v4.html</td><td class="wbs-accept">地圖正確顯示全台門市；雷達圖八維度渲染；缺失佔比分頁 10 筆</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-fe"><td class="wbs-id">FE-08</td><td><span class="tag tag-fs">前端</span></td><td class="wbs-item">BPM iframe 滑動優化</td><td class="fn-sheet">CSS overscroll / scrollWheelZoom</td><td class="wbs-accept">外層 BPM 捲動流暢；地圖需點擊才啟用縮放；無三重捲軸問題</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+
+          <!-- 後端 -->
+          <tr class="wbs-layer-be"><td class="wbs-id">BE-01</td><td><span class="tag tag-bd">後端</span></td><td class="wbs-item">doPost API 路由</td><td class="fn-sheet">Code.js · doPost()</td><td class="wbs-accept">17 Actions 全部正常路由；unknown action 回傳 400；LockService 無並發錯誤</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-be"><td class="wbs-id">BE-02</td><td><span class="tag tag-bd">後端</span></td><td class="wbs-item">HMAC Token 驗證</td><td class="fn-sheet">_validateToken() / _validateTokenWithDebug()</td><td class="wbs-accept">時間窗 120s；過期 token 回傳 401；HTTP 環境 fallback 純 JS 可用</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-be"><td class="wbs-id">BE-03</td><td><span class="tag tag-bd">後端</span></td><td class="wbs-item">版次 Excel 匯入</td><td class="fn-sheet">importVersionFromExcel.js</td><td class="wbs-accept">FS / BD 欄位各自解析正確；重複版次 upsert 不重複新增；稽核 log 寫入</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-be"><td class="wbs-id">BE-04</td><td><span class="tag tag-bd">後端</span></td><td class="wbs-item">巡檢回應儲存</td><td class="fn-sheet">saveResponse() · _appendSubDefectStats()</td><td class="wbs-accept">回應 UUID 唯一；缺失明細行數與前端一致；BD 統計分頁同步更新</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-be"><td class="wbs-id">BE-05</td><td><span class="tag tag-bd">後端</span></td><td class="wbs-item">PDF 報告產生</td><td class="fn-sheet">generateReport() · _fillDocBody()</td><td class="wbs-accept">Docs 套版正確；照片嵌入；PDF 轉換成功；Email 收到含 Drive 連結</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-be"><td class="wbs-id">BE-06</td><td><span class="tag tag-bd">後端</span></td><td class="wbs-item">AI 缺失分析</td><td class="fn-sheet">gemini_helper.js · aiProcessResponse()</td><td class="wbs-accept">規則分類信心 ≥ 3 不呼叫 AI；每日配額不超過限制；Cache 命中率 > 30%</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-be"><td class="wbs-id">BE-07</td><td><span class="tag tag-bd">後端</span></td><td class="wbs-item">BI 資料 API</td><td class="fn-sheet">getResponsesAll / getDefectsAll</td><td class="wbs-accept">全量資料回傳 ≤ 5 秒；FS / BD type 篩選正確；座標欄位不為空</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+
+          <!-- 基礎設施 -->
+          <tr class="wbs-layer-inf"><td class="wbs-id">INF-01</td><td><span class="tag tag-ai">基礎設施</span></td><td class="wbs-item">Google Sheets 初始化</td><td class="fn-sheet">initSpreadsheetByType()</td><td class="wbs-accept">首次部署執行後所有分頁與標題列自動建立；不重複建立</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-inf"><td class="wbs-id">INF-02</td><td><span class="tag tag-ai">基礎設施</span></td><td class="wbs-item">ScriptProperties 設定</td><td class="fn-sheet">PropertiesService</td><td class="wbs-accept">所有必要 key（SPREADSHEET_ID 等）設定後系統正常啟動；缺少時回傳明確錯誤</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-inf"><td class="wbs-id">INF-03</td><td><span class="tag tag-ai">基礎設施</span></td><td class="wbs-item">BPM proxyToGAS.jsp</td><td class="fn-sheet">Tomcat 中介層</td><td class="wbs-accept">正式區（HTTPS）/ 測試區（HTTP）皆可代理；HMAC 注入不洩漏給前端</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-inf"><td class="wbs-id">INF-04</td><td><span class="tag tag-ai">基礎設施</span></td><td class="wbs-item">Google Drive 目錄結構</td><td class="fn-sheet">_getReportFolderByMonth()</td><td class="wbs-accept">依年/月/類型自動建立目錄；PDF 與照片各自分離；公開連結可存取</td><td><span class="tag tag-ok">✓ 完成</span></td></tr>
+          <tr class="wbs-layer-inf"><td class="wbs-id">INF-05</td><td><span class="tag tag-ai">基礎設施</span></td><td class="wbs-item">Gemini API 配額管理</td><td class="fn-sheet">gemini_helper.js · _checkQuotaAvailable()</td><td class="wbs-accept">每日上限可由 ScriptProperties 調整；超額時回傳 AI待分析；Trigger 重試機制正常</td><td><span class="tag tag-warn">⚠ 監控中</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div style="font-size:12px;color:var(--ink3)">
+      爭鮮 eCheck 巡檢系統 · 系統架構文件 v4 · 產生於 2026
+    </div>
+    <div style="display:flex;gap:10px">
+      <span class="tag tag-fs">食安 FS</span>
+      <span class="tag tag-bd">品牌評比 BD</span>
+      <span class="tag tag-ai">Gemini AI</span>
+      <span class="tag" style="background:#eff6ff;color:#2563eb">Google Apps Script</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Smooth scroll for nav links
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (id && id.startsWith('#')) {
+      e.preventDefault();
+      document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+// Active nav highlight on scroll
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.nav-links a');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => {
+        a.style.background = '';
+        a.style.color = '';
       });
-
-      /* ════════════════════════════
-         SCROLL SPY
-         ════════════════════════════ */
-      const allSections = document.querySelectorAll('section[id]');
-      const navItems = document.querySelectorAll('.nav-item');
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            navItems.forEach(n => n.classList.remove('active'));
-            const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
-            if (active) active.classList.add('active');
-          }
-        });
-      }, { threshold: 0.25 });
-      allSections.forEach(s => observer.observe(s));
-
-    })();
-  </script>
-
+      const active = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+      if (active) { active.style.background = 'var(--blue-l)'; active.style.color = 'var(--blue)'; }
+    }
+  });
+}, { threshold: 0.2 });
+sections.forEach(s => obs.observe(s));
+</script>
 </body>
-
 </html>
-
-<!-- 巡檢回應表（Google Sheet）
-┌──────────┬──────┬──────────┬─────────────────────────────────────┐
-│ store_id │ date │ type     │ pdf_path                            │
-├──────────┼──────┼──────────┼─────────────────────────────────────┤
-│ S001     │ 0401 │ food     │ 2026-04/food_S001_20260401_v2.pdf   │
-└──────────┴──────┴──────────┴─────────────────────────────────────┘
-最低建議：按月分層，不需到品牌/區
-/echeck_pdf/
-  2026-04/
-    food_S001_20260401_v2.pdf
-    eval_S001_20260401_v1.pdf
-  2026-05/
-    ...
-理由：
-
-ETL 進 BPM 後，pdf_path 欄位直接對應 pdf_index 表，不需再比對
-寫完整 Drive URL 的話，遷移本機時 Sheet 裡的連結全部失效
-相對路徑 + storage_config.base_path 組合，遷移只改一個地方（與先前設計一致）
-
-
--->
